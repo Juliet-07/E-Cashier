@@ -1,25 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import Signin from "./pages/signin";
+import PayWithId from "./pages/payWithId";
+import PayWithoutId from "./pages/payWithoutId";
+import PayWithCode from "./pages/payWithCode";
+import LandingPage from "./pages/LandingPage";
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Routes>
+      <Route path="/" element={<Signin />} />
+      <Route path="/landingpage" element={<LandingPage />} />
+      <Route path="/paywithid" element={<PayWithId />} />
+      <Route path="/paywithoutid" element={<PayWithoutId />} />
+      <Route path="/paywithcode" element={<PayWithCode />} />
+    </Routes>
   );
-}
-
+};
 export default App;
