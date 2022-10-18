@@ -1,26 +1,50 @@
 import React, { useState } from "react";
 import Logo from "../assets/ptbLogo.png";
 import ELogo from "../assets/e-cashierLogo.png";
-import { Link } from "react-router-dom";
+import { Link, Route } from "react-router-dom";
 import axios from "axios";
+import LandingPage from "./LandingPage";
+import Authorizer from "./authorizer";
 
 const Signin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // check user role
+  const userRole = async () => {
     try {
-      const resp = await axios.post(
-        "http://192.168.201.8/WebService/Service.asmx",
-        { email: email, password: password }
+      const response = await axios.post(
+        "http://192.168.207.18/ECashier/ECashService.asmx?wsdl/GetUserDetail",
+        { email: email }
       );
-      console.log(resp.data);
+      console.log(response.data);
+      // to-do: get user role from response.data
+      if (response.data.role === "initiator") {
+        return <Route path="/landingpage" element={<LandingPage />} />;
+      }
+      if (response.data.role === "authorizer") {
+        return <Route path="/approver" element={<Authorizer />} />;
+      }
     } catch (error) {
       console.log(error.response);
     }
   };
-  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const resp = await axios.post(
+        "http://192.168.201.8/WebService/Service.asmx?WSDL",
+        { email: email, password: password }
+      );
+      console.log(resp.data);
+      if (resp.data.email === email) {
+        return userRole();
+      }
+    } catch (error) {
+      console.log(error.response);
+    }
+  };
+
   return (
     <div className="w-full h-full">
       <img src={Logo} alt="PTB" className="w-[300px] h-[150px]" />

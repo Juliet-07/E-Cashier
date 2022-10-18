@@ -1,13 +1,38 @@
-import React from "react";
+import axios from "axios";
+import React, { useState } from "react";
 import Navbar from "../components/Navbar";
+import { encryptPayload } from "../shared/services/e-cashier-encryption.service";
 
 const PayWithId = () => {
+  const [customerRef, setCustomerref] = useState("");
+  const handleRequest = (e) => {
+    e.preventDefault();
+    encryptPayload({
+      BranchCode: "XPS",
+      value: customerRef,
+    }).then((response) => {
+      console.log(response.data);
+      getPaymentDetails(response.data);
+    });
+  };
+  const getPaymentDetails = (searchParams) => {
+    const url = `http://80.88.8.239:9011/api/ApiGateway/GetTransactionsbyTStatusId?request=${searchParams}`;
+    axios
+      .get(url)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => console.log(error));
+  };
   return (
     <>
       <Navbar />
       <div className="w-[1700px] h-[170px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
-        <form className="flex items-center justify-around m-4">
-          <div>
+        <form
+          className="flex items-center justify-around m-4"
+          onSubmit={handleRequest}
+        >
+          <div className="flex">
             <label
               htmlFor="ref"
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
@@ -19,9 +44,17 @@ const PayWithId = () => {
               id="ref"
               className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
               required
+              value={customerRef}
+              onChange={(e) => setCustomerref(e.target.value)}
             />
+            <button
+              type="submit"
+              className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-medium text-sm p-2.5 text-center w-[150px]"
+            >
+              Search
+            </button>
           </div>
-          <div>
+          {/* <div>
             <label
               htmlFor="countries"
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
@@ -43,7 +76,7 @@ const PayWithId = () => {
             >
               Search
             </button>
-          </div>
+          </div> */}
         </form>
       </div>
       <div className="mt-20 mb-2 font-bold text-xl flex items-center justify-center">
