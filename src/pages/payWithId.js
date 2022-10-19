@@ -1,34 +1,68 @@
 import axios from "axios";
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
-import { encryptPayload } from "../shared/services/e-cashier-encryption.service";
+import {
+  decryptPayload,
+  encryptPayload,
+} from "../shared/services/e-cashier-encryption.service";
 
-const PayWithId = () => {
+const PayWithId = (data) => {
   const [customerRef, setCustomerref] = useState("");
   const handleRequest = (e) => {
     e.preventDefault();
     encryptPayload({
       BranchCode: "XPS",
-      value: customerRef,
+      // TransactionStatusId: 4,
     }).then((response) => {
       console.log(response.data);
       getPaymentDetails(response.data);
     });
   };
   const getPaymentDetails = (searchParams) => {
-    const url = `http://80.88.8.239:9011/api/ApiGateway/GetTransactionsbyTStatusId?request=${searchParams}`;
+    // const url = `http://80.88.8.239:9011/api/ApiGateway/GetTransactionsbyTStatusId?request=${searchParams}`;
+    const url = `http://localhost:9011/api/ApiGateway/GetPaymentOptionsForPaymentItem?request=${searchParams}`;
     axios
       .get(url)
       .then((response) => {
-        console.log(response);
+        console.log(response.data);
+        return handleDecrypt(response.data.data);
       })
       .catch((error) => console.log(error));
+  };
+  const handleDecrypt = (encryptedData) => {
+    return decryptPayload(encryptedData).then((decryptResponse) => {
+      console.log("logging decrypted response", decryptResponse);
+    });
   };
   return (
     <>
       <Navbar />
       <div className="w-[1700px] h-[170px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
-        <form
+        <form className="flex items-center m-4 p-4" onSubmit={handleRequest}>
+          <div>
+            <label
+              htmlFor="ref"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+            >
+              Customer Reference
+            </label>
+            <input
+              type="text"
+              id="ref"
+              className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
+              required
+              value={customerRef}
+              onChange={(e) => setCustomerref(e.target.value)}
+            />
+          </div>
+          <button
+            type="submit"
+            className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-medium text-sm p-2.5 text-center w-[130px] h-[43px] mt-6 border border-red-600"
+          >
+            Search
+          </button>
+        </form>
+        {/* <form
           className="flex items-center justify-around m-4"
           onSubmit={handleRequest}
         >
@@ -47,14 +81,8 @@ const PayWithId = () => {
               value={customerRef}
               onChange={(e) => setCustomerref(e.target.value)}
             />
-            <button
-              type="submit"
-              className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-medium text-sm p-2.5 text-center w-[150px]"
-            >
-              Search
-            </button>
           </div>
-          {/* <div>
+          <div>
             <label
               htmlFor="countries"
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
@@ -67,7 +95,7 @@ const PayWithId = () => {
             >
               <option>United States</option>
               <option>Canada</option>
-              <option>France</option>
+              <option>France</option> 
               <option>Germany</option>
             </select>
             <button
@@ -76,8 +104,8 @@ const PayWithId = () => {
             >
               Search
             </button>
-          </div> */}
-        </form>
+          </div>
+        </form> */}
       </div>
       <div className="mt-20 mb-2 font-bold text-xl flex items-center justify-center">
         Payment Details
@@ -96,6 +124,7 @@ const PayWithId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="grid-first-name"
                 type="text"
+                // value={data.MerchantName}
                 // placeholder="Jane"
               />
             </div>
