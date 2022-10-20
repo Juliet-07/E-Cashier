@@ -11,7 +11,6 @@ exports.encryptPayload = async (payload) => {
     .post(url, requestBody)
     .then((response) => {
       const data = response.data;
-    //   console.log(data);
       return data;
     })
     .catch((error) => {
@@ -24,11 +23,10 @@ exports.decryptPayload = async (payload) => {
   const requestBody = {
     request: payload,
   };
-  await axios
+  return await axios
     .post(url, requestBody)
     .then((response) => {
       const data = response.data;
-      console.log(data);
       return data;
     })
     .catch((error) => {
