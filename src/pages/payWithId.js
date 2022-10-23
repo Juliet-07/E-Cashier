@@ -1,103 +1,130 @@
-import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import axios from "axios";
+import AsyncSelect from "react-select/async";
 import {
   decryptPayload,
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
 
-const PayWithId = (data) => {
+const PayWithId = () => {
   const [customerRef, setCustomerref] = useState("");
-  const handleRequest = (e) => {
-    e.preventDefault();
-    encryptPayload({
-      BranchCode: "XPS",
-      // TransactionStatusId: 4,
-    }).then((response) => {
-      console.log(response.data);
-      getPaymentDetails(response.data);
-    });
+  const [inputValue, setValue] = useState("");
+  const [selectedValue, setSelectedValue] = useState(null);
+  const navigate = useNavigate();
+
+  const handleInputChange = (value) => {
+    setValue(value);
   };
-  const getPaymentDetails = (searchParams) => {
-    // const url = `http://80.88.8.239:9011/api/ApiGateway/GetTransactionsbyTStatusId?request=${searchParams}`;
-    const url = `http://localhost:9011/api/ApiGateway/GetPaymentOptionsForPaymentItem?request=${searchParams}`;
-    axios
+
+  const handleChange = (value) => {
+    setSelectedValue(value);
+  };
+
+  // function to use merchant details across application
+  const getMerchantDetails = () => {
+    return JSON.parse(localStorage.getItem("Merchant"));
+  };
+
+  // function for the entire api flow;{encryption, getData, postTransaction & decryption}
+  const handleRequest = async (inputValue) => {
+    console.log({ inputValue });
+    let result;
+    await encryptPayload({
+      BranchCode: "XPS",
+      MerchantId: getMerchantDetails().MerchantId,
+    }).then(async (response) => {
+      result = await getMerchantPaymentItems(response.data);
+      console.log({ result });
+      // postTransaction(response.data);
+    });
+    return result;
+  };
+
+  // function to getData for Merchants Payment Items
+  const getMerchantPaymentItems = async (searchParams) => {
+    const url = `http://80.88.8.239:9011/api/ApiGateway/GetMerchantPaymentItems?request=${searchParams}`;
+    let result;
+    await axios
       .get(url)
+      .then(async (response) => {
+        // console.log(response.data);
+        result = await handleDecrypt(response.data.data);
+      })
+      .catch((error) => console.log(error));
+    return result;
+  };
+
+  // function to post transactions
+  const postTransaction = (searchParams) => {
+    const url = `http://80.88.8.239:9011/api/ApiGateway/PostTransaction?request=${searchParams}`;
+    axios
+      .post(url)
       .then((response) => {
         console.log(response.data);
         return handleDecrypt(response.data.data);
       })
       .catch((error) => console.log(error));
   };
-  const handleDecrypt = (encryptedData) => {
-    return decryptPayload(encryptedData).then((decryptResponse) => {
-      console.log("logging decrypted response", decryptResponse);
+
+  // function to decrypt encrypted data
+  const handleDecrypt = async (encryptedData) => {
+    let result;
+    await decryptPayload(encryptedData).then((decryptResponse) => {
+      decryptResponse.data = JSON.parse(decryptResponse.data);
+      result = decryptResponse.data;
+      console.log(result);
     });
+    return result;
   };
   return (
     <>
       <Navbar />
-      <div className="w-[1700px] h-[170px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
-        <form className="flex items-center m-4 p-4" onSubmit={handleRequest}>
-          <div>
-            <label
-              htmlFor="ref"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-            >
-              Customer Reference
-            </label>
-            <input
-              type="text"
-              id="ref"
-              className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
-              required
-              value={customerRef}
-              onChange={(e) => setCustomerref(e.target.value)}
-            />
+      <div className="mx-20 my-4 p-2 w-[1000px] h-10 font-semibold">
+        {getMerchantDetails().MerchantName}
+      </div>
+      <div className="h-[170px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
+        <form onSubmit={handleRequest}>
+          <div className="flex items-center justify-around m-4">
+            <div>
+              <label
+                htmlFor="ref"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+              >
+                Customer Reference
+              </label>
+              <input
+                type="text"
+                id="ref"
+                className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
+                // required
+                value={customerRef}
+                onChange={(e) => setCustomerref(e.target.value)}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="countries"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
+              >
+                Select Payment Items
+              </label>
+              <div className="w-[500px] border rounded border-red-600">
+                <AsyncSelect
+                  cacheOptions
+                  defaultOptions
+                  value={selectedValue}
+                  getOptionLabel={(e) => e.PaymentRevenueItemName}
+                  getOptionValue={(e) => e.MerchantId}
+                  loadOptions={handleRequest}
+                  onInputChange={handleInputChange}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
           </div>
-          <button
-            type="submit"
-            className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-medium text-sm p-2.5 text-center w-[130px] h-[43px] mt-6 border border-red-600"
-          >
-            Search
-          </button>
-        </form>
-        {/* <form
-          className="flex items-center justify-around m-4"
-          onSubmit={handleRequest}
-        >
-          <div className="flex">
-            <label
-              htmlFor="ref"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-            >
-              CustomerReference
-            </label>
-            <input
-              type="text"
-              id="ref"
-              className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
-              required
-              value={customerRef}
-              onChange={(e) => setCustomerref(e.target.value)}
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="countries"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
-            >
-              Select Payment Items
-            </label>
-            <select
-              id="countries"
-              className="bg-gray-50 border border-red-600 text-gray-900 text-sm p-2.5 w-[500px]"
-            >
-              <option>United States</option>
-              <option>Canada</option>
-              <option>France</option> 
-              <option>Germany</option>
-            </select>
+          <div className="flex items-end justify-end m-2">
             <button
               type="submit"
               className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-medium text-sm p-2.5 text-center w-[150px]"
@@ -105,12 +132,12 @@ const PayWithId = (data) => {
               Search
             </button>
           </div>
-        </form> */}
+        </form>
       </div>
       <div className="mt-20 mb-2 font-bold text-xl flex items-center justify-center">
         Payment Details
       </div>
-      <div className="w-[1700px] h-[700px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
+      <div className="h-[700px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
         <form className="m-4">
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -190,7 +217,7 @@ const PayWithId = (data) => {
             </div>
             <div className="w-full md:w-1/2 px-3">
               <label
-                for="countries"
+                htmlFor="countries"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
                 Tax Office

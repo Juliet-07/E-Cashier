@@ -1,48 +1,77 @@
 import React, { useState } from "react";
-import Typed from "react-typed";
-import { Link } from "react-router-dom";
-import Logo from "../assets/ptbLogo(1).png";
-import Delta from "../assets/deltaState.png";
-import Oyo from "../assets/oyoState.png";
-import Oysstf from "../assets/Oysstf.jpeg";
-import AsyncSelect from "react-select/async";
 import axios from "axios";
+import AsyncSelect from "react-select/async";
+import { Link, useNavigate } from "react-router-dom";
+import Logo from "../assets/ptbLogo(1).png";
+import Typed from "react-typed";
 import {
   encryptPayload,
   decryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
 
-const LandingPage = (data) => {
+const LandingPage = () => {
   const [inputValue, setValue] = useState("");
   const [selectedValue, setSelectedValue] = useState(null);
+  const navigate = useNavigate();
+
   const handleInputChange = (value) => {
     setValue(value);
   };
+
   const handleChange = (value) => {
     setSelectedValue(value);
   };
-  const handleRequest = () => {
-    encryptPayload({
+
+  // function for the entire api flow;{encryption, getData, decryption}
+  const handleRequest = async (inputValue) => {
+    console.log({ inputValue });
+    let result;
+    await encryptPayload({
       BranchCode: "XPS",
-    }).then((response) => {
-      console.log(response.data);
-      getAvailableMerchants(response.data);
+    }).then(async (response) => {
+      result = await getAvailableMerchants(response.data);
+      console.log({ result });
     });
+    return result;
   };
-  const getAvailableMerchants = (searchParams) => {
+
+  // function to getData for available Merchants
+  const getAvailableMerchants = async (searchParams) => {
     const url = `http://80.88.8.239:9011/api/ApiGateway/GetAvailableMerchants?request=${searchParams}`;
-    axios
+    let result;
+    await axios
       .get(url)
-      .then((response) => {
-        console.log(response.data);
-        return handleDecrypt(response.data.data);
+      .then(async (response) => {
+        // console.log(response.data);
+        result = await handleDecrypt(response.data.data);
       })
       .catch((error) => console.log(error));
+    return result;
   };
-  const handleDecrypt = (encryptedData) => {
-    decryptPayload(encryptedData).then((decryptResponse) => {
-      console.log("logging decrypted response", decryptResponse);
+
+  // function to decrypt encrypted data
+  const handleDecrypt = async (encryptedData) => {
+    let result;
+    await decryptPayload(encryptedData).then((decryptResponse) => {
+      // console.log("logging decrypted response", decryptResponse);
+      decryptResponse.data = JSON.parse(decryptResponse.data);
+      result = decryptResponse.data;
+      console.log(result);
     });
+    return result;
+  };
+
+  // button function
+  const redirectToPaymentOptions = () => {
+    navigate("/paywithid");
+  };
+
+  const saveMerchantDetails = () => {
+    if (selectedValue !== null) {
+      localStorage.setItem("Merchant", JSON.stringify(selectedValue));
+      return redirectToPaymentOptions();
+    }
+    return alert("Please select Merchant");
   };
   return (
     <>
@@ -70,17 +99,27 @@ const LandingPage = (data) => {
           Selected Value:{JSON.stringify(selectedValue || {}, null, 2)}
         </div>
         <div className="flex items-center justify-center">
-          <AsyncSelect
-            cacheOptions
-            defaultOptions
-            value={selectedValue}
-            getOptionLabel={(e) => e.merchantName}
-            getOptionValue={(e) => e.id}
-            loadOptions={handleRequest}
-            onInputChange={handleInputChange}
-            onChange={handleChange}
-          />
+          <div className="w-[500px]">
+            <AsyncSelect
+              cacheOptions
+              defaultOptions
+              value={selectedValue}
+              getOptionLabel={(e) => e.MerchantName}
+              getOptionValue={(e) => e.MerchantId}
+              loadOptions={handleRequest}
+              onInputChange={handleInputChange}
+              onChange={handleChange}
+              placeholder="Select Merchant"
+            />
+          </div>
           <div>
+            <button
+              onClick={saveMerchantDetails}
+              type="submit"
+              className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-medium text-sm p-2.5 text-center w-[100px]"
+            >
+              GO
+            </button>
             <div className="bg-red-700"></div>
           </div>
         </div>

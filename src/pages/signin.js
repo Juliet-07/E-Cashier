@@ -49,11 +49,10 @@ const Signin = () => {
     <div className="w-full h-full">
       <img src={Logo} alt="PTB" className="w-[300px] h-[150px]" />
       <div className="flex flex-col items-center justify-center">
-        {/* <h2 className="my-4 text-3xl font-bold">E-Cashier Application</h2> */}
         <div className="m-4">
           <img src={ELogo} alt="eCashier" />
         </div>
-        <div className="w-[500px] h-[550px] shadow-lg border border-red-600 px-[75px] py-[51px]">
+        <div className="w-[500px] h-[500px] shadow-lg border border-red-600 px-[75px] py-[51px]">
           <form onSubmit={handleSubmit}>
             <div className="mt-4">
               <label htmlFor="email" className="block text-sm text-gray-800">
