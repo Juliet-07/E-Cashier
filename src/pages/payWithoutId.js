@@ -10,12 +10,20 @@ import {
 } from "../shared/services/e-cashier-encryption.service";
 
 const PayWithoutId = () => {
-  const [payerName, setPayerName] = useState("");
-  const [payerEmail, setPayerEmail] = useState("");
-  const [payerPhone, setPayerPhone] = useState("");
-  const [payerAddress, setPayerAddress] = useState("");
   const [inputValue, setValue] = useState("");
   const { handleSubmit } = useForm();
+  const preFormValues = {
+    payerName: "",
+    payerEmail: "",
+    payerPhone: "",
+    payerAddress: "",
+  };
+  const [postDetails, setPostDetails] = useState(preFormValues);
+  const { payerName, payerEmail, payerAddress, payerPhone } = postDetails;
+  const handlePreFormValueChange = (e) => {
+    const { name, value } = e.target;
+    setPostDetails({ ...postDetails, [name]: value });
+  };
   const initialValues = {
     firstName: "",
     lastName: "",
@@ -29,10 +37,6 @@ const PayWithoutId = () => {
     taxOffice: "",
   };
   const [details, setDetails] = useState(initialValues);
-  const handleChange1 = (value) => {
-    // e.preventDefault();
-    setDetails(value);
-  };
   const {
     firstName,
     lastName,
@@ -45,25 +49,29 @@ const PayWithoutId = () => {
     conveniencyFee,
     taxOffice,
   } = details;
+  const handlePaymentDetailsFormChange = (e) => {
+    const { name, value } = e.target;
+    setDetails({ ...details, [name]: value });
+  };
   // sending received data to premium database.
   const url = "http://192.168.207.18:8091/CreateECashData";
   const createData = () => {
     try {
       fetch(url, {
         method: "POST",
-        body: details,
-        // body: {
-        //   firstName: details.firstName,
-        //   lastName: details.lastName,
-        //   email: details.email,
-        //   phone: details.phone,
-        //   address: details.address,
-        //   paymentAmount: details.paymentAmount,
-        //   paymentPeriod: details.paymentPeriod,
-        //   comment: details.comment,
-        //   conveniencyFee: details.conveniencyFee,
-        //   taxOffice: details.taxOffice,
-        // },
+        // body: details,
+        body: JSON.stringify({
+          firstName: details.firstName,
+          lastName: details.lastName,
+          email: details.email,
+          phone: details.phone,
+          address: details.address,
+          paymentAmount: details.paymentAmount,
+          paymentPeriod: details.paymentPeriod,
+          comment: details.comment,
+          conveniencyFee: details.conveniencyFee,
+          taxOffice: details.taxOffice,
+        }),
         headers: {
           "Content-type": "application/json",
         },
@@ -90,17 +98,24 @@ const PayWithoutId = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
 
-  // function for the entire api flow;{encryption, getData, postTransaction & decryption}
+  // function for the entire api flow;{encryption, getData, handleSearch & decryption}
   const handleRequest = async (inputValue) => {
     console.log({ inputValue });
     let result;
+    // const data = {
+    //   payerName: payerName,
+    //   payerEmail: payerEmail,
+    //   payerAddress: payerAddress,
+    //   payerPhone: payerPhone,
+    // };
+    // console.log(data, "form data");
     await encryptPayload({
       BranchCode: "XPS",
       MerchantId: getMerchantDetails().MerchantId,
+      // data: data,
     }).then(async (response) => {
       result = await getMerchantPaymentItems(response.data);
       console.log({ result });
-      // postTransaction(response.data);
     });
     return result;
   };
@@ -119,16 +134,22 @@ const PayWithoutId = () => {
     return result;
   };
 
-  // function to post transactions
-  const postTransaction = (searchParams) => {
+  // function to post transaction
+  const postRequest = (searchParams) => {
     const url = `http://80.88.8.239:9011/api/ApiGateway/PostTransaction?request=${searchParams}`;
     axios
-      .post(url)
+      .post(url, {})
       .then((response) => {
         console.log(response.data);
         return handleDecrypt(response.data.data);
       })
       .catch((error) => console.log(error));
+  };
+  const handleSearch = async (payLoad) => {
+    await encryptPayload(payLoad).then((response) => {
+      // console.log(response.data);
+      return postRequest(response.data);
+    });
   };
 
   // function to decrypt encrypted data
@@ -148,7 +169,7 @@ const PayWithoutId = () => {
         {getMerchantDetails().MerchantName}
       </div>
       <div className="h-[500px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
-        <form className="m-4">
+        <form className="m-4" onSubmit={handleSubmit(handleRequest)}>
           <div className="flex">
             <div className="mr-20">
               <label
@@ -162,8 +183,9 @@ const PayWithoutId = () => {
                 id="ref"
                 className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
                 required
+                name="payerName"
                 value={payerName}
-                onChange={(e) => setPayerName(e.target.value)}
+                onChange={handlePreFormValueChange}
               />
             </div>
             <div>
@@ -199,8 +221,9 @@ const PayWithoutId = () => {
               id="ref"
               className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
               required
+              name="payerPhone"
               value={payerPhone}
-              onChange={(e) => setPayerPhone(e.target.value)}
+              onChange={handlePreFormValueChange}
             />
           </div>
           <div className="mt-4">
@@ -215,8 +238,9 @@ const PayWithoutId = () => {
               id="ref"
               className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
               required
+              name="payerEmail"
               value={payerEmail}
-              onChange={(e) => setPayerEmail(e.target.value)}
+              onChange={handlePreFormValueChange}
             />
           </div>
           <div className="mt-4">
@@ -231,12 +255,23 @@ const PayWithoutId = () => {
               id="ref"
               className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
               required
+              name="payerAddress"
               value={payerAddress}
-              onChange={(e) => setPayerAddress(e.target.value)}
+              onChange={handlePreFormValueChange}
             />
           </div>
           <div className="flex items-end justify-end m-4">
             <button
+              onClick={() =>
+                handleSearch({
+                  payerName,
+                  payerEmail,
+                  payerAddress,
+                  payerPhone,
+                  MerchantId: getMerchantDetails().MerchantId,
+                  BranchCode: "XPS",
+                })
+              }
               type="submit"
               className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-medium text-sm p-2.5 text-center w-[200px]"
             >
@@ -262,8 +297,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="grid-first-name"
                 type="text"
+                name="firstName"
                 value={firstName}
-                onChange={handleChange1}
+                onChange={handlePaymentDetailsFormChange}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -277,8 +313,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="grid-last-name"
                 type="text"
+                name="lastName"
                 value={lastName}
-                onChange={handleChange1}
+                onChange={handlePaymentDetailsFormChange}
               />
             </div>
           </div>
@@ -294,8 +331,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="number"
                 type="text"
+                name="phone"
                 value={phone}
-                onChange={handleChange1}
+                onChange={handlePaymentDetailsFormChange}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -309,8 +347,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="grid-last-name"
                 type="text"
+                name="address"
                 value={address}
-                onChange={handleChange1}
+                onChange={handlePaymentDetailsFormChange}
               />
             </div>
           </div>
@@ -326,8 +365,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="email"
                 type="text"
+                name="email"
                 value={email}
-                onChange={handleChange1}
+                onChange={handlePaymentDetailsFormChange}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -360,8 +400,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="amount"
                 type="text"
+                name="paymentAmount"
                 value={paymentAmount}
-                onChange={handleChange1}
+                onChange={handlePaymentDetailsFormChange}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -375,8 +416,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="period"
                 type="text"
+                name="paymentPeriod"
                 value={paymentPeriod}
-                onChange={handleChange1}
+                onChange={handlePaymentDetailsFormChange}
               />
             </div>
           </div>
@@ -392,8 +434,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="fee"
                 type="text"
+                name="conveniencyFee"
                 value={conveniencyFee}
-                onChange={handleChange1}
+                onChange={handlePaymentDetailsFormChange}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -407,8 +450,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="comment"
                 type="text"
+                name="comment"
                 value={comment}
-                onChange={handleChange1}
+                onChange={handlePaymentDetailsFormChange}
               />
             </div>
           </div>
