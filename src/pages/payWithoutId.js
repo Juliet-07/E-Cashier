@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import Navbar from "../components/Navbar";
 import axios from "axios";
 import AsyncSelect from "react-select/async";
@@ -14,6 +15,65 @@ const PayWithoutId = () => {
   const [payerPhone, setPayerPhone] = useState("");
   const [payerAddress, setPayerAddress] = useState("");
   const [inputValue, setValue] = useState("");
+  const { handleSubmit } = useForm();
+  const initialValues = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    paymentAmount: "",
+    paymentPeriod: "",
+    comment: "",
+    conveniencyFee: "",
+    taxOffice: "",
+  };
+  const [details, setDetails] = useState(initialValues);
+  const handleChange1 = (value) => {
+    // e.preventDefault();
+    setDetails(value);
+  };
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    address,
+    paymentAmount,
+    paymentPeriod,
+    comment,
+    conveniencyFee,
+    taxOffice,
+  } = details;
+  // sending received data to premium database.
+  const url = "http://192.168.207.18:8091/CreateECashData";
+  const createData = () => {
+    try {
+      fetch(url, {
+        method: "POST",
+        body: details,
+        // body: {
+        //   firstName: details.firstName,
+        //   lastName: details.lastName,
+        //   email: details.email,
+        //   phone: details.phone,
+        //   address: details.address,
+        //   paymentAmount: details.paymentAmount,
+        //   paymentPeriod: details.paymentPeriod,
+        //   comment: details.comment,
+        //   conveniencyFee: details.conveniencyFee,
+        //   taxOffice: details.taxOffice,
+        // },
+        headers: {
+          "Content-type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((json) => console.log(json));
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   const [selectedValue, setSelectedValue] = useState(null);
   const navigate = useNavigate();
 
@@ -189,7 +249,7 @@ const PayWithoutId = () => {
         Payment Details
       </div>
       <div className="h-[700px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
-        <form className="m-4">
+        <form className="m-4" onSubmit={handleSubmit(createData)}>
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
@@ -202,7 +262,8 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="grid-first-name"
                 type="text"
-                // placeholder="Jane"
+                value={firstName}
+                onChange={handleChange1}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -216,7 +277,8 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="grid-last-name"
                 type="text"
-                // placeholder="Doe"
+                value={lastName}
+                onChange={handleChange1}
               />
             </div>
           </div>
@@ -232,7 +294,8 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="number"
                 type="text"
-                // placeholder="Jane"
+                value={phone}
+                onChange={handleChange1}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -246,7 +309,8 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="grid-last-name"
                 type="text"
-                // placeholder="Doe"
+                value={address}
+                onChange={handleChange1}
               />
             </div>
           </div>
@@ -262,12 +326,13 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="email"
                 type="text"
-                // placeholder="Jane"
+                value={email}
+                onChange={handleChange1}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
               <label
-                for="countries"
+                htmlFor="countries"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
                 Tax Office
@@ -295,7 +360,8 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="amount"
                 type="text"
-                // placeholder="Jane"
+                value={paymentAmount}
+                onChange={handleChange1}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -309,7 +375,8 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="period"
                 type="text"
-                // placeholder="Doe"
+                value={paymentPeriod}
+                onChange={handleChange1}
               />
             </div>
           </div>
@@ -325,7 +392,8 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="fee"
                 type="text"
-                // placeholder="Jane"
+                value={conveniencyFee}
+                onChange={handleChange1}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -339,7 +407,8 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="comment"
                 type="text"
-                // placeholder="Doe"
+                value={comment}
+                onChange={handleChange1}
               />
             </div>
           </div>
