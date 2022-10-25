@@ -13,13 +13,13 @@ const PayWithoutId = () => {
   const [inputValue, setValue] = useState("");
   const { handleSubmit } = useForm();
   const preFormValues = {
-    payerName: "",
-    payerEmail: "",
-    payerPhone: "",
-    payerAddress: "",
+    PayerName: "",
+    PayerEmail: "",
+    PayerPhone: "",
+    PayerAddress: "",
   };
   const [postDetails, setPostDetails] = useState(preFormValues);
-  const { payerName, payerEmail, payerAddress, payerPhone } = postDetails;
+  const { PayerName, PayerEmail, PayerAddress, PayerPhone } = postDetails;
   const handlePreFormValueChange = (e) => {
     const { name, value } = e.target;
     setPostDetails({ ...postDetails, [name]: value });
@@ -98,21 +98,12 @@ const PayWithoutId = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
 
-  // function for the entire api flow;{encryption, getData, handleSearch & decryption}
-  const handleRequest = async (inputValue) => {
-    console.log({ inputValue });
+  // function for the entire api flow;{encryption, getData, handlePostRequest & decryption}
+  const handleRequest = async () => {
     let result;
-    // const data = {
-    //   payerName: payerName,
-    //   payerEmail: payerEmail,
-    //   payerAddress: payerAddress,
-    //   payerPhone: payerPhone,
-    // };
-    // console.log(data, "form data");
     await encryptPayload({
       BranchCode: "XPS",
       MerchantId: getMerchantDetails().MerchantId,
-      // data: data,
     }).then(async (response) => {
       result = await getMerchantPaymentItems(response.data);
       console.log({ result });
@@ -135,21 +126,41 @@ const PayWithoutId = () => {
   };
 
   // function to post transaction
-  const postRequest = (searchParams) => {
+  const handlePostRequest = async () => {
+    let result;
+    await encryptPayload({
+      // MerchantId: getMerchantDetails().MerchantId,
+      MerchantId: 1,
+      BankBranchCode: "XPS",
+      PaymentOptionId: 301,
+      CreatedBy: "Test",
+      PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 2 }],
+      PayerDetails: postDetails,
+      PaymentOptionItems: {
+        AssessmentReference: "",
+        CustomerReference: "",
+        BillReference: "",
+      },
+    }).then(async (response) => {
+      console.log(response.data);
+      result = await postRequest(response.data);
+      console.log({ result });
+    });
+    return result;
+  };
+
+  const postRequest = async (searchParams) => {
     const url = `http://80.88.8.239:9011/api/ApiGateway/PostTransaction?request=${searchParams}`;
-    axios
-      .post(url, {})
-      .then((response) => {
-        console.log(response.data);
-        return handleDecrypt(response.data.data);
+    let result;
+    await axios
+      .post(url)
+      .then(async (response) => {
+        console.log(response.data, "response from post request");
+        result = await handleDecrypt(response.data.data);
+        console.log("decrypted result", result);
       })
       .catch((error) => console.log(error));
-  };
-  const handleSearch = async (payLoad) => {
-    await encryptPayload(payLoad).then((response) => {
-      // console.log(response.data);
-      return postRequest(response.data);
-    });
+    return result;
   };
 
   // function to decrypt encrypted data
@@ -169,7 +180,7 @@ const PayWithoutId = () => {
         {getMerchantDetails().MerchantName}
       </div>
       <div className="h-[500px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
-        <form className="m-4" onSubmit={handleSubmit(handleRequest)}>
+        <form className="m-4" onSubmit={handleSubmit(handlePostRequest)}>
           <div className="flex">
             <div className="mr-20">
               <label
@@ -183,8 +194,8 @@ const PayWithoutId = () => {
                 id="ref"
                 className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
                 required
-                name="payerName"
-                value={payerName}
+                name="PayerName"
+                value={PayerName}
                 onChange={handlePreFormValueChange}
               />
             </div>
@@ -221,8 +232,8 @@ const PayWithoutId = () => {
               id="ref"
               className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
               required
-              name="payerPhone"
-              value={payerPhone}
+              name="PayerPhone"
+              value={PayerPhone}
               onChange={handlePreFormValueChange}
             />
           </div>
@@ -238,8 +249,8 @@ const PayWithoutId = () => {
               id="ref"
               className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
               required
-              name="payerEmail"
-              value={payerEmail}
+              name="PayerEmail"
+              value={PayerEmail}
               onChange={handlePreFormValueChange}
             />
           </div>
@@ -255,23 +266,13 @@ const PayWithoutId = () => {
               id="ref"
               className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
               required
-              name="payerAddress"
-              value={payerAddress}
+              name="PayerAddress"
+              value={PayerAddress}
               onChange={handlePreFormValueChange}
             />
           </div>
           <div className="flex items-end justify-end m-4">
             <button
-              onClick={() =>
-                handleSearch({
-                  payerName,
-                  payerEmail,
-                  payerAddress,
-                  payerPhone,
-                  MerchantId: getMerchantDetails().MerchantId,
-                  BranchCode: "XPS",
-                })
-              }
               type="submit"
               className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-medium text-sm p-2.5 text-center w-[200px]"
             >

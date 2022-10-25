@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import Logo from "../assets/ptbLogo.png";
 import ELogo from "../assets/e-cashierLogo.png";
 import { Link, Route } from "react-router-dom";
@@ -7,15 +8,49 @@ import LandingPage from "./LandingPage";
 import Authorizer from "./authorizer";
 
 const Signin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  // https://192.168.201.46/Intranet/User/login-user
-  // check user role
+  const { handleSubmit } = useForm();
+  const initialValues = {
+    username: "",
+    password: "",
+  };
+  const [loginDetails, setLoginDetails] = useState(initialValues);
+  const { username, password } = loginDetails;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLoginDetails({ ...loginDetails, [name]: value });
+  };
+
+  // function to validate user through ActiveDirectory
+  const loginUrl =
+    "http://192.168.207.8:2022/api/ActiveDirectory/AuthenticateUser";
+  const handleLoginValidation = () => {
+    try {
+      fetch(loginUrl, {
+        method: "POST",
+        body: JSON.stringify({
+          username: loginDetails.username,
+          password: loginDetails.password,
+        }),
+      }).then((response) => console.log(response));
+      // .then((user) => {
+      //   console.log(user);
+      //   let userDetails = JSON.stringify(user);
+      //   localStorage.setItem("PremiumPeople", userDetails);
+      // });
+      // if (resp.data.username === username) {
+      //   return userRole();
+      // }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  // function to check user role and route to specific page
   const userRole = async () => {
     try {
-      const response = await axios.post(
-        "http://192.168.207.18/ECashier/ECashService.asmx?wsdl/GetUserDetail",
-        { email: email }
+      const response = await axios.get(
+        "http://192.168.207.18:8091/GetUserDetail",
+        { username: username }
       );
       console.log(response.data);
       // to-do: get user role from response.data
@@ -24,21 +59,6 @@ const Signin = () => {
       }
       if (response.data.role === "authorizer") {
         return <Route path="/approver" element={<Authorizer />} />;
-      }
-    } catch (error) {
-      console.log(error.response);
-    }
-  };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const resp = await axios.post(
-        "http://192.168.201.8/WebService/Service.asmx?WSDL",
-        { email: email, password: password }
-      );
-      console.log(resp.data);
-      if (resp.data.email === email) {
-        return userRole();
       }
     } catch (error) {
       console.log(error.response);
@@ -53,16 +73,17 @@ const Signin = () => {
           <img src={ELogo} alt="eCashier" />
         </div>
         <div className="w-[500px] h-[500px] shadow-lg border border-red-600 px-[75px] py-[51px]">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(handleLoginValidation)}>
             <div className="mt-4">
-              <label htmlFor="email" className="block text-sm text-gray-800">
-                Email
+              <label htmlFor="username" className="block text-sm text-gray-800">
+                Username
               </label>
               <input
-                type="email"
+                type="text"
                 className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border rounded-md focus:border-red-400 focus:ring-red-300 focus:outline-none focus:ring focus:ring-opacity-40"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="username"
+                value={username}
+                onChange={handleChange}
                 required
               />
             </div>
@@ -73,8 +94,9 @@ const Signin = () => {
               <input
                 type="password"
                 className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border rounded-md focus:border-red-400 focus:ring-red-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                name="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handleChange}
               />
             </div>
             <div className="mt-20">
