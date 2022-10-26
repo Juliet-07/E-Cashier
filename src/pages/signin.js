@@ -21,30 +21,16 @@ const Signin = () => {
   };
 
   // function to validate user through ActiveDirectory
-  const loginUrl =
-    "http://192.168.207.8:2022/api/ActiveDirectory/AuthenticateUser";
   const handleLoginValidation = () => {
-    try {
-      fetch(loginUrl, {
-        method: "POST",
-        body: JSON.stringify({
-          username: loginDetails.username,
-          password: loginDetails.password,
-        }),
-      }).then((response) => console.log(response));
-      // .then((user) => {
-      //   console.log(user);
-      //   let userDetails = JSON.stringify(user);
-      //   localStorage.setItem("PremiumPeople", userDetails);
-      // });
-      // if (resp.data.username === username) {
-      //   return userRole();
-      // }
-    } catch (error) {
-      console.log(error.message);
-    }
+    fetch(
+      `http://192.168.207.8:8080/api/ActiveDirectory/AuthenticateUser?userName=${username}&password=${password}`,
+      {
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      }
+    ).then((response) => console.log(response, "response from login"));
   };
-
   // function to check user role and route to specific page
   const userRole = async () => {
     try {

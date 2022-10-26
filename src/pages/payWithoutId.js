@@ -8,6 +8,7 @@ import {
   decryptPayload,
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
+import TaxOffice from "../components/TaxOffice";
 
 const PayWithoutId = () => {
   const [inputValue, setValue] = useState("");
@@ -124,7 +125,16 @@ const PayWithoutId = () => {
       .catch((error) => console.log(error));
     return result;
   };
-
+  const savePaymentDetails = () => {
+    if (selectedValue !== null) {
+      localStorage.setItem("PaymentDetails", JSON.stringify(selectedValue));
+      // return redirectToPaymentOptions();
+    }
+    return savePaymentDetails();
+  };
+  const getPaymentDetails = () => {
+    return JSON.parse(localStorage.getItem("PaymentDetails"));
+  };
   // function to post transaction
   const handlePostRequest = async () => {
     let result;
@@ -134,6 +144,8 @@ const PayWithoutId = () => {
       BankBranchCode: "XPS",
       PaymentOptionId: 301,
       CreatedBy: "Test",
+      // PaymentItem: getPaymentDetails().PaymentItemId,
+      // PaymentItems: [getPaymentDetails().PaymentItemId],
       PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 2 }],
       PayerDetails: postDetails,
       PaymentOptionItems: {
@@ -178,6 +190,7 @@ const PayWithoutId = () => {
       <Navbar />
       <div className="mx-20 my-4 p-2 w-[1000px] h-10 font-semibold">
         {getMerchantDetails().MerchantName}
+        {/* {getPaymentDetails().PaymentName} */}
       </div>
       <div className="h-[500px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
         <form className="m-4" onSubmit={handleSubmit(handlePostRequest)}>
@@ -212,7 +225,7 @@ const PayWithoutId = () => {
                   defaultOptions
                   value={selectedValue}
                   getOptionLabel={(e) => e.PaymentRevenueItemName}
-                  getOptionValue={(e) => e.MerchantId}
+                  getOptionValue={(e) => e.PaymentRevenueItemNameId}
                   loadOptions={handleRequest}
                   onInputChange={handleInputChange}
                   onChange={handleChange}
@@ -378,7 +391,8 @@ const PayWithoutId = () => {
               >
                 Tax Office
               </label>
-              <select
+              <TaxOffice />
+              {/* <select
                 id="countries"
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
               >
@@ -386,7 +400,7 @@ const PayWithoutId = () => {
                 <option>Canada</option>
                 <option>France</option>
                 <option>Germany</option>
-              </select>
+              </select> */}
             </div>
           </div>
           <div className="flex flex-wrap -mx-3 mb-6">

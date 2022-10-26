@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import Navbar from "../components/Navbar";
 import axios from "axios";
 import AsyncSelect from "react-select/async";
@@ -9,8 +10,9 @@ import {
 } from "../shared/services/e-cashier-encryption.service";
 
 const PayWithId = () => {
-  const [customerRef, setCustomerref] = useState("");
+  const [CustomerReference, setCustomerReference] = useState("");
   const [inputValue, setValue] = useState("");
+  const { handleSubmit } = useForm();
   const [selectedValue, setSelectedValue] = useState(null);
   const navigate = useNavigate();
 
@@ -37,7 +39,6 @@ const PayWithId = () => {
     }).then(async (response) => {
       result = await getMerchantPaymentItems(response.data);
       console.log({ result });
-      // postTransaction(response.data);
     });
     return result;
   };
@@ -56,16 +57,43 @@ const PayWithId = () => {
     return result;
   };
 
-  // function to post transactions
-  const postTransaction = (searchParams) => {
+  // function to post transaction
+  const handlePostRequest = async () => {
+    let result;
+    await encryptPayload({
+      // MerchantId: getMerchantDetails().MerchantId,
+      MerchantId: 1,
+      BankBranchCode: "XPS",
+      PaymentOptionId: 300,
+      CreatedBy: "Test",
+      // PaymentItem: getPaymentDetails().PaymentItemId,
+      // PaymentItems: [getPaymentDetails().PaymentItemId],
+      PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 2 }],
+      PaymentOptionItems: {
+        AssessmentReference: "",
+        CustomerReference: CustomerReference,
+        BillReference: "",
+      },
+    }).then(async (response) => {
+      console.log(response.data);
+      result = await postRequest(response.data);
+      console.log({ result });
+    });
+    return result;
+  };
+
+  const postRequest = async (searchParams) => {
     const url = `http://80.88.8.239:9011/api/ApiGateway/PostTransaction?request=${searchParams}`;
-    axios
+    let result;
+    await axios
       .post(url)
-      .then((response) => {
-        console.log(response.data);
-        return handleDecrypt(response.data.data);
+      .then(async (response) => {
+        console.log(response.data, "response from post request");
+        result = await handleDecrypt(response.data.data);
+        console.log("decrypted result", result);
       })
       .catch((error) => console.log(error));
+    return result;
   };
 
   // function to decrypt encrypted data
@@ -85,7 +113,7 @@ const PayWithId = () => {
         {getMerchantDetails().MerchantName}
       </div>
       <div className="h-[170px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
-        <form onSubmit={handleRequest}>
+        <form onSubmit={handleSubmit(handlePostRequest)}>
           <div className="flex items-center justify-around m-4">
             <div>
               <label
@@ -99,8 +127,8 @@ const PayWithId = () => {
                 id="ref"
                 className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
                 // required
-                value={customerRef}
-                onChange={(e) => setCustomerref(e.target.value)}
+                value={CustomerReference}
+                onChange={(e) => setCustomerReference(e.target.value)}
               />
             </div>
             <div>
