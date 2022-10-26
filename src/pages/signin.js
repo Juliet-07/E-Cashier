@@ -29,25 +29,38 @@ const Signin = () => {
           "Content-type": "application/json; charset=UTF-8",
         },
       }
-    ).then((response) => console.log(response, "response from login"));
+    )
+      .then((response) => {
+        console.log(response, "checking");
+        if (response.status === 200) {
+          userRole();
+        } else alert("User does not exist");
+      })
+      .catch((error) => console.log(error));
   };
+
   // function to check user role and route to specific page
   const userRole = async () => {
     try {
       const response = await axios.get(
-        "http://192.168.207.18:8091/GetUserDetail",
-        { username: username }
+        `http://192.168.207.18:8091/GetUserDetail?UserID=${username}`
       );
       console.log(response.data);
       // to-do: get user role from response.data
-      if (response.data.role === "initiator") {
+      if (
+        response.data.result.length &&
+        response.data.result[0].role === "initiator"
+      ) {
         return <Route path="/landingpage" element={<LandingPage />} />;
       }
-      if (response.data.role === "authorizer") {
+      if (
+        response.data.result.length &&
+        response.data.result[0].role === "authorizer"
+      ) {
         return <Route path="/approver" element={<Authorizer />} />;
       }
     } catch (error) {
-      console.log(error.response);
+      console.log(error);
     }
   };
 

@@ -26,7 +26,7 @@ const PayWithoutId = () => {
     setPostDetails({ ...postDetails, [name]: value });
   };
   const initialValues = {
-    firstName: "",
+    name: "",
     lastName: "",
     email: "",
     phone: "",
@@ -39,8 +39,7 @@ const PayWithoutId = () => {
   };
   const [details, setDetails] = useState(initialValues);
   const {
-    firstName,
-    lastName,
+    name,
     email,
     phone,
     address,
@@ -62,8 +61,7 @@ const PayWithoutId = () => {
         method: "POST",
         // body: details,
         body: JSON.stringify({
-          firstName: details.firstName,
-          lastName: details.lastName,
+          name: details.name,
           email: details.email,
           phone: details.phone,
           address: details.address,
@@ -144,8 +142,6 @@ const PayWithoutId = () => {
       BankBranchCode: "XPS",
       PaymentOptionId: 301,
       CreatedBy: "Test",
-      // PaymentItem: getPaymentDetails().PaymentItemId,
-      // PaymentItems: [getPaymentDetails().PaymentItemId],
       PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 2 }],
       PayerDetails: postDetails,
       PaymentOptionItems: {
@@ -190,7 +186,6 @@ const PayWithoutId = () => {
       <Navbar />
       <div className="mx-20 my-4 p-2 w-[1000px] h-10 font-semibold">
         {getMerchantDetails().MerchantName}
-        {/* {getPaymentDetails().PaymentName} */}
       </div>
       <div className="h-[500px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
         <form className="m-4" onSubmit={handleSubmit(handlePostRequest)}>
@@ -305,30 +300,30 @@ const PayWithoutId = () => {
                 className="block tracking-wide text-black text-xs font-bold mb-2"
                 htmlFor="grid-first-name"
               >
-                First Name
+                Name
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="grid-first-name"
                 type="text"
-                name="firstName"
-                value={firstName}
+                name="name"
+                value={name}
                 onChange={handlePaymentDetailsFormChange}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
               <label
-                className="block tracking-wide text-gray-700 text-xs font-bold mb-2"
-                htmlFor="grid-last-name"
+                className="block tracking-wide text-black text-xs font-bold mb-2"
+                htmlFor="email"
               >
-                Last Name
+                Email
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="grid-last-name"
+                id="email"
                 type="text"
-                name="lastName"
-                value={lastName}
+                name="email"
+                value={email}
                 onChange={handlePaymentDetailsFormChange}
               />
             </div>
@@ -367,7 +362,7 @@ const PayWithoutId = () => {
               />
             </div>
           </div>
-          <div className="flex flex-wrap -mx-3 mb-6">
+          {/* <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
                 className="block tracking-wide text-black text-xs font-bold mb-2"
@@ -392,17 +387,8 @@ const PayWithoutId = () => {
                 Tax Office
               </label>
               <TaxOffice />
-              {/* <select
-                id="countries"
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-              >
-                <option>United States</option>
-                <option>Canada</option>
-                <option>France</option>
-                <option>Germany</option>
-              </select> */}
             </div>
-          </div>
+          </div> */}
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
