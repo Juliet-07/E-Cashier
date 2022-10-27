@@ -1,9 +1,12 @@
-import React from 'react'
+import React from "react";
+import Navbar from "../components/AuthorizerNavbar";
 
 const Authorizer = () => {
   return (
-    <div>Authorizer</div>
-  )
-}
+    <div>
+      <Navbar />
+    </div>
+  );
+};
 
-export default Authorizer
+export default Authorizer;

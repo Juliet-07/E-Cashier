@@ -1,13 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 import Logo from "../assets/ptbLogo.png";
 import ELogo from "../assets/e-cashierLogo.png";
-import { Link, Route } from "react-router-dom";
-import axios from "axios";
-import LandingPage from "./LandingPage";
-import Authorizer from "./authorizer";
 
 const Signin = () => {
+  const navigate = useNavigate();
   const { handleSubmit } = useForm();
   const initialValues = {
     username: "",
@@ -45,19 +44,20 @@ const Signin = () => {
       const response = await axios.get(
         `http://192.168.207.18:8091/GetUserDetail?UserID=${username}`
       );
-      console.log(response.data);
+      console.log(response.data.result);
+      console.log(response.data.result[0].role, "checking role");
       // to-do: get user role from response.data
       if (
         response.data.result.length &&
-        response.data.result[0].role === "initiator"
+        response.data.result[0].role === "INITIATOR"
       ) {
-        return <Route path="/landingpage" element={<LandingPage />} />;
+        return navigate("/landingpage");
       }
       if (
         response.data.result.length &&
-        response.data.result[0].role === "authorizer"
+        response.data.result[0].role === "AUTHORISER"
       ) {
-        return <Route path="/approver" element={<Authorizer />} />;
+        return navigate("/authorizer");
       }
     } catch (error) {
       console.log(error);

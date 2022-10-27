@@ -12,7 +12,7 @@ const App = () => {
     <Routes>
       <Route path="/" element={<Signin />} />
       <Route path="/landingpage" element={<LandingPage />} />
-      <Route path="/approver" element={<Authorizer />} />
+      <Route path="/authorizer" element={<Authorizer />} />
       <Route path="/paywithid" element={<PayWithId />} />
       <Route path="/paywithoutid" element={<PayWithoutId />} />
       <Route path="/paywithcode" element={<PayWithCode />} />

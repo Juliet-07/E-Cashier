@@ -68,3 +68,13 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+todo
+
+1. redirecting {initiator and authorizer} (done)
+2. render name of users in respective pages
+3. build authorizer flow.
+4. save payment item detials to local storage and use accross pages.
+5. build select payment items dropdown as a component
+6. render payment detials in the form
+7. submit to database using shina's api
