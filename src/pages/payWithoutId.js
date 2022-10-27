@@ -31,7 +31,7 @@ const PayWithoutId = () => {
     email: "",
     phone: "",
     address: "",
-    paymentAmount: "",
+    paymentAmount: 0,
     paymentPeriod: "",
     comment: "",
     conveniencyFee: "",
@@ -49,7 +49,7 @@ const PayWithoutId = () => {
     conveniencyFee,
     taxOffice,
   } = details;
-  const handlePaymentDetailsFormChange = (e) => {
+  const changePaymentDetails = (e) => {
     const { name, value } = e.target;
     setDetails({ ...details, [name]: value });
   };
@@ -77,6 +77,7 @@ const PayWithoutId = () => {
       })
         .then((res) => res.json())
         .then((json) => console.log(json));
+        alert("SENT")
     } catch (error) {
       console.log(error.message);
     }
@@ -166,6 +167,17 @@ const PayWithoutId = () => {
         console.log(response.data, "response from post request");
         result = await handleDecrypt(response.data.data);
         console.log("decrypted result", result);
+        console.log("checking details", result.payerDetails.PayerName);
+        const detail = result.payerDetails;
+        const figure = result.paymentItemDetails;
+        console.log(detail, "confirm here");
+        setDetails({
+          name: detail.PayerName,
+          email: detail.PayerEmail,
+          phone: detail.PayerPhone,
+          address: detail.PayerAddress,
+          paymentAmount: figure[0].amount,
+        });
       })
       .catch((error) => console.log(error));
     return result;
@@ -308,7 +320,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="name"
                 value={name}
-                onChange={handlePaymentDetailsFormChange}
+                defaultValue
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -324,7 +336,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="email"
                 value={email}
-                onChange={handlePaymentDetailsFormChange}
+                defaultValue
               />
             </div>
           </div>
@@ -342,7 +354,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="phone"
                 value={phone}
-                onChange={handlePaymentDetailsFormChange}
+                defaultValue
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -358,7 +370,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="address"
                 value={address}
-                onChange={handlePaymentDetailsFormChange}
+                defaultValue
               />
             </div>
           </div>
@@ -376,7 +388,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="email"
                 value={email}
-                onChange={handlePaymentDetailsFormChange}
+                onChange={(e) => changePaymentDetails(e, 'name')}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -403,7 +415,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="paymentAmount"
                 value={paymentAmount}
-                onChange={handlePaymentDetailsFormChange}
+                onChange={(e) => changePaymentDetails(e, "paymentAmount")}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -419,7 +431,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="paymentPeriod"
                 value={paymentPeriod}
-                onChange={handlePaymentDetailsFormChange}
+                onChange={(e) => changePaymentDetails(e, "paymentPeriod")}
               />
             </div>
           </div>
@@ -437,7 +449,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="conveniencyFee"
                 value={conveniencyFee}
-                onChange={handlePaymentDetailsFormChange}
+                onChange={(e) => changePaymentDetails(e, "conveniencyFee")}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -453,7 +465,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="comment"
                 value={comment}
-                onChange={handlePaymentDetailsFormChange}
+                onChange={(e) => changePaymentDetails(e, "comment")}
               />
             </div>
           </div>

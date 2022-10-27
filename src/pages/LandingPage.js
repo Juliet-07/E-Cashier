@@ -73,6 +73,10 @@ const LandingPage = () => {
     }
     return alert("Please select Merchant");
   };
+
+  const getUserName = () => {
+    return localStorage.getItem("Username");
+  };
   return (
     <>
       <div className="bg-gradient-to-r from-black via-white to-red-600 w-full h-screen">
@@ -83,6 +87,7 @@ const LandingPage = () => {
           className="text-white font-semibold text-2
         xl m-4"
         >
+          {/* Welcome {getUserName()} */}
           Welcome Juliet
         </div>
         <div className="flex justify-center items-center">

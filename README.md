@@ -76,5 +76,5 @@ todo
 3. build authorizer flow.
 4. save payment item detials to local storage and use accross pages.
 5. build select payment items dropdown as a component
-6. render payment detials in the form
+6. render payment detials in the form (done)
 7. submit to database using shina's api

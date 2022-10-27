@@ -45,7 +45,9 @@ const Signin = () => {
         `http://192.168.207.18:8091/GetUserDetail?UserID=${username}`
       );
       console.log(response.data.result);
-      console.log(response.data.result[0].role, "checking role");
+      let user = response.data.result[0].userR_NAME;
+      console.log(user);
+      // localStorage.setItem("Username", JSON.stringify(user));
       // to-do: get user role from response.data
       if (
         response.data.result.length &&
@@ -63,7 +65,6 @@ const Signin = () => {
       console.log(error);
     }
   };
-
   return (
     <div className="w-full h-full">
       <img src={Logo} alt="PTB" className="w-[300px] h-[150px]" />
