@@ -105,8 +105,8 @@ const Navbar = () => {
         <NavLink to="/paywithoutid" className="p-4" style={activeStyle}>
           Pay Without Id
         </NavLink>
-        <NavLink to="/paywithcode" className="p-4" style={activeStyle}>
-          Pay With Code
+        <NavLink to="/paywithassessment" className="p-4" style={activeStyle}>
+          Pay With Assessment
         </NavLink>
       </nav>
       {/* <ul className="flex">

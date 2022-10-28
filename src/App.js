@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import Signin from "./pages/signin";
 import PayWithId from "./pages/payWithId";
 import PayWithoutId from "./pages/payWithoutId";
-import PayWithCode from "./pages/payWithCode";
+import PayWithAssessment from "./pages/payWithAssessment";
 import LandingPage from "./pages/LandingPage";
 import Authorizer from "./pages/authorizer";
 
@@ -15,7 +15,7 @@ const App = () => {
       <Route path="/authorizer" element={<Authorizer />} />
       <Route path="/paywithid" element={<PayWithId />} />
       <Route path="/paywithoutid" element={<PayWithoutId />} />
-      <Route path="/paywithcode" element={<PayWithCode />} />
+      <Route path="/paywithassessment" element={<PayWithAssessment />} />
     </Routes>
   );
 };

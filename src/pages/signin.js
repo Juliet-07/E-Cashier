@@ -9,11 +9,11 @@ const Signin = () => {
   const navigate = useNavigate();
   const { handleSubmit } = useForm();
   const initialValues = {
-    username: "",
+    userName: "",
     password: "",
   };
   const [loginDetails, setLoginDetails] = useState(initialValues);
-  const { username, password } = loginDetails;
+  const { userName, password } = loginDetails;
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLoginDetails({ ...loginDetails, [name]: value });
@@ -21,33 +21,44 @@ const Signin = () => {
 
   // function to validate user through ActiveDirectory
   const handleLoginValidation = () => {
-    fetch(
-      `http://192.168.207.8:8080/api/ActiveDirectory/AuthenticateUser?userName=${username}&password=${password}`,
-      {
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      }
-    )
-      .then((response) => {
-        console.log(response, "checking");
-        if (response.status === 200) {
-          userRole();
-        } else alert("User does not exist");
-      })
-      .catch((error) => console.log(error));
+    try {
+      fetch(
+        `http://192.168.207.8:8080/api/ActiveDirectory/AuthenticateUser?userName=${userName}&password=${password}`,
+        {
+          method: "POST",
+          // body: JSON.stringify({
+          //   userName: loginDetails.userName,
+          //   password: loginDetails.password,
+          // }),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        }
+      )
+        .then((res) => res.json())
+        .then((user) => {
+          console.log(user, "confirm here");
+          let userDetail = JSON.stringify(user.data);
+          localStorage.setItem("Username", userDetail);
+          if (user.message) {
+            userRole();
+          } else alert("User does not exist");
+        });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   // function to check user role and route to specific page
   const userRole = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.207.18:8091/GetUserDetail?UserID=${username}`
+        `http://192.168.207.18:8091/GetUserDetail?UserID=${userName}`
       );
       console.log(response.data.result);
       let user = response.data.result[0].userR_NAME;
       console.log(user);
-      // localStorage.setItem("Username", JSON.stringify(user));
+      // localStorage.setItem("userName", JSON.stringify(user));
       // to-do: get user role from response.data
       if (
         response.data.result.length &&
@@ -75,14 +86,14 @@ const Signin = () => {
         <div className="w-[500px] h-[500px] shadow-lg border border-red-600 px-[75px] py-[51px]">
           <form onSubmit={handleSubmit(handleLoginValidation)}>
             <div className="mt-4">
-              <label htmlFor="username" className="block text-sm text-gray-800">
+              <label htmlFor="userName" className="block text-sm text-gray-800">
                 Username
               </label>
               <input
                 type="text"
                 className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border rounded-md focus:border-red-400 focus:ring-red-300 focus:outline-none focus:ring focus:ring-opacity-40"
-                name="username"
-                value={username}
+                name="userName"
+                value={userName}
                 onChange={handleChange}
                 required
               />

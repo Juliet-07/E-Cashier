@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AsyncSelect from "react-select/async";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,6 +22,14 @@ const LandingPage = () => {
     setSelectedValue(value);
   };
 
+  const [user, setUser] = useState("");
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("Username"));
+    if (user !== null || user !== undefined) {
+      setUser(user);
+    }
+  }, []);
+  
   // function for the entire api flow;{encryption, getData, decryption}
   const handleRequest = async (inputValue) => {
     console.log({ inputValue });
@@ -73,10 +81,7 @@ const LandingPage = () => {
     }
     return alert("Please select Merchant");
   };
-
-  const getUserName = () => {
-    return localStorage.getItem("Username");
-  };
+  
   return (
     <>
       <div className="bg-gradient-to-r from-black via-white to-red-600 w-full h-screen">
@@ -88,7 +93,7 @@ const LandingPage = () => {
         xl m-4"
         >
           {/* Welcome {getUserName()} */}
-          Welcome Juliet
+          Welcome {user.name}
         </div>
         <div className="flex justify-center items-center">
           <p className="text-xl font-bold py-4">Please Select Merchant for</p>

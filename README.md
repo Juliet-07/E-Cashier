@@ -72,9 +72,11 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 todo
 
 1. redirecting {initiator and authorizer} (done)
-2. render name of users in respective pages
+2. render name of users in respective pages(done)
 3. build authorizer flow.
-4. save payment item detials to local storage and use accross pages.
-5. build select payment items dropdown as a component
+4. save payment item detials to local storage and use accross pages(done).
+5. build select payment items dropdown as a component (done)
 6. render payment detials in the form (done)
 7. submit to database using shina's api
+8. display error when reference number isn't validated 
+9. multi select in dropdown

@@ -1,27 +1,29 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import Navbar from "../components/Navbar";
 import axios from "axios";
-import AsyncSelect from "react-select/async";
 import {
   decryptPayload,
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
+import PaymentItems from "../components/PaymentItems";
 
 const PayWithId = () => {
-  const [CustomerReference, setCustomerReference] = useState("");
-  const [inputValue, setValue] = useState("");
   const { handleSubmit } = useForm();
-  const [selectedValue, setSelectedValue] = useState(null);
-  const navigate = useNavigate();
-
-  const handleInputChange = (value) => {
-    setValue(value);
+  const [CustomerReference, setCustomerReference] = useState("");
+  const initialValues = {
+    PayerName: "",
+    PayerEmail: "",
+    PayerPhone: "",
+    PayerAddress: "",
+    Amount: "",
   };
-
-  const handleChange = (value) => {
-    setSelectedValue(value);
+  const [payerDetails, setPayerDetails] = useState(initialValues);
+  const { PayerName, PayerEmail, PayerAddress, PayerPhone, Amount } =
+    payerDetails;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPayerDetails({ ...payerDetails, [name]: value });
   };
 
   // function to use merchant details across application
@@ -29,36 +31,12 @@ const PayWithId = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
 
-  // function for the entire api flow;{encryption, getData, postTransaction & decryption}
+  // state for paymentId
+  const [paymentItems, setPaymentItems] = useState([]);
+
+  // function for the entire api flow;{encryption, postTransaction & decryption}
   const handleRequest = async (inputValue) => {
     console.log({ inputValue });
-    let result;
-    await encryptPayload({
-      BranchCode: "XPS",
-      MerchantId: getMerchantDetails().MerchantId,
-    }).then(async (response) => {
-      result = await getMerchantPaymentItems(response.data);
-      console.log({ result });
-    });
-    return result;
-  };
-
-  // function to getData for Merchants Payment Items
-  const getMerchantPaymentItems = async (searchParams) => {
-    const url = `http://80.88.8.239:9011/api/ApiGateway/GetMerchantPaymentItems?request=${searchParams}`;
-    let result;
-    await axios
-      .get(url)
-      .then(async (response) => {
-        // console.log(response.data);
-        result = await handleDecrypt(response.data.data);
-      })
-      .catch((error) => console.log(error));
-    return result;
-  };
-
-  // function to post transaction
-  const handlePostRequest = async () => {
     let result;
     await encryptPayload({
       // MerchantId: getMerchantDetails().MerchantId,
@@ -66,16 +44,16 @@ const PayWithId = () => {
       BankBranchCode: "XPS",
       PaymentOptionId: 300,
       CreatedBy: "Test",
-      // PaymentItem: getPaymentDetails().PaymentItemId,
-      // PaymentItems: [getPaymentDetails().PaymentItemId],
       PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 2 }],
+      // PaymentItems: [localStorage.getItem("PaymentItemId")],
+      PayerDetails: payerDetails,
       PaymentOptionItems: {
         AssessmentReference: "",
         CustomerReference: CustomerReference,
+        // CustomerReference: "4060148402",
         BillReference: "",
       },
     }).then(async (response) => {
-      console.log(response.data);
       result = await postRequest(response.data);
       console.log({ result });
     });
@@ -91,6 +69,16 @@ const PayWithId = () => {
         console.log(response.data, "response from post request");
         result = await handleDecrypt(response.data.data);
         console.log("decrypted result", result);
+        const detail = result.payerDetails;
+        const figure = result.paymentItemDetails;
+        console.log(figure[0].Amount, "confirm here");
+        setPayerDetails({
+          PayerName: detail.PayerName,
+          PayerEmail: detail.PayerEmail,
+          PayerPhone: detail.PayerPhone,
+          PayerAddress: detail.PayerAddress,
+          Amount: figure[0].Amount,
+        });
       })
       .catch((error) => console.log(error));
     return result;
@@ -113,7 +101,7 @@ const PayWithId = () => {
         {getMerchantDetails().MerchantName}
       </div>
       <div className="h-[170px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
-        <form onSubmit={handleSubmit(handlePostRequest)}>
+        <form onSubmit={handleSubmit(handleRequest)}>
           <div className="flex items-center justify-around m-4">
             <div>
               <label
@@ -126,7 +114,7 @@ const PayWithId = () => {
                 type="text"
                 id="ref"
                 className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
-                // required
+                required
                 value={CustomerReference}
                 onChange={(e) => setCustomerReference(e.target.value)}
               />
@@ -138,18 +126,7 @@ const PayWithId = () => {
               >
                 Select Payment Items
               </label>
-              <div className="w-[500px] border rounded border-red-600">
-                <AsyncSelect
-                  cacheOptions
-                  defaultOptions
-                  value={selectedValue}
-                  getOptionLabel={(e) => e.PaymentRevenueItemName}
-                  getOptionValue={(e) => e.MerchantId}
-                  loadOptions={handleRequest}
-                  onInputChange={handleInputChange}
-                  onChange={handleChange}
-                />
-              </div>
+              <PaymentItems />
             </div>
           </div>
           <div className="flex items-end justify-end m-2">
@@ -173,28 +150,30 @@ const PayWithId = () => {
                 className="block tracking-wide text-black text-xs font-bold mb-2"
                 htmlFor="grid-first-name"
               >
-                First Name
+                Payer Name
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="grid-first-name"
                 type="text"
-                // value={data.MerchantName}
-                // placeholder="Jane"
+                name="PayerName"
+                value={PayerName}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
               <label
-                className="block tracking-wide text-gray-700 text-xs font-bold mb-2"
-                htmlFor="grid-last-name"
+                className="block tracking-wide text-black text-xs font-bold mb-2"
+                htmlFor="email"
               >
-                Last Name
+                Email
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="grid-last-name"
+                id="email"
                 type="text"
-                // placeholder="Doe"
+                name="PayerEmail"
+                value={PayerEmail}
+                onChange={handleChange}
               />
             </div>
           </div>
@@ -210,7 +189,8 @@ const PayWithId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="number"
                 type="text"
-                // placeholder="Jane"
+                name="PayerPhone"
+                value={PayerPhone}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -224,41 +204,9 @@ const PayWithId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="grid-last-name"
                 type="text"
-                // placeholder="Doe"
+                name="PayerAddress"
+                value={PayerAddress}
               />
-            </div>
-          </div>
-          <div className="flex flex-wrap -mx-3 mb-6">
-            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-              <label
-                className="block tracking-wide text-black text-xs font-bold mb-2"
-                htmlFor="email"
-              >
-                Email
-              </label>
-              <input
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="email"
-                type="text"
-                // placeholder="Jane"
-              />
-            </div>
-            <div className="w-full md:w-1/2 px-3">
-              <label
-                htmlFor="countries"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Tax Office
-              </label>
-              <select
-                id="countries"
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-              >
-                <option>United States</option>
-                <option>Canada</option>
-                <option>France</option>
-                <option>Germany</option>
-              </select>
             </div>
           </div>
           <div className="flex flex-wrap -mx-3 mb-6">
@@ -273,7 +221,8 @@ const PayWithId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="amount"
                 type="text"
-                // placeholder="Jane"
+                name="Amount"
+                value={Amount}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">

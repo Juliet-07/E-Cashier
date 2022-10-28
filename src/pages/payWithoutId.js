@@ -9,6 +9,7 @@ import {
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
 import TaxOffice from "../components/TaxOffice";
+import PaymentItems from "../components/PaymentItems";
 
 const PayWithoutId = () => {
   const [inputValue, setValue] = useState("");
@@ -77,7 +78,7 @@ const PayWithoutId = () => {
       })
         .then((res) => res.json())
         .then((json) => console.log(json));
-        alert("SENT")
+      alert("SENT");
     } catch (error) {
       console.log(error.message);
     }
@@ -98,44 +99,8 @@ const PayWithoutId = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
 
-  // function for the entire api flow;{encryption, getData, handlePostRequest & decryption}
+  // function for the entire api flow;{encryption, handlePostRequest & decryption}
   const handleRequest = async () => {
-    let result;
-    await encryptPayload({
-      BranchCode: "XPS",
-      MerchantId: getMerchantDetails().MerchantId,
-    }).then(async (response) => {
-      result = await getMerchantPaymentItems(response.data);
-      console.log({ result });
-    });
-    return result;
-  };
-
-  // function to getData for Merchants Payment Items
-  const getMerchantPaymentItems = async (searchParams) => {
-    const url = `http://80.88.8.239:9011/api/ApiGateway/GetMerchantPaymentItems?request=${searchParams}`;
-    let result;
-    await axios
-      .get(url)
-      .then(async (response) => {
-        // console.log(response.data);
-        result = await handleDecrypt(response.data.data);
-      })
-      .catch((error) => console.log(error));
-    return result;
-  };
-  const savePaymentDetails = () => {
-    if (selectedValue !== null) {
-      localStorage.setItem("PaymentDetails", JSON.stringify(selectedValue));
-      // return redirectToPaymentOptions();
-    }
-    return savePaymentDetails();
-  };
-  const getPaymentDetails = () => {
-    return JSON.parse(localStorage.getItem("PaymentDetails"));
-  };
-  // function to post transaction
-  const handlePostRequest = async () => {
     let result;
     await encryptPayload({
       // MerchantId: getMerchantDetails().MerchantId,
@@ -151,11 +116,21 @@ const PayWithoutId = () => {
         BillReference: "",
       },
     }).then(async (response) => {
-      console.log(response.data);
       result = await postRequest(response.data);
       console.log({ result });
     });
     return result;
+  };
+
+  const savePaymentDetails = () => {
+    if (selectedValue !== null) {
+      localStorage.setItem("PaymentDetails", JSON.stringify(selectedValue));
+      // return redirectToPaymentOptions();
+    }
+    return savePaymentDetails();
+  };
+  const getPaymentDetails = () => {
+    return JSON.parse(localStorage.getItem("PaymentDetails"));
   };
 
   const postRequest = async (searchParams) => {
@@ -200,7 +175,7 @@ const PayWithoutId = () => {
         {getMerchantDetails().MerchantName}
       </div>
       <div className="h-[500px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
-        <form className="m-4" onSubmit={handleSubmit(handlePostRequest)}>
+        <form className="m-4" onSubmit={handleSubmit(handleRequest)}>
           <div className="flex">
             <div className="mr-20">
               <label
@@ -226,18 +201,7 @@ const PayWithoutId = () => {
               >
                 Select Payment Items
               </label>
-              <div className="w-[500px] border rounded border-red-600">
-                <AsyncSelect
-                  cacheOptions
-                  defaultOptions
-                  value={selectedValue}
-                  getOptionLabel={(e) => e.PaymentRevenueItemName}
-                  getOptionValue={(e) => e.PaymentRevenueItemNameId}
-                  loadOptions={handleRequest}
-                  onInputChange={handleInputChange}
-                  onChange={handleChange}
-                />
-              </div>
+              <PaymentItems />
             </div>
           </div>
           <div className="mt-4">
