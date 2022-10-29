@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Navbar from "../components/Navbar";
 import {
@@ -16,20 +16,48 @@ const PayWithAssessment = () => {
     PayerPhone: "",
     PayerAddress: "",
     Amount: "",
+    TransactionReference: "",
+    Date: "",
   };
   const [payerDetails, setPayerDetails] = useState(initialValues);
-  const { PayerName, PayerEmail, PayerAddress, PayerPhone, Amount } =
-    payerDetails;
+  const {
+    PayerName,
+    PayerEmail,
+    PayerAddress,
+    PayerPhone,
+    Amount,
+    TransactionReference,
+    Date,
+  } = payerDetails;
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPayerDetails({ ...payerDetails, [name]: value });
+  };
+  
+  // sending received data to premium database.
+  const url = "http://192.168.207.18:8091/CreateECashData";
+  const createData = () => {
+    try {
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify(payerDetails),
+        headers: {
+          "Content-type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((json) => console.log(json));
+      alert("SENT");
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   // function to use merchant details across application
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
-  
+
   // function for the entire api flow;{encryption, handlePostRequest & decryption}
   const handleRequest = async () => {
     let result;
@@ -66,10 +94,11 @@ const PayWithAssessment = () => {
         console.log(figure[0].Amount, "confirm here");
         setPayerDetails({
           PayerName: detail.PayerName,
-          PayerEmail: detail.PayerEmail,
+          // PayerEmail: detail.PayerEmail,
           PayerPhone: detail.PayerPhone,
           PayerAddress: detail.PayerAddress,
           Amount: figure[0].Amount,
+          TransactionReference: result.TransactionReference,
         });
       })
       .catch((error) => console.log(error));
@@ -86,7 +115,14 @@ const PayWithAssessment = () => {
     });
     return result;
   };
-
+  // getting initialiser
+  const [user, setUser] = useState("");
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("Username"));
+    if (user !== null || user !== undefined) {
+      setUser(user);
+    }
+  }, []);
   return (
     <>
       <Navbar />
@@ -126,7 +162,7 @@ const PayWithAssessment = () => {
       <div className="mt-20 mb-2 font-bold text-xl flex items-center justify-center">
         Payment Details
       </div>
-      <div className="h-[700px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
+      <div className="h-[750px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
         <form className="m-4">
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -142,6 +178,7 @@ const PayWithAssessment = () => {
                 type="text"
                 name="PayerName"
                 value={PayerName}
+                readOnly
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -156,6 +193,7 @@ const PayWithAssessment = () => {
                 id="email"
                 type="text"
                 name="PayerEmail"
+                required
                 value={PayerEmail}
                 onChange={handleChange}
               />
@@ -174,6 +212,7 @@ const PayWithAssessment = () => {
                 id="number"
                 type="text"
                 name="PayerPhone"
+                required
                 value={PayerPhone}
                 onChange={handleChange}
               />
@@ -191,42 +230,10 @@ const PayWithAssessment = () => {
                 type="text"
                 name="PayerAddress"
                 value={PayerAddress}
+                readOnly
               />
             </div>
           </div>
-          {/* <div className="flex flex-wrap -mx-3 mb-6">
-            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-              <label
-                className="block tracking-wide text-black text-xs font-bold mb-2"
-                htmlFor="email"
-              >
-                Email
-              </label>
-              <input
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="email"
-                type="text"
-                // placeholder="Jane"
-              />
-            </div>
-            <div className="w-full md:w-1/2 px-3">
-              <label
-                for="countries"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Tax Office
-              </label>
-              <select
-                id="countries"
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-              >
-                <option>United States</option>
-                <option>Canada</option>
-                <option>France</option>
-                <option>Germany</option>
-              </select>
-            </div>
-          </div> */}
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
@@ -241,6 +248,7 @@ const PayWithAssessment = () => {
                 type="text"
                 name="Amount"
                 value={Amount}
+                readOnly
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -254,7 +262,7 @@ const PayWithAssessment = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="period"
                 type="text"
-                // placeholder="Doe"
+                required
               />
             </div>
           </div>
@@ -270,7 +278,7 @@ const PayWithAssessment = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="fee"
                 type="text"
-                // placeholder="Jane"
+                required
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -284,7 +292,70 @@ const PayWithAssessment = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="comment"
                 type="text"
-                // placeholder="Doe"
+                required
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="w-full md:w-1/2 px-3">
+              <label
+                htmlFor="initializer"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Initialised By
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="initializer"
+                type="text"
+                value={user.name}
+                readOnly
+              />
+            </div>
+            <div className="w-full md:w-1/2 px-3">
+              <label
+                htmlFor="branchcode"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Branch Code
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="branchcode"
+                type="text"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="w-full md:w-1/2 px-3">
+              <label
+                htmlFor="transactionReference"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Transaction Reference
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="transactionReference"
+                type="text"
+                value={TransactionReference}
+                readOnly
+              />
+            </div>
+            <div className="w-full md:w-1/2 px-3">
+              <label
+                htmlFor="date"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Date
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="date"
+                type="text"
+                required
+                value={Date}
+                onChange={handleChange}
               />
             </div>
           </div>

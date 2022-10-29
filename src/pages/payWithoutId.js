@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import Navbar from "../components/Navbar";
 import axios from "axios";
-import AsyncSelect from "react-select/async";
 import {
   decryptPayload,
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
-import TaxOffice from "../components/TaxOffice";
 import PaymentItems from "../components/PaymentItems";
 
 const PayWithoutId = () => {
-  const [inputValue, setValue] = useState("");
   const { handleSubmit } = useForm();
   const preFormValues = {
     PayerName: "",
@@ -32,11 +28,11 @@ const PayWithoutId = () => {
     email: "",
     phone: "",
     address: "",
-    paymentAmount: 0,
+    paymentAmount: "",
     paymentPeriod: "",
     comment: "",
     conveniencyFee: "",
-    taxOffice: "",
+    TransactionReference: "",
   };
   const [details, setDetails] = useState(initialValues);
   const {
@@ -48,7 +44,7 @@ const PayWithoutId = () => {
     paymentPeriod,
     comment,
     conveniencyFee,
-    taxOffice,
+    TransactionReference,
   } = details;
   const changePaymentDetails = (e) => {
     const { name, value } = e.target;
@@ -70,7 +66,7 @@ const PayWithoutId = () => {
           paymentPeriod: details.paymentPeriod,
           comment: details.comment,
           conveniencyFee: details.conveniencyFee,
-          taxOffice: details.taxOffice,
+          TransactionReference: details.TransactionReference,
         }),
         headers: {
           "Content-type": "application/json",
@@ -82,16 +78,6 @@ const PayWithoutId = () => {
     } catch (error) {
       console.log(error.message);
     }
-  };
-  const [selectedValue, setSelectedValue] = useState(null);
-  const navigate = useNavigate();
-
-  const handleInputChange = (value) => {
-    setValue(value);
-  };
-
-  const handleChange = (value) => {
-    setSelectedValue(value);
   };
 
   // function to use merchant details across application
@@ -122,17 +108,6 @@ const PayWithoutId = () => {
     return result;
   };
 
-  const savePaymentDetails = () => {
-    if (selectedValue !== null) {
-      localStorage.setItem("PaymentDetails", JSON.stringify(selectedValue));
-      // return redirectToPaymentOptions();
-    }
-    return savePaymentDetails();
-  };
-  const getPaymentDetails = () => {
-    return JSON.parse(localStorage.getItem("PaymentDetails"));
-  };
-
   const postRequest = async (searchParams) => {
     const url = `http://80.88.8.239:9011/api/ApiGateway/PostTransaction?request=${searchParams}`;
     let result;
@@ -151,7 +126,8 @@ const PayWithoutId = () => {
           email: detail.PayerEmail,
           phone: detail.PayerPhone,
           address: detail.PayerAddress,
-          paymentAmount: figure[0].amount,
+          paymentAmount: figure[0].Amount,
+          TransactionReference: result.TransactionReference,
         });
       })
       .catch((error) => console.log(error));
@@ -168,6 +144,15 @@ const PayWithoutId = () => {
     });
     return result;
   };
+
+  // getting initialiser
+  const [user, setUser] = useState("");
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("Username"));
+    if (user !== null || user !== undefined) {
+      setUser(user);
+    }
+  }, []);
   return (
     <>
       <Navbar />
@@ -268,7 +253,7 @@ const PayWithoutId = () => {
       <div className="mt-20 mb-2 font-bold text-xl flex items-center justify-center">
         Payment Details
       </div>
-      <div className="h-[700px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
+      <div className="h-[750px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
         <form className="m-4" onSubmit={handleSubmit(createData)}>
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -284,7 +269,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="name"
                 value={name}
-                defaultValue
+                readOnly
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -300,7 +285,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="email"
                 value={email}
-                defaultValue
+                readOnly
               />
             </div>
           </div>
@@ -318,7 +303,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="phone"
                 value={phone}
-                defaultValue
+                readOnly
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -334,37 +319,10 @@ const PayWithoutId = () => {
                 type="text"
                 name="address"
                 value={address}
-                defaultValue
+                readOnly
               />
             </div>
           </div>
-          {/* <div className="flex flex-wrap -mx-3 mb-6">
-            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-              <label
-                className="block tracking-wide text-black text-xs font-bold mb-2"
-                htmlFor="email"
-              >
-                Email
-              </label>
-              <input
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="email"
-                type="text"
-                name="email"
-                value={email}
-                onChange={(e) => changePaymentDetails(e, 'name')}
-              />
-            </div>
-            <div className="w-full md:w-1/2 px-3">
-              <label
-                htmlFor="countries"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Tax Office
-              </label>
-              <TaxOffice />
-            </div>
-          </div> */}
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
@@ -379,7 +337,7 @@ const PayWithoutId = () => {
                 type="text"
                 name="paymentAmount"
                 value={paymentAmount}
-                onChange={(e) => changePaymentDetails(e, "paymentAmount")}
+                readOnly
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -396,6 +354,7 @@ const PayWithoutId = () => {
                 name="paymentPeriod"
                 value={paymentPeriod}
                 onChange={(e) => changePaymentDetails(e, "paymentPeriod")}
+                required
               />
             </div>
           </div>
@@ -414,6 +373,7 @@ const PayWithoutId = () => {
                 name="conveniencyFee"
                 value={conveniencyFee}
                 onChange={(e) => changePaymentDetails(e, "conveniencyFee")}
+                required
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -430,6 +390,69 @@ const PayWithoutId = () => {
                 name="comment"
                 value={comment}
                 onChange={(e) => changePaymentDetails(e, "comment")}
+                required
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+              <label
+                className="block tracking-wide text-black text-xs font-bold mb-2"
+                htmlFor="initializer"
+              >
+                Initialised By
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="initializer"
+                type="text"
+                value={user.name}
+                readOnly
+              />
+            </div>
+            <div className="w-full md:w-1/2 px-3">
+              <label
+                htmlFor="branchcode"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Branch Code
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="branchcode"
+                type="text"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+              <label
+                className="block tracking-wide text-black text-xs font-bold mb-2"
+                htmlFor="transactionReference"
+              >
+                Transaction Reference
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="email"
+                type="text"
+                value={TransactionReference}
+                readOnly
+              />
+            </div>
+            <div className="w-full md:w-1/2 px-3">
+              <label
+                htmlFor="date"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Date
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="date"
+                type="text"
+                required
+                value={Date}
               />
             </div>
           </div>

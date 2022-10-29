@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Navbar from "../components/Navbar";
 import axios from "axios";
@@ -17,13 +17,41 @@ const PayWithId = () => {
     PayerPhone: "",
     PayerAddress: "",
     Amount: "",
+    TransactionReference: "",
+    Date: "",
   };
   const [payerDetails, setPayerDetails] = useState(initialValues);
-  const { PayerName, PayerEmail, PayerAddress, PayerPhone, Amount } =
-    payerDetails;
+  const {
+    PayerName,
+    PayerEmail,
+    PayerAddress,
+    PayerPhone,
+    Amount,
+    TransactionReference,
+    Date,
+  } = payerDetails;
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPayerDetails({ ...payerDetails, [name]: value });
+  };
+
+  // sending received data to premium database.
+  const url = "http://192.168.207.18:8091/CreateECashData";
+  const createData = () => {
+    try {
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify(payerDetails),
+        headers: {
+          "Content-type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((json) => console.log(json));
+      alert("SENT");
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   // function to use merchant details across application
@@ -78,6 +106,7 @@ const PayWithId = () => {
           PayerPhone: detail.PayerPhone,
           PayerAddress: detail.PayerAddress,
           Amount: figure[0].Amount,
+          TransactionReference: result.TransactionReference,
         });
       })
       .catch((error) => console.log(error));
@@ -94,6 +123,15 @@ const PayWithId = () => {
     });
     return result;
   };
+
+  // getting initialiser
+  const [user, setUser] = useState("");
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("Username"));
+    if (user !== null || user !== undefined) {
+      setUser(user);
+    }
+  }, []);
   return (
     <>
       <Navbar />
@@ -142,7 +180,7 @@ const PayWithId = () => {
       <div className="mt-20 mb-2 font-bold text-xl flex items-center justify-center">
         Payment Details
       </div>
-      <div className="h-[700px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
+      <div className="h-[750px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
         <form className="m-4">
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -158,6 +196,7 @@ const PayWithId = () => {
                 type="text"
                 name="PayerName"
                 value={PayerName}
+                readOnly
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -191,6 +230,7 @@ const PayWithId = () => {
                 type="text"
                 name="PayerPhone"
                 value={PayerPhone}
+                readOnly
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -223,6 +263,7 @@ const PayWithId = () => {
                 type="text"
                 name="Amount"
                 value={Amount}
+                readOnly
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -267,6 +308,69 @@ const PayWithId = () => {
                 id="comment"
                 type="text"
                 // placeholder="Doe"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="w-full md:w-1/2 px-3">
+              <label
+                htmlFor="initializer"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Initialised By
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="initializer"
+                type="text"
+                value={user.name}
+                readOnly
+              />
+            </div>
+            <div className="w-full md:w-1/2 px-3">
+              <label
+                htmlFor="branchcode"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Branch Code
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="branchcode"
+                type="text"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="w-full md:w-1/2 px-3">
+              <label
+                htmlFor="transactionReference"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Transaction Reference
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="transactionReference"
+                type="text"
+                value={TransactionReference}
+                readOnly
+              />
+            </div>
+            <div className="w-full md:w-1/2 px-3">
+              <label
+                htmlFor="date"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Date
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="date"
+                type="text"
+                required
+                value={Date}
+                // onChange={handleChange}
               />
             </div>
           </div>
