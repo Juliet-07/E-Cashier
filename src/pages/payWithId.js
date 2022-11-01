@@ -88,7 +88,7 @@ const PayWithId = () => {
       // CreatedBy: user.name,
       CreatedBy: "Test",
       // PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 3 }],
-      PaymentItems: [{ PaymentItemId: 1735 }, { PaymentItemId: 1746 }],
+      PaymentItems: [{ PaymentItemId: 1195 }, { PaymentItemId: 1196 }],
       // PaymentItems: PaymentItemIds,
       PayerDetails: payerDetails,
       PaymentOptionItems: {
