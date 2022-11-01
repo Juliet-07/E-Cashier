@@ -7,28 +7,6 @@ import {
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
 
-const people = [
-  {
-    name: "Jane Cooper",
-    reference: "20151010789",
-    amount: "40,000,000",
-    image: "https://bit.ly/33HnjK0",
-  },
-  {
-    name: "John Doe",
-    reference: "20151010789",
-    amount: "27,500,000",
-    image: "https://bit.ly/3I9nL2D",
-  },
-  {
-    name: "Veronica Lodge",
-    reference: "20151010789",
-    amount: " 100,000,000",
-    image: "https://bit.ly/3vaOTe1",
-  },
-  // More people...
-];
-
 const Table = () => {
   // branch code of the authorizer that logs in
   const branchCode = "000";

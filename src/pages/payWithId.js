@@ -65,26 +65,31 @@ const PayWithId = () => {
   };
 
   // accessing paymentID from LocalStorage
-  // const [id, setId] = useState(0);
-  // useEffect(() => {
-  //   const id = JSON.parse(localStorage.getItem("PaymentItemId"));
-  //   setId(id);
-  //   console.log(id, "PaymentItemId");
-  // }, []);
+  const [id, setId] = useState("");
+  useEffect(() => {
+    const id = JSON.parse(localStorage.getItem("PaymentItemId"));
+    setId(id);
+    console.log(id, "PaymentItemId");
+  }, []);
 
   // function for the entire api flow;{encryption, postTransaction & decryption}
   const handleRequest = async (inputValue) => {
     console.log({ inputValue });
     let result;
+    let PaymentItemIds = [];
+    id.forEach((element) => {
+      PaymentItemIds.push({ PaymentItemId: element.PaymentItemId });
+    });
     await encryptPayload({
-      // MerchantId: getMerchantDetails().MerchantId,
-      MerchantId: 1,
+      MerchantId: getMerchantDetails().MerchantId,
+      // MerchantId: 1,
       BankBranchCode: "XPS",
       PaymentOptionId: 300,
-      CreatedBy: user.name,
-      // CreatedBy: "Test",
-      PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 2 }],
-      // PaymentItems: [{ PaymentItemId: id }],
+      // CreatedBy: user.name,
+      CreatedBy: "Test",
+      // PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 3 }],
+      PaymentItems: [{ PaymentItemId: 1735 }, { PaymentItemId: 1746 }],
+      // PaymentItems: PaymentItemIds,
       PayerDetails: payerDetails,
       PaymentOptionItems: {
         AssessmentReference: "",
@@ -149,7 +154,7 @@ const PayWithId = () => {
       <div className="mx-20 my-4 p-2 w-[1000px] h-10 font-semibold">
         {getMerchantDetails().MerchantName}
       </div>
-      <div className="h-[170px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
+      <div className="h-[200px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
         <form onSubmit={handleSubmit(handleRequest)}>
           <div className="flex items-center justify-around m-4">
             <div>

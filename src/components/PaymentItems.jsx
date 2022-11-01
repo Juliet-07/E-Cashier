@@ -12,9 +12,9 @@ const PaymentItems = () => {
   const [selectedValue, setSelectedValue] = useState([]);
 
   const handleChange = (value) => {
-    // console.log(value);
+    console.log(value);
     setSelectedValue(value);
-    localStorage.setItem("PaymentItemId", value.PaymentItemID);
+    localStorage.setItem("PaymentItemId", JSON.stringify(value));
   };
 
   // function to use merchant details across application
@@ -57,7 +57,6 @@ const PaymentItems = () => {
       result = decryptResponse.data.map((item) => {
         return { id: item.PaymentItemID, name: item.PaymentRevenueItemName };
       });
-
       setData(result);
       console.log(result, "show me");
     });

@@ -89,12 +89,13 @@ const PayWithoutId = () => {
   const handleRequest = async () => {
     let result;
     await encryptPayload({
-      // MerchantId: getMerchantDetails().MerchantId,
-      MerchantId: 1,
+      MerchantId: getMerchantDetails().MerchantId,
+      // MerchantId: 1,
       BankBranchCode: "XPS",
       PaymentOptionId: 301,
       CreatedBy: "Test",
       PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 2 }],
+      // PaymentItems: [{ PaymentItemId: 1732 }, { PaymentItemId: 1745 }],
       PayerDetails: postDetails,
       PaymentOptionItems: {
         AssessmentReference: "",
