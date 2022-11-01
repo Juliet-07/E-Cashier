@@ -1,21 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   encryptPayload,
   decryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
-import AsyncSelect from "react-select/async";
+import Multiselect from "multiselect-react-dropdown";
 
 const PaymentItems = () => {
   const [inputValue, setValue] = useState("");
-  const [selectedValue, setSelectedValue] = useState(null);
-
-  const handleInputChange = (value) => {
-    setValue(value);
-  };
+  const [data, setData] = useState([]);
+  const [selectedValue, setSelectedValue] = useState([]);
 
   const handleChange = (value) => {
-    console.log(value);
+    // console.log(value);
     setSelectedValue(value);
     localStorage.setItem("PaymentItemId", value.PaymentItemID);
   };
@@ -57,24 +54,26 @@ const PaymentItems = () => {
     let result;
     await decryptPayload(encryptedData).then((decryptResponse) => {
       decryptResponse.data = JSON.parse(decryptResponse.data);
-      result = decryptResponse.data;
-      console.log(result);
+      result = decryptResponse.data.map((item) => {
+        return { id: item.PaymentItemID, name: item.PaymentRevenueItemName };
+      });
+
+      setData(result);
+      console.log(result, "show me");
     });
     return result;
   };
+  useEffect(() => {
+    handleRequest();
+  }, []);
   return (
     <div className="flex items-center justify-center">
       <div className="w-[500px] border rounded border-red-600">
-        <AsyncSelect
-          cacheOptions
-          defaultOptions
-          value={selectedValue}
-          getOptionLabel={(e) => e.PaymentRevenueItemName}
-          getOptionValue={(e) => e.PaymentRevenueItemNameId}
-          loadOptions={handleRequest}
-          onInputChange={handleInputChange}
-          onChange={handleChange}
-          // isMulti
+        <Multiselect
+          options={data}
+          selectedValues={selectedValue}
+          onSelect={handleChange}
+          displayValue="name"
         />
       </div>
     </div>
