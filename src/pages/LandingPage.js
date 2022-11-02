@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AsyncSelect from "react-select/async";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Logo from "../assets/ptbLogo(1).png";
 import Typed from "react-typed";
 import {
@@ -29,7 +29,7 @@ const LandingPage = () => {
       setUser(user);
     }
   }, []);
-  
+
   // function for the entire api flow;{encryption, getData, decryption}
   const handleRequest = async (inputValue) => {
     console.log({ inputValue });
@@ -69,19 +69,14 @@ const LandingPage = () => {
     return result;
   };
 
-  // button function
-  const redirectToPaymentOptions = () => {
-    navigate("/paywithid");
-  };
-
   const saveMerchantDetails = () => {
     if (selectedValue !== null) {
       localStorage.setItem("Merchant", JSON.stringify(selectedValue));
-      return redirectToPaymentOptions();
+      return navigate("/paywithid");
     }
     return alert("Please select Merchant");
   };
-  
+
   return (
     <>
       <div className="bg-gradient-to-r from-black via-white to-red-600 w-full h-screen">
@@ -92,7 +87,6 @@ const LandingPage = () => {
           className="text-white font-semibold text-2
         xl m-4"
         >
-          {/* Welcome {getUserName()} */}
           Welcome {user.name}
         </div>
         <div className="flex justify-center items-center">
