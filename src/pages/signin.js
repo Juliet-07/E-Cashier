@@ -56,10 +56,6 @@ const Signin = () => {
         `http://192.168.207.18:8091/GetUserDetail?UserID=${userName}`
       );
       console.log(response.data.result);
-      let user = response.data.result[0].userR_NAME;
-      console.log(user);
-      // localStorage.setItem("userName", JSON.stringify(user));
-      // to-do: get user role from response.data
       if (
         response.data.result.length &&
         response.data.result[0].role === "INITIATOR"
@@ -111,14 +107,12 @@ const Signin = () => {
               />
             </div>
             <div className="mt-20">
-              {/* <Link to="/landingpage"> */}
               <button
                 type="submit"
                 className="w-full px-4 py-2 font-medium tracking-wide text-white transition-colors duration-200 transform bg-red-700 rounded-md hover:bg-red-600 focus:outline-none focus:bg-red-600"
               >
                 Login
               </button>
-              {/* </Link> */}
             </div>
           </form>
         </div>
