@@ -92,71 +92,88 @@ const Table = () => {
   return (
     <div className="flex flex-col">
       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-        <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+        <div className="py-2 inline-block min-w-full sm:px-6 lg:px-8">
           <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50 h-[70px]">
+              <thead className="bg-gray-50 h-[60px]">
                 <tr>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-sm font-semibold text-gray-500 uppercase tracking-wider"
+                    className="text-sm font-semibold text-gray-500 uppercase"
                   >
                     Name
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-sm font-semibold text-gray-500 uppercase tracking-wider"
+                    className="text-sm font-semibold text-gray-500 uppercase"
                   >
                     Reference No.
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-sm font-semibold text-gray-500 uppercase tracking-wider"
+                    className="text-sm font-semibold text-gray-500 uppercase"
                   >
                     Amount
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-sm font-semibold text-gray-500 uppercase tracking-wider"
+                    className="text-sm font-semibold text-gray-500 uppercase"
                   >
                     Date
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-sm font-semibold text-gray-500 uppercase tracking-wider"
+                    className="text-sm font-semibold text-gray-500 uppercase"
+                  >
+                    Initiated by
+                  </th>
+                  <th
+                    scope="col"
+                    className="text-sm font-semibold text-gray-500 uppercase"
                   >
                     Status
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-center text-sm font-semibold text-gray-500 uppercase tracking-wider"
+                    className="text-sm font-semibold text-gray-500 uppercase"
                   >
                     Action
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {transactions.length > 0
-                  ? transactions.map((item, index) => {
-                      return (
-                        <tr key={index}>
-                          <td>{item?.payerName}</td>
-                          <td>{item?.transactionReference}</td>
-                          <td>{item?.amount}</td>
-                          <td>{item?.date}</td>
-                          <td></td>
-                          <td className="flex">
-                            <div className="m-2" onClick={handleRequest}>
-                              <TiTick size={20} />
-                            </div>
-                            <div className="m-2">
-                              <RiDeleteBack2Fill size={20} />
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  : null}
+                {transactions.length > 0 &&
+                  transactions.map((item, index) => {
+                    return (
+                      <tr key={index}>
+                        <td className="p-4 whitespace-nowrap text-center">
+                          {item?.payerName}
+                        </td>
+                        <td className="p-4 whitespace-nowrap text-center">
+                          {item?.transactionReference}
+                        </td>
+                        <td className="p-4 whitespace-nowrap text-center">
+                          {item?.amount}
+                        </td>
+                        <td className="p-4 whitespace-nowrap text-center">
+                          {item?.date}
+                        </td>
+                        <td className="p-4 whitespace-nowrap text-center">{item?.initializedBy}</td>
+                        <td className="p-4 whitespace-nowrap text-center"></td>
+                        <td className="flex">
+                          <div className="m-2" onClick={handleRequest}>
+                            <TiTick size={20} className="text-green-500" />
+                          </div>
+                          <div className="m-2">
+                            <RiDeleteBack2Fill
+                              size={20}
+                              className="text-red-600"
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
           </div>

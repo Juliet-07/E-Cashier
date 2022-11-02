@@ -7,9 +7,8 @@ import {
 import Multiselect from "multiselect-react-dropdown";
 
 const PaymentItems = () => {
-  const [inputValue, setValue] = useState("");
   const [data, setData] = useState([]);
-  const [selectedValue, setSelectedValue] = useState([]);
+  const [selectedValue, setSelectedValue] = useState(null);
 
   const handleChange = (value) => {
     console.log(value);
@@ -21,7 +20,7 @@ const PaymentItems = () => {
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
-
+  
   // function for the entire api flow;{encryption, getData, decryption}
   const handleRequest = async () => {
     let result;

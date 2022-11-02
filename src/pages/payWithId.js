@@ -65,36 +65,44 @@ const PayWithId = () => {
   };
 
   // accessing paymentID from LocalStorage
-  const [id, setId] = useState("");
-  useEffect(() => {
+  const getPaymentItemDetails = () => {
     const id = JSON.parse(localStorage.getItem("PaymentItemId"));
-    setId(id);
-    console.log(id, "PaymentItemId");
-  }, []);
+    let PaymentItemIds = [];
+    id.forEach((element) => {
+      PaymentItemIds.push({ PaymentItemId: element.PaymentItemId });
+    });
+    // for (let i = 0; i < id.length; i++) {
+    //   const element = id[i];
+    //   console.log(element.id, "here nko");
+    // }
+  };
+
+  // useEffect(() => {
+  //   getPaymentItemDetails();
+  // }, []);
 
   // function for the entire api flow;{encryption, postTransaction & decryption}
   const handleRequest = async (inputValue) => {
     console.log({ inputValue });
     let result;
-    let PaymentItemIds = [];
-    id.forEach((element) => {
-      PaymentItemIds.push({ PaymentItemId: element.PaymentItemId });
-    });
+    // let PaymentItemIds = [];
+    // id.forEach((element) => {
+    //   PaymentItemIds.push({ PaymentItemId: element.PaymentItemId });
+    // });
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
-      // MerchantId: 1,
       BankBranchCode: "XPS",
       PaymentOptionId: 300,
       // CreatedBy: user.name,
       CreatedBy: "Test",
       // PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 3 }],
-      PaymentItems: [{ PaymentItemId: 1195 }, { PaymentItemId: 1196 }],
-      // PaymentItems: PaymentItemIds,
+      // PaymentItems: [{ PaymentItemId: 1195 }, { PaymentItemId: 1196 }],
+      PaymentItems: getPaymentItemDetails(),
+      // PaymentItems: [{ PaymentItemId: getPaymentItemDetails() }],
       PayerDetails: payerDetails,
       PaymentOptionItems: {
         AssessmentReference: "",
         CustomerReference: CustomerReference,
-        // CustomerReference: "4060148402",
         BillReference: "",
       },
     }).then(async (response) => {

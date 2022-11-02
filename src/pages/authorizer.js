@@ -38,8 +38,8 @@ const Authorizer = () => {
               </svg>
               <input
                 type="text"
-                placeholder="Search cities or places"
-                className="w-[346px] py-3 pl-12 pr-4 text-gray-500 border rounded-md outline-none bg-gray-50 focus:bg-white"
+                placeholder="Search Name or Reference"
+                className="w-[350 px] py-3 pl-12 pr-4 text-gray-500 border rounded-md outline-none bg-gray-50 focus:bg-white"
               />
             </div>
           </form>

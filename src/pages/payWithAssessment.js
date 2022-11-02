@@ -18,6 +18,11 @@ const PayWithAssessment = () => {
     Amount: "",
     TransactionReference: "",
     Date: "",
+    PaymentPeriod: "",
+    ConveniencyFee: "",
+    Comment: "",
+    Branch_Code: "",
+    InitialisedBy: "",
   };
   const [payerDetails, setPayerDetails] = useState(initialValues);
   const {
@@ -28,29 +33,28 @@ const PayWithAssessment = () => {
     Amount,
     TransactionReference,
     Date,
+    PaymentPeriod,
+    ConveniencyFee,
+    Comment,
+    Branch_Code,
+    InitialisedBy,
   } = payerDetails;
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPayerDetails({ ...payerDetails, [name]: value });
   };
-  
+
   // sending received data to premium database.
   const url = "http://192.168.207.18:8091/CreateECashData";
   const createData = () => {
-    try {
-      fetch(url, {
-        method: "POST",
-        body: JSON.stringify(payerDetails),
-        headers: {
-          "Content-type": "application/json",
-        },
-      })
-        .then((res) => res.json())
-        .then((json) => console.log(json));
-      alert("SENT");
-    } catch (error) {
-      console.log(error.message);
-    }
+    axios
+      .post(url, payerDetails)
+      .then((response) => console.log(response.data, "response here o "));
+    alert("SENT")
+      // if (response.data === true) {
+      //   alert("SENT");
+      // }
+      .catch((err) => console.log(err));
   };
 
   // function to use merchant details across application
@@ -94,10 +98,10 @@ const PayWithAssessment = () => {
         console.log(figure[0].Amount, "confirm here");
         setPayerDetails({
           PayerName: detail.PayerName,
-          // PayerEmail: detail.PayerEmail,
+          PayerEmail: detail.PayerEmail,
           PayerPhone: detail.PayerPhone,
           PayerAddress: detail.PayerAddress,
-          Amount: figure[0].Amount,
+          Amount: String(figure[0].Amount),
           TransactionReference: result.TransactionReference,
         });
       })
@@ -163,7 +167,7 @@ const PayWithAssessment = () => {
         Payment Details
       </div>
       <div className="h-[750px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
-        <form className="m-4">
+        <form className="m-4" onSubmit={handleSubmit(createData)}>
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
@@ -263,6 +267,9 @@ const PayWithAssessment = () => {
                 id="period"
                 type="text"
                 required
+                name="PaymentPeriod"
+                value={PaymentPeriod}
+                onChange={handleChange}
               />
             </div>
           </div>
@@ -279,6 +286,9 @@ const PayWithAssessment = () => {
                 id="fee"
                 type="text"
                 required
+                name="ConveniencyFee"
+                value={ConveniencyFee}
+                onChange={handleChange}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -293,6 +303,9 @@ const PayWithAssessment = () => {
                 id="comment"
                 type="text"
                 required
+                name="Comment"
+                value={Comment}
+                onChange={handleChange}
               />
             </div>
           </div>
@@ -323,6 +336,9 @@ const PayWithAssessment = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="branchcode"
                 type="text"
+                name="Branch_Code"
+                value={Branch_Code}
+                onChange={handleChange}
               />
             </div>
           </div>
