@@ -15,7 +15,9 @@ const PayWithAssessment = () => {
     PayerEmail: "",
     PayerPhone: "",
     PayerAddress: "",
+    PaymentItemDetails: "",
     Amount: "",
+    TotalAmount: "",
     TransactionReference: "",
     Date: "",
     PaymentPeriod: "",
@@ -30,7 +32,9 @@ const PayWithAssessment = () => {
     PayerEmail,
     PayerAddress,
     PayerPhone,
+    PaymentItemDetails,
     Amount,
+    TotalAmount,
     TransactionReference,
     Date,
     PaymentPeriod,
@@ -94,14 +98,44 @@ const PayWithAssessment = () => {
         result = await handleDecrypt(response.data.data);
         console.log("decrypted result", result);
         const detail = result.payerDetails;
-        const figure = result.paymentItemDetails;
-        console.log(figure[0].Amount, "confirm here");
+        const paymentItemDetails = result.paymentItemDetails;
+        console.log(paymentItemDetails, "confirm here");
         setPayerDetails({
           PayerName: detail.PayerName,
           PayerEmail: detail.PayerEmail,
           PayerPhone: detail.PayerPhone,
           PayerAddress: detail.PayerAddress,
-          Amount: String(figure[0].Amount),
+          PaymentItemDetails: paymentItemDetails.map((item, index) => {
+            return (
+              <table className="w-full border border-red-600">
+                <thead className="bg-gray-50 h-[60px]">
+                  <tr>
+                    <th className="text-sm font-semibold text-black">
+                      Payment Items
+                    </th>
+                    <th className="text-sm font-semibold text-black">
+                      Payment Amount
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  <tr key={index}>
+                    <td>{item.PaymentItemName}</td>
+                    <td>
+                      <input
+                        className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                        name="Amount"
+                        value={item?.Amount}
+                        onChange={handleChange}
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            );
+          }),
+
+          // Amount: String(figure[0].Amount),
           TransactionReference: result.TransactionReference,
         });
       })
@@ -166,7 +200,7 @@ const PayWithAssessment = () => {
       <div className="mt-20 mb-2 font-bold text-xl flex items-center justify-center">
         Payment Details
       </div>
-      <div className="h-[750px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
+      <div className="h-full shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
         <form className="m-4" onSubmit={handleSubmit(createData)}>
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -239,19 +273,39 @@ const PayWithAssessment = () => {
             </div>
           </div>
           <div className="flex flex-wrap -mx-3 mb-6">
+            {PaymentItemDetails}
+            {/* <table className="w-full border border-red-600">
+              <thead className="bg-gray-50 h-[60px]">
+                <tr>
+                  <th className="text-sm font-semibold text-black">
+                    Payment Items
+                  </th>
+                  <th className="text-sm font-semibold text-black">
+                    Payment Amount
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td>{PaymentItemDetails}</td>
+                </tr>
+              </tbody>
+            </table> */}
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
                 className="block tracking-wide text-black text-xs font-bold mb-2"
                 htmlFor="grid-first-name"
               >
-                Payment Amount
+                Total Amount
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="amount"
                 type="text"
-                name="Amount"
-                value={Amount}
+                name="TotalAmount"
+                value={TotalAmount}
                 readOnly
               />
             </div>
@@ -321,8 +375,10 @@ const PayWithAssessment = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="initializer"
                 type="text"
-                value={user.name}
-                readOnly
+                name="InitializedBy"
+                value={InitialisedBy}
+                // value={user.name}
+                onChange={handleChange}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -370,6 +426,7 @@ const PayWithAssessment = () => {
                 id="date"
                 type="text"
                 required
+                name="Date"
                 value={Date}
                 onChange={handleChange}
               />

@@ -24,27 +24,34 @@ const PayWithoutId = () => {
   };
   const initialValues = {
     name: "",
-    lastName: "",
     email: "",
     phone: "",
     address: "",
-    paymentAmount: "",
-    paymentPeriod: "",
-    comment: "",
-    conveniencyFee: "",
+    Amount: "",
+    TotalAmount: "",
     TransactionReference: "",
+    Date: "",
+    PaymentPeriod: "",
+    ConveniencyFee: "",
+    Comment: "",
+    Branch_Code: "",
+    InitialisedBy: "",
   };
   const [details, setDetails] = useState(initialValues);
   const {
     name,
     email,
-    phone,
     address,
-    paymentAmount,
-    paymentPeriod,
-    comment,
-    conveniencyFee,
+    phone,
+    Amount,
+    TotalAmount,
     TransactionReference,
+    Date,
+    PaymentPeriod,
+    ConveniencyFee,
+    Comment,
+    Branch_Code,
+    InitialisedBy,
   } = details;
   const changePaymentDetails = (e) => {
     const { name, value } = e.target;
@@ -53,31 +60,10 @@ const PayWithoutId = () => {
   // sending received data to premium database.
   const url = "http://192.168.207.18:8091/CreateECashData";
   const createData = () => {
-    try {
-      fetch(url, {
-        method: "POST",
-        // body: details,
-        body: JSON.stringify({
-          name: details.name,
-          email: details.email,
-          phone: details.phone,
-          address: details.address,
-          paymentAmount: details.paymentAmount,
-          paymentPeriod: details.paymentPeriod,
-          comment: details.comment,
-          conveniencyFee: details.conveniencyFee,
-          TransactionReference: details.TransactionReference,
-        }),
-        headers: {
-          "Content-type": "application/json",
-        },
-      })
-        .then((res) => res.json())
-        .then((json) => console.log(json));
-      alert("SENT");
-    } catch (error) {
-      console.log(error.message);
-    }
+    axios
+      .post(url, details)
+      .then((response) => console.log(response.data, "response here o "));
+    alert("SENT").catch((err) => console.log(err));
   };
 
   // function to use merchant details across application
@@ -85,17 +71,23 @@ const PayWithoutId = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
 
+  // accessing paymentItemDetails from local storage
+  const id = JSON.parse(localStorage.getItem("PaymentItemId"));
+
   // function for the entire api flow;{encryption, handlePostRequest & decryption}
   const handleRequest = async () => {
     let result;
+    let PaymentItemIds = [];
+    id.forEach((element) => {
+      PaymentItemIds.push({ PaymentItemId: element.id });
+      console.log(PaymentItemIds, "element");
+    });
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
-      // MerchantId: 1,
       BankBranchCode: "XPS",
       PaymentOptionId: 301,
       CreatedBy: "Test",
-      PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 2 }],
-      // PaymentItems: [{ PaymentItemId: 1732 }, { PaymentItemId: 1745 }],
+      PaymentItems: PaymentItemIds,
       PayerDetails: postDetails,
       PaymentOptionItems: {
         AssessmentReference: "",
@@ -117,17 +109,15 @@ const PayWithoutId = () => {
       .then(async (response) => {
         console.log(response.data, "response from post request");
         result = await handleDecrypt(response.data.data);
-        console.log("decrypted result", result);
-        console.log("checking details", result.payerDetails.PayerName);
         const detail = result.payerDetails;
-        const figure = result.paymentItemDetails;
+        // const figure = result.paymentItemDetails;
         console.log(detail, "confirm here");
         setDetails({
           name: detail.PayerName,
           email: detail.PayerEmail,
           phone: detail.PayerPhone,
           address: detail.PayerAddress,
-          paymentAmount: figure[0].Amount,
+          TotalAmount: String(result.TotalAmount),
           TransactionReference: result.TransactionReference,
         });
       })
@@ -254,7 +244,7 @@ const PayWithoutId = () => {
       <div className="mt-20 mb-2 font-bold text-xl flex items-center justify-center">
         Payment Details
       </div>
-      <div className="h-[750px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
+      <div className="h-full shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
         <form className="m-4" onSubmit={handleSubmit(createData)}>
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -325,6 +315,41 @@ const PayWithoutId = () => {
             </div>
           </div>
           <div className="flex flex-wrap -mx-3 mb-6">
+            <table className="w-full border border-red-600">
+              <thead className="bg-gray-50 h-[60px]">
+                <tr>
+                  <th className="text-sm font-semibold text-black">
+                    Payment Items
+                  </th>
+                  <th className="text-sm font-semibold text-black">
+                    Payment Amount
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {id.length > 0 &&
+                  id.map((item, index) => {
+                    return (
+                      <tr key={index}>
+                        <td className="p-4 whitespace-nowrap text-left text-black">
+                          {item?.name}
+                        </td>
+                        <td>
+                          <input
+                            className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                            type="text"
+                            // name="Amount"
+                            // value={Amount}
+                            // onChange={handleChange}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
                 className="block tracking-wide text-black text-xs font-bold mb-2"
@@ -336,9 +361,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="amount"
                 type="text"
-                name="paymentAmount"
-                value={paymentAmount}
-                readOnly
+                name="Amount"
+                value={Amount}
+                onChange={changePaymentDetails}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -352,9 +377,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="period"
                 type="text"
-                name="paymentPeriod"
-                value={paymentPeriod}
-                onChange={(e) => changePaymentDetails(e, "paymentPeriod")}
+                name="PaymentPeriod"
+                value={PaymentPeriod}
+                onChange={(e) => changePaymentDetails(e, "PaymentPeriod")}
                 required
               />
             </div>
@@ -371,9 +396,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="fee"
                 type="text"
-                name="conveniencyFee"
-                value={conveniencyFee}
-                onChange={(e) => changePaymentDetails(e, "conveniencyFee")}
+                name="ConveniencyFee"
+                value={ConveniencyFee}
+                onChange={(e) => changePaymentDetails(e, "ConveniencyFee")}
                 required
               />
             </div>
@@ -388,9 +413,9 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="comment"
                 type="text"
-                name="comment"
-                value={comment}
-                onChange={(e) => changePaymentDetails(e, "comment")}
+                name="Comment"
+                value={Comment}
+                onChange={(e) => changePaymentDetails(e, "Comment")}
                 required
               />
             </div>
@@ -422,6 +447,10 @@ const PayWithoutId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="branchcode"
                 type="text"
+                name="Branch_Code"
+                value={Branch_Code}
+                onChange={(e) => changePaymentDetails(e, "Branch_Code")}
+                required
               />
             </div>
           </div>
@@ -454,6 +483,7 @@ const PayWithoutId = () => {
                 type="text"
                 required
                 value={Date}
+                onChange={(e) => changePaymentDetails(e, "Date")}
               />
             </div>
           </div>

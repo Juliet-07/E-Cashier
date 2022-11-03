@@ -8,7 +8,6 @@ import {
 } from "../shared/services/e-cashier-encryption.service";
 import PaymentItems from "../components/PaymentItems";
 
-// display payment item details
 const PayWithId = () => {
   const { handleSubmit } = useForm();
   const [CustomerReference, setCustomerReference] = useState("");
@@ -18,6 +17,7 @@ const PayWithId = () => {
     PayerPhone: "",
     PayerAddress: "",
     Amount: "",
+    TotalAmount: "",
     TransactionReference: "",
     Date: "",
     PaymentPeriod: "",
@@ -33,6 +33,7 @@ const PayWithId = () => {
     PayerAddress,
     PayerPhone,
     Amount,
+    TotalAmount,
     TransactionReference,
     Date,
     PaymentPeriod,
@@ -58,47 +59,29 @@ const PayWithId = () => {
       // }
       .catch((err) => console.log(err));
   };
-
   // function to use merchant details across application
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
 
-  // accessing paymentID from LocalStorage
-  const getPaymentItemDetails = () => {
-    const id = JSON.parse(localStorage.getItem("PaymentItemId"));
-    let PaymentItemIds = [];
-    id.forEach((element) => {
-      PaymentItemIds.push({ PaymentItemId: element.PaymentItemId });
-    });
-    // for (let i = 0; i < id.length; i++) {
-    //   const element = id[i];
-    //   console.log(element.id, "here nko");
-    // }
-  };
-
-  // useEffect(() => {
-  //   getPaymentItemDetails();
-  // }, []);
+  // accessing paymentItemDetails from local storage
+  const id = JSON.parse(localStorage.getItem("PaymentItemId"));
 
   // function for the entire api flow;{encryption, postTransaction & decryption}
-  const handleRequest = async (inputValue) => {
-    console.log({ inputValue });
+  const handleRequest = async () => {
     let result;
-    // let PaymentItemIds = [];
-    // id.forEach((element) => {
-    //   PaymentItemIds.push({ PaymentItemId: element.PaymentItemId });
-    // });
+    let PaymentItemIds = [];
+    id.forEach((element) => {
+      PaymentItemIds.push({ PaymentItemId: element.id });
+      console.log(PaymentItemIds, "element");
+    });
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
       BankBranchCode: "XPS",
       PaymentOptionId: 300,
-      // CreatedBy: user.name,
-      CreatedBy: "Test",
-      // PaymentItems: [{ PaymentItemId: 1 }, { PaymentItemId: 3 }],
-      // PaymentItems: [{ PaymentItemId: 1195 }, { PaymentItemId: 1196 }],
-      PaymentItems: getPaymentItemDetails(),
-      // PaymentItems: [{ PaymentItemId: getPaymentItemDetails() }],
+      CreatedBy: user.name,
+      // CreatedBy: "Test",
+      PaymentItems: PaymentItemIds,
       PayerDetails: payerDetails,
       PaymentOptionItems: {
         AssessmentReference: "",
@@ -122,14 +105,13 @@ const PayWithId = () => {
         result = await handleDecrypt(response.data.data);
         console.log("decrypted result", result);
         const detail = result.payerDetails;
-        const figure = result.paymentItemDetails;
-        console.log(figure[0].Amount, "confirm here");
+        // const figure = result.TotalAmount;
         setPayerDetails({
           PayerName: detail.PayerName,
           PayerEmail: detail.PayerEmail,
           PayerPhone: detail.PayerPhone,
           PayerAddress: detail.PayerAddress,
-          Amount: String(figure[0].Amount),
+          TotalAmount: String(result.TotalAmount),
           TransactionReference: result.TransactionReference,
         });
       })
@@ -204,7 +186,7 @@ const PayWithId = () => {
       <div className="mt-20 mb-2 font-bold text-xl flex items-center justify-center">
         Payment Details
       </div>
-      <div className="h-[750px] shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
+      <div className="h-full shadow-xl mx-20 mb-10 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
         <form className="m-4" onSubmit={handleSubmit(createData)}>
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
@@ -274,19 +256,54 @@ const PayWithId = () => {
             </div>
           </div>
           <div className="flex flex-wrap -mx-3 mb-6">
+            <table className="w-full border border-red-600">
+              <thead className="bg-gray-50 h-[60px]">
+                <tr>
+                  <th className="text-sm font-semibold text-black">
+                    Payment Items
+                  </th>
+                  <th className="text-sm font-semibold text-black">
+                    Payment Amount
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {id.length > 0 &&
+                  id.map((item, index) => {
+                    return (
+                      <tr key={index}>
+                        <td className="p-4 whitespace-nowrap text-left text-black">
+                          {item?.name}
+                        </td>
+                        <td>
+                          <input
+                            className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                            type="text"
+                            // name="Amount"
+                            // value={Amount}
+                            // onChange={handleChange}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
               <label
                 className="block tracking-wide text-black text-xs font-bold mb-2"
-                htmlFor="grid-first-name"
+                htmlFor="total"
               >
-                Payment Amount
+                Total Amount
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="amount"
+                id="total"
                 type="text"
-                name="Amount"
-                value={Amount}
+                name="TotalAmount"
+                value={TotalAmount}
                 readOnly
               />
             </div>
