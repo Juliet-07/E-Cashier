@@ -376,8 +376,8 @@ const PayWithAssessment = () => {
                 id="initializer"
                 type="text"
                 name="InitializedBy"
-                value={InitialisedBy}
-                // value={user.name}
+                // value={InitialisedBy}
+                value={user.name}
                 onChange={handleChange}
               />
             </div>

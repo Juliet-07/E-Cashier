@@ -236,7 +236,7 @@ const PayWithId = () => {
                 type="text"
                 name="PayerPhone"
                 value={PayerPhone}
-                readOnly
+                onChange={handleChange}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -304,7 +304,7 @@ const PayWithId = () => {
                 type="text"
                 name="TotalAmount"
                 value={TotalAmount}
-                readOnly
+                onChange={handleChange}
               />
             </div>
             <div className="w-full md:w-1/2 px-3">

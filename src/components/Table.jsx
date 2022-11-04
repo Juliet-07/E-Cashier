@@ -32,6 +32,24 @@ const Table = () => {
     fetchPendingTransaction();
   }, []);
 
+  const getStatus = (status) => {
+    let statusClass;
+    switch (status) {
+      case "approved":
+        statusClass = "Failed";
+        break;
+
+      case "pending":
+        statusClass = "Approved";
+        break;
+
+      default: //failed
+        statusClass = "Pending";
+        break;
+    }
+    return statusClass;
+  };
+
   // function to send notification to XpressPay
   const handleRequest = async (inputValue) => {
     console.log({ inputValue });
@@ -158,17 +176,23 @@ const Table = () => {
                         <td className="p-4 whitespace-nowrap text-center">
                           {item?.date}
                         </td>
-                        <td className="p-4 whitespace-nowrap text-center">{item?.initializedBy}</td>
-                        <td className="p-4 whitespace-nowrap text-center"></td>
-                        <td className="flex">
-                          <div className="m-2" onClick={handleRequest}>
-                            <TiTick size={20} className="text-green-500" />
-                          </div>
-                          <div className="m-2">
-                            <RiDeleteBack2Fill
-                              size={20}
-                              className="text-red-600"
-                            />
+                        <td className="p-4 whitespace-nowrap text-center">
+                          {item?.initialisedBy}
+                        </td>
+                        <td className="p-4 whitespace-nowrap text-center text-yellow-400">
+                          {getStatus(item?.status)}
+                        </td>
+                        <td>
+                          <div className="flex items-center justify-center">
+                            <div className="m-2" onClick={handleRequest}>
+                              <TiTick size={30} className="text-green-500" />
+                            </div>
+                            <div className="m-2">
+                              <RiDeleteBack2Fill
+                                size={20}
+                                className="text-red-600"
+                              />
+                            </div>
                           </div>
                         </td>
                       </tr>
