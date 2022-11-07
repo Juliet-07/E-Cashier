@@ -22,13 +22,13 @@ const PayWithoutId = () => {
     const { name, value } = e.target;
     setPostDetails({ ...postDetails, [name]: value });
   };
+  const [paymentItemDetails, setPaymentItemDetails] = useState([]);
   const initialValues = {
     name: "",
     email: "",
     phone: "",
     address: "",
     Amount: "",
-    TotalAmount: "",
     TransactionReference: "",
     Date: "",
     PaymentPeriod: "",
@@ -36,6 +36,7 @@ const PayWithoutId = () => {
     Comment: "",
     Branch_Code: "",
     InitialisedBy: "",
+    items: [],
   };
   const [details, setDetails] = useState(initialValues);
   const {
@@ -44,7 +45,6 @@ const PayWithoutId = () => {
     address,
     phone,
     Amount,
-    TotalAmount,
     TransactionReference,
     Date,
     PaymentPeriod,
@@ -52,6 +52,7 @@ const PayWithoutId = () => {
     Comment,
     Branch_Code,
     InitialisedBy,
+    items,
   } = details;
   const changePaymentDetails = (e) => {
     const { name, value } = e.target;
@@ -60,6 +61,16 @@ const PayWithoutId = () => {
   // sending received data to premium database.
   const url = "http://192.168.207.18:8091/CreateECashData";
   const createData = () => {
+    const _items = [];
+    paymentItemDetails.forEach((item) => {
+      const _itemsObject = {
+        paymentItems: item.PaymentItemName,
+        paymentAmount: String(item.Amount),
+      };
+      _items.push(_itemsObject);
+    });
+    setDetails({ ...details, items: _items });
+    console.log(details, "engine oka");
     axios
       .post(url, details)
       .then((response) => console.log(response.data, "response here o "));
@@ -104,23 +115,22 @@ const PayWithoutId = () => {
   const postRequest = async (searchParams) => {
     const url = `http://80.88.8.239:9011/api/ApiGateway/PostTransaction?request=${searchParams}`;
     let result;
-    await axios
-      .post(url)
-      .then(async (response) => {
-        console.log(response.data, "response from post request");
-        result = await handleDecrypt(response.data.data);
-        const detail = result.payerDetails;
-        // const figure = result.paymentItemDetails;
-        console.log(detail, "confirm here");
-        setDetails({
-          name: detail.PayerName,
-          email: detail.PayerEmail,
-          phone: detail.PayerPhone,
-          address: detail.PayerAddress,
-          TotalAmount: String(result.TotalAmount),
-          TransactionReference: result.TransactionReference,
-        });
-      })
+    await axios.post(url).then(async (response) => {
+      console.log(response.data, "response from post request");
+      result = await handleDecrypt(response.data.data);
+      const detail = result.payerDetails;
+      setDetails({
+        name: detail.PayerName,
+        email: detail.PayerEmail,
+        phone: detail.PayerPhone,
+        address: detail.PayerAddress,
+        Amount: String(result.TotalAmount),
+        TransactionReference: result.TransactionReference,
+      });
+    });
+    setPaymentItemDetails(result.paymentItemDetails);
+    console
+      .log(paymentItemDetails, "julie")
       .catch((error) => console.log(error));
     return result;
   };
@@ -327,20 +337,20 @@ const PayWithoutId = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {id.length > 0 &&
-                  id.map((item, index) => {
+                {paymentItemDetails.length > 0 &&
+                  paymentItemDetails.map((item, index) => {
                     return (
                       <tr key={index}>
                         <td className="p-4 whitespace-nowrap text-left text-black">
-                          {item?.name}
+                          {item?.PaymentItemName}
                         </td>
                         <td>
                           <input
                             className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                             type="text"
-                            // name="Amount"
-                            // value={Amount}
-                            // onChange={handleChange}
+                            name="Amount"
+                            value={item?.Amount}
+                            disabled={item.PartPaymentAllowed === false}
                           />
                         </td>
                       </tr>
@@ -355,7 +365,7 @@ const PayWithoutId = () => {
                 className="block tracking-wide text-black text-xs font-bold mb-2"
                 htmlFor="grid-first-name"
               >
-                Payment Amount
+                Total Amount
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"

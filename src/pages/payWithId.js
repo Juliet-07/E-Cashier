@@ -11,13 +11,13 @@ import PaymentItems from "../components/PaymentItems";
 const PayWithId = () => {
   const { handleSubmit } = useForm();
   const [CustomerReference, setCustomerReference] = useState("");
+  const [paymentItemDetails, setPaymentItemDetails] = useState([]);
   const initialValues = {
     PayerName: "",
     PayerEmail: "",
     PayerPhone: "",
     PayerAddress: "",
     Amount: "",
-    TotalAmount: "",
     TransactionReference: "",
     Date: "",
     PaymentPeriod: "",
@@ -25,6 +25,7 @@ const PayWithId = () => {
     Comment: "",
     Branch_Code: "",
     InitialisedBy: "",
+    items: [],
   };
   const [payerDetails, setPayerDetails] = useState(initialValues);
   const {
@@ -33,7 +34,6 @@ const PayWithId = () => {
     PayerAddress,
     PayerPhone,
     Amount,
-    TotalAmount,
     TransactionReference,
     Date,
     PaymentPeriod,
@@ -41,6 +41,7 @@ const PayWithId = () => {
     Comment,
     Branch_Code,
     InitialisedBy,
+    items,
   } = payerDetails;
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,6 +51,16 @@ const PayWithId = () => {
   // sending received data to premium database.
   const url = "http://192.168.207.18:8091/CreateECashData";
   const createData = () => {
+    const _items = [];
+    paymentItemDetails.forEach((item) => {
+      const _itemsObject = {
+        paymentItems: item.PaymentItemName,
+        paymentAmount: String(item.Amount),
+      };
+      _items.push(_itemsObject);
+    });
+    setPayerDetails({ ...payerDetails, items: _items });
+    console.log(payerDetails, "engine oka");
     axios
       .post(url, payerDetails)
       .then((response) => console.log(response.data, "response here o "));
@@ -98,23 +109,23 @@ const PayWithId = () => {
   const postRequest = async (searchParams) => {
     const url = `http://80.88.8.239:9011/api/ApiGateway/PostTransaction?request=${searchParams}`;
     let result;
-    await axios
-      .post(url)
-      .then(async (response) => {
-        console.log(response.data, "response from post request");
-        result = await handleDecrypt(response.data.data);
-        console.log("decrypted result", result);
-        const detail = result.payerDetails;
-        // const figure = result.TotalAmount;
-        setPayerDetails({
-          PayerName: detail.PayerName,
-          PayerEmail: detail.PayerEmail,
-          PayerPhone: detail.PayerPhone,
-          PayerAddress: detail.PayerAddress,
-          TotalAmount: String(result.TotalAmount),
-          TransactionReference: result.TransactionReference,
-        });
-      })
+    await axios.post(url).then(async (response) => {
+      console.log(response.data, "response from post request");
+      result = await handleDecrypt(response.data.data);
+      console.log("decrypted result", result);
+      const detail = result.payerDetails;
+      setPayerDetails({
+        PayerName: detail.PayerName,
+        PayerEmail: detail.PayerEmail,
+        PayerPhone: detail.PayerPhone,
+        PayerAddress: detail.PayerAddress,
+        Amount: String(result.TotalAmount),
+        TransactionReference: result.TransactionReference,
+      });
+    });
+    setPaymentItemDetails(result.paymentItemDetails);
+    console
+      .log(paymentItemDetails, "julie")
       .catch((error) => console.log(error));
     return result;
   };
@@ -268,20 +279,21 @@ const PayWithId = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {id.length > 0 &&
-                  id.map((item, index) => {
+                {paymentItemDetails.length > 0 &&
+                  paymentItemDetails.map((item, index) => {
                     return (
                       <tr key={index}>
                         <td className="p-4 whitespace-nowrap text-left text-black">
-                          {item?.name}
+                          {item?.PaymentItemName}
                         </td>
                         <td>
                           <input
                             className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                             type="text"
-                            // name="Amount"
-                            // value={Amount}
-                            // onChange={handleChange}
+                            name="Amount"
+                            value={item?.Amount}
+                            disabled={item.PartPaymentAllowed === false}
+                            // onChange={setPaymentItemDetails()}
                           />
                         </td>
                       </tr>
@@ -302,8 +314,8 @@ const PayWithId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="total"
                 type="text"
-                name="TotalAmount"
-                value={TotalAmount}
+                name="Amount"
+                value={Amount}
                 onChange={handleChange}
               />
             </div>
