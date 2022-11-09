@@ -80,7 +80,7 @@ const PayWithAssessment = () => {
     let result;
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
-      BankBranchCode: "XPS",
+      BankBranchCode: "001",
       PaymentOptionId: 302,
       CreatedBy: "Test",
       PaymentItems: [],

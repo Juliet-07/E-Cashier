@@ -27,7 +27,7 @@ const TaxOffice = () => {
   const handleRequest = async () => {
     let result;
     await encryptPayload({
-      BranchCode: "XPS",
+      BranchCode: "001",
       MerchantId: getMerchantDetails().MerchantId,
     }).then(async (response) => {
       result = await getTaxOffices(response.data);

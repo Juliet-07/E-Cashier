@@ -55,7 +55,7 @@ const Table = () => {
     console.log({ inputValue });
     let result;
     await encryptPayload({
-      BankBranchCode: "XPS",
+      BankBranchCode: "001",
       TransactionReference: "1790080108008901",
       BankPaymentReference: "0099989717",
       TransactionStatusId: 2,

@@ -35,7 +35,7 @@ const LandingPage = () => {
     console.log({ inputValue });
     let result;
     await encryptPayload({
-      BranchCode: "XPS",
+      BranchCode: "001",
     }).then(async (response) => {
       result = await getAvailableMerchants(response.data);
       console.log({ result });

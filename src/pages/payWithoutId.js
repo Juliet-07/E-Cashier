@@ -95,7 +95,7 @@ const PayWithoutId = () => {
     });
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
-      BankBranchCode: "XPS",
+      BankBranchCode: "001",
       PaymentOptionId: 301,
       CreatedBy: "Test",
       PaymentItems: PaymentItemIds,
