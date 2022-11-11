@@ -14,21 +14,21 @@ const Table = () => {
   const [transactions, setTransactions] = useState([]);
   // to get details from database and render on table.
   useEffect(() => {
-    const fetchPendingTransaction = async () => {
+    const fetchApprovedTransaction = async () => {
       try {
         await axios
           .get(
-            `http://192.168.207.18:8091/GetPendingTransaction?Auth_BRANCH_CODE=${branchCode}`
+            `http://192.168.207.18:8091/GetApprovedTransaction?Auth_BRANCH_CODE=${branchCode}`
           )
           .then((response) => {
-            console.log(response.data.result, "pending transaction");
+            console.log(response.data.result, "Approved transaction");
             setTransactions(response.data.result);
           });
       } catch (err) {
         console.log(err);
       }
     };
-    fetchPendingTransaction();
+    fetchApprovedTransaction();
   }, []);
 
   const getStatus = (status) => {
@@ -39,54 +39,39 @@ const Table = () => {
         break;
 
       case "pending":
-        statusClass = "Approved";
+        statusClass = "Pending";
         break;
 
-      default: //failed
-        statusClass = "Pending";
+      default:
+        statusClass = "Approved";
         break;
     }
     return statusClass;
   };
-
+  // function to use merchant details across application
+  const getMerchantDetails = () => {
+    return JSON.parse(localStorage.getItem("Merchant"));
+  };
   // function to send notification to XpressPay
   const handleRequest = async (event, item) => {
     let result;
     console.log("data From row", item);
     await encryptPayload({
+      // BankBranchCode: item?.branch_Code,
       BankBranchCode: "001",
+      // MerchantId: getMerchantDetails().MerchantId,
+      MerchantId: 3,
       TransactionReference: item?.transactionReference,
-      BankPaymentReference: "008ACWN222770001",
-      TransactionStatusId: 2,
-      PaymentMethodId: 1,
-      PaymentChannelId: 1,
-      IsChequeTransaction: false,
-      IsThirdPartyCheque: false,
-      ChequeIssuingBankCode: "",
-      ChequeNo: "",
-      ChequeDate: "",
-      DebitAccName: "TellerTill or 11110111111",
-      DebitAccNo: "11110111121",
-      DepositorName: "Payer Name",
-      DepositorSlipNo: "074568213",
-      PostedBy: "unknown",
-      TerminalId: "",
-      TaxOfficeId: 0,
-      TotalAmountPaid: parseInt(item?.amount),
-      Narration: "Payment from Premium",
-      PaymentItemsPaid: [
-        { PaymentItemCode: "402-6(III)", Amount: 400000 },
-        // { PaymentItemCode: "402-22(xv)", Amount: 0 },
-      ],
+      ControlNo: "DT012574569",
     }).then(async (response) => {
-      result = await paymentNotification(response.data);
+      result = await printReceipt(response.data);
       console.log({ result });
     });
     return result;
   };
 
-  const paymentNotification = async (searchParams) => {
-    const url = `http://80.88.8.239:9011/api/ApiGateway/PaymentNotification?request=${searchParams}`;
+  const printReceipt = async (searchParams) => {
+    const url = `http://80.88.8.239:9011/api/Receipt/PrintReceipt?request=${searchParams}`;
     let result;
     await axios
       .post(url)
@@ -181,24 +166,17 @@ const Table = () => {
                         <td className="p-4 whitespace-nowrap text-center">
                           {item?.initialisedBy}
                         </td>
-                        <td className="p-4 whitespace-nowrap text-center text-yellow-400">
+                        <td className="p-4 whitespace-nowrap text-center text-green-500">
                           {getStatus(item?.status)}
                         </td>
                         <td>
-                          <div className="flex items-center justify-center">
-                            <div
-                              className="m-2"
-                              onClick={(e) => handleRequest(e, item)}
-                            >
-                              <TiTick size={30} className="text-green-500" />
-                            </div>
-                            <div className="m-2">
-                              <RiDeleteBack2Fill
-                                size={20}
-                                className="text-red-600"
-                              />
-                            </div>
-                          </div>
+                          <button
+                            type="submit"
+                            onClick={(e) => handleRequest(e, item)}
+                            className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-semibold text-sm p-2.5 text-center w-[130px] h-[50px]"
+                          >
+                            Print Receipt
+                          </button>
                         </td>
                       </tr>
                     );

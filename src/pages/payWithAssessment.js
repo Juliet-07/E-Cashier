@@ -62,12 +62,9 @@ const PayWithAssessment = () => {
     console.log(payerDetails, "engine oka");
     axios
       .post(url, payerDetails)
-      .then((response) => console.log(response.data, "response here o "));
-    alert("SENT")
-      // if (response.data === true) {
-      //   alert("SENT");
-      // }
-      .catch((err) => console.log(err));
+      .then((response) =>
+        console.log(response.data, "response here for creating data ")
+      );
   };
 
   // function to use merchant details across application
@@ -82,7 +79,7 @@ const PayWithAssessment = () => {
       MerchantId: getMerchantDetails().MerchantId,
       BankBranchCode: "001",
       PaymentOptionId: 302,
-      CreatedBy: "Test",
+      CreatedBy: user.name,
       PaymentItems: [],
       PayerDetails: payerDetails,
       PaymentOptionItems: {
@@ -369,9 +366,8 @@ const PayWithAssessment = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="initializer"
                 type="text"
-                name="InitializedBy"
-                // value={InitialisedBy}
-                value={user.name}
+                name="InitialisedBy"
+                value={InitialisedBy}
                 onChange={handleChange}
               />
             </div>

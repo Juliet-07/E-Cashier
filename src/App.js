@@ -6,6 +6,7 @@ import PayWithoutId from "./pages/payWithoutId";
 import PayWithAssessment from "./pages/payWithAssessment";
 import LandingPage from "./pages/LandingPage";
 import Authorizer from "./pages/authorizer";
+import Completed from "./pages/authorizerCompleted";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
       <Route path="/paywithid" element={<PayWithId />} />
       <Route path="/paywithoutid" element={<PayWithoutId />} />
       <Route path="/paywithassessment" element={<PayWithAssessment />} />
+      <Route path="/authorizerCompleted" element={<Completed />} />
     </Routes>
   );
 };

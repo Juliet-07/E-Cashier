@@ -1,19 +1,19 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import Navbar from "../components/AuthorizerNavbar";
-import Table from "../components/Table";
+import Table from "../components/TableCompleted";
 
-const Authorizer = () => {
+const Completed = () => {
   return (
     <>
       <Navbar />
       <div className="flex justify-between items-center mx-8 my-10">
         <div className="flex">
           <div className="w-[160px] h-[50px] border border-yellow-300 text-center p-2 font-medium text-xl ml-4 bg-yellow-400">
-            <NavLink to="/authorizer">Pending</NavLink>
+            <NavLink>Pending</NavLink>
           </div>
           <div className="w-[160px] h-[50px] border border-green-300 text-center p-2 font-medium text-xl bg-green-500">
-            <NavLink to="/authorizerCompleted">Completed</NavLink>
+            Completed
           </div>
           <div className="w-[160px] h-[50px] border border-red-600 text-center p-2 font-medium text-xl bg-red-600">
             Declined
@@ -60,4 +60,4 @@ const Authorizer = () => {
   );
 };
 
-export default Authorizer;
+export default Completed;

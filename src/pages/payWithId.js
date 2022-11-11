@@ -63,35 +63,29 @@ const PayWithId = () => {
     console.log(payerDetails, "engine oka");
     axios
       .post(url, payerDetails)
-      .then((response) => console.log(response.data, "response here o "));
-    alert("SENT")
-      // if (response.data === true) {
-      //   alert("SENT");
-      // }
-      .catch((err) => console.log(err));
+      .then((response) =>
+        console.log(response.data, "response here for creating data")
+      );
   };
   // function to use merchant details across application
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
 
-  // accessing paymentItemDetails from local storage
-  const id = JSON.parse(localStorage.getItem("PaymentItemId"));
-
   // function for the entire api flow;{encryption, postTransaction & decryption}
   const handleRequest = async () => {
-    let result;
+    const id = JSON.parse(localStorage.getItem("PaymentItemId"));
     let PaymentItemIds = [];
     id.forEach((element) => {
       PaymentItemIds.push({ PaymentItemId: element.id });
       console.log(PaymentItemIds, "element");
     });
+    let result;
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
       BankBranchCode: "001",
       PaymentOptionId: 300,
       CreatedBy: user.name,
-      // CreatedBy: "Test",
       PaymentItems: PaymentItemIds,
       PayerDetails: payerDetails,
       PaymentOptionItems: {
@@ -124,9 +118,9 @@ const PayWithId = () => {
       });
     });
     setPaymentItemDetails(result.paymentItemDetails);
-    console
-      .log(paymentItemDetails, "julie")
-      .catch((error) => console.log(error));
+    // console
+    //   .log(paymentItemDetails, "julie")
+    // .catch((error) => console.log(error));
     return result;
   };
 
@@ -284,14 +278,14 @@ const PayWithId = () => {
                     return (
                       <tr key={index}>
                         <td className="p-4 whitespace-nowrap text-left text-black">
-                          {item?.PaymentItemName}
+                          {item.PaymentItemName}
                         </td>
                         <td>
                           <input
                             className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                             type="text"
                             name="Amount"
-                            value={item?.Amount}
+                            value={item.Amount}
                             disabled={item.PartPaymentAllowed === false}
                             // onChange={setPaymentItemDetails()}
                           />
@@ -384,8 +378,6 @@ const PayWithId = () => {
                 type="text"
                 name="InitialisedBy"
                 value={InitialisedBy}
-                // value={user.name}
-                // readOnly
                 onChange={handleChange}
               />
             </div>
