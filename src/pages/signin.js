@@ -26,10 +26,6 @@ const Signin = () => {
         `http://192.168.207.8:8080/api/ActiveDirectory/AuthenticateUser?userName=${userName}&password=${password}`,
         {
           method: "POST",
-          // body: JSON.stringify({
-          //   userName: loginDetails.userName,
-          //   password: loginDetails.password,
-          // }),
           headers: {
             "Content-type": "application/json; charset=UTF-8",
           },
@@ -56,6 +52,7 @@ const Signin = () => {
         `http://192.168.207.18:8091/GetUserDetail?UserID=${userName}`
       );
       console.log(response.data.result);
+      console.log(response.data, "checking here");
       if (
         response.data.result.length &&
         response.data.result[0].role === "INITIATOR"

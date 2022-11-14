@@ -8,10 +8,11 @@ import {
 } from "../shared/services/e-cashier-encryption.service";
 
 const Table = () => {
-  // branch code of the authorizer that logs in
+  // branch code of the authorizer that logs in (make it dynamic)
   const branchCode = "000";
 
   const [transactions, setTransactions] = useState([]);
+
   // to get details from database and render on table.
   useEffect(() => {
     const fetchPendingTransaction = async () => {
@@ -49,6 +50,31 @@ const Table = () => {
     return statusClass;
   };
 
+  // to access user
+  const [user, setUser] = useState("");
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("Username"));
+    if (user !== null || user !== undefined) {
+      setUser(user);
+    }
+  }, []);
+  // function for payment authorization
+  const current = new Date();
+  const date = `${current.getDate()}/${
+    current.getMonth() + 1
+  }/${current.getFullYear()}`;
+
+  const handleAuthorize = (event, item) => {
+    console.log(item, "iminkwa");
+    const url = `http://192.168.207.18:8091/AuthorisedCashData?AuthorizedBy=${
+      user.name
+    }&DateAuthorized=${date}&TransactionReference=${
+      item?.transactionReference
+    }&_STATUS=${1}`;
+    axios
+      .post(url)
+      .then((response) => console.log(response, "response from authorizer"));
+  };
   // function to send notification to XpressPay
   const handleRequest = async (event, item) => {
     let result;
@@ -68,7 +94,7 @@ const Table = () => {
       DebitAccName: "TellerTill or 11110111111",
       DebitAccNo: "11110111121",
       DepositorName: "Payer Name",
-      DepositorSlipNo: "074568213",
+      DepositorSlipNo: item?.depositorSlipNo,
       PostedBy: "unknown",
       TerminalId: "",
       TaxOfficeId: 0,
@@ -188,7 +214,7 @@ const Table = () => {
                           <div className="flex items-center justify-center">
                             <div
                               className="m-2"
-                              onClick={(e) => handleRequest(e, item)}
+                              onClick={(e) => handleAuthorize(e, item)}
                             >
                               <TiTick size={30} className="text-green-500" />
                             </div>

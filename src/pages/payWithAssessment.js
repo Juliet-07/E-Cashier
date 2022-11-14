@@ -24,6 +24,7 @@ const PayWithAssessment = () => {
     Comment: "",
     Branch_Code: "",
     InitialisedBy: "",
+    DepositorSlipNo: "",
     items: [],
   };
   const [payerDetails, setPayerDetails] = useState(initialValues);
@@ -40,6 +41,7 @@ const PayWithAssessment = () => {
     Comment,
     Branch_Code,
     InitialisedBy,
+    DepositorSlipNo,
     items,
   } = payerDetails;
   const handleChange = (e) => {
@@ -112,9 +114,7 @@ const PayWithAssessment = () => {
       });
     });
     setPaymentItemDetails(result.paymentItemDetails);
-    console
-      .log(paymentItemDetails, "julie")
-      .catch((error) => console.log(error));
+    console.log(paymentItemDetails, "julie");
     return result;
   };
 
@@ -324,15 +324,15 @@ const PayWithAssessment = () => {
                 className="block tracking-wide text-black text-xs font-bold mb-2"
                 htmlFor="fee"
               >
-                Conveniency Fee
+                Depositor Slip Number
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="fee"
                 type="text"
                 required
-                name="ConveniencyFee"
-                value={ConveniencyFee}
+                name="DepositorSlipNo"
+                value={DepositorSlipNo}
                 onChange={handleChange}
               />
             </div>

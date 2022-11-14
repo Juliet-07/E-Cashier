@@ -25,6 +25,7 @@ const PayWithId = () => {
     Comment: "",
     Branch_Code: "",
     InitialisedBy: "",
+    DepositorSlipNo: "",
     items: [],
   };
   const [payerDetails, setPayerDetails] = useState(initialValues);
@@ -41,6 +42,7 @@ const PayWithId = () => {
     Comment,
     Branch_Code,
     InitialisedBy,
+    DepositorSlipNo,
     items,
   } = payerDetails;
   const handleChange = (e) => {
@@ -336,14 +338,14 @@ const PayWithId = () => {
                 className="block tracking-wide text-black text-xs font-bold mb-2"
                 htmlFor="fee"
               >
-                Conveniency Fee
+                Depositor Slip Number
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="fee"
                 type="text"
-                name="ConveniencyFee"
-                value={ConveniencyFee}
+                name="DepositorSlipNo"
+                value={DepositorSlipNo}
                 onChange={handleChange}
               />
             </div>

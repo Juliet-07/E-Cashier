@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { TiTick } from "react-icons/ti";
-import { RiDeleteBack2Fill } from "react-icons/ri";
 import {
   decryptPayload,
   encryptPayload,
@@ -12,6 +10,9 @@ const Table = () => {
   const branchCode = "000";
 
   const [transactions, setTransactions] = useState([]);
+
+  const [controlNo, setControlNo] = useState("");
+
   // to get details from database and render on table.
   useEffect(() => {
     const fetchApprovedTransaction = async () => {
@@ -48,35 +49,34 @@ const Table = () => {
     }
     return statusClass;
   };
+
   // function to use merchant details across application
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
+
   // function to send notification to XpressPay
   const handleRequest = async (event, item) => {
     let result;
     console.log("data From row", item);
     await encryptPayload({
-      // BankBranchCode: item?.branch_Code,
-      BankBranchCode: "001",
-      // MerchantId: getMerchantDetails().MerchantId,
-      MerchantId: 3,
+      MerchantId: getMerchantDetails().MerchantId,
+      BranchCode: "001",
       TransactionReference: item?.transactionReference,
-      ControlNo: "DT012574569",
+      ControlNo: controlNo,
     }).then(async (response) => {
       result = await printReceipt(response.data);
       console.log({ result });
     });
     return result;
   };
-
   const printReceipt = async (searchParams) => {
     const url = `http://80.88.8.239:9011/api/Receipt/PrintReceipt?request=${searchParams}`;
     let result;
     await axios
       .post(url)
       .then(async (response) => {
-        console.log(response.data, "response from post request");
+        console.log(response.data, "response from print receipt");
         result = await handleDecrypt(response.data.data);
         console.log("decrypted result", result);
       })
@@ -170,6 +170,15 @@ const Table = () => {
                           {getStatus(item?.status)}
                         </td>
                         <td>
+                          <input
+                            placeholder="Control No."
+                            type="text"
+                            className=" text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                            name="controlNo"
+                            value={controlNo}
+                            onChange={(e) => setControlNo(e.target.value)}
+                          />
+
                           <button
                             type="submit"
                             onClick={(e) => handleRequest(e, item)}
