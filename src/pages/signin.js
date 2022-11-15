@@ -11,39 +11,57 @@ const Signin = () => {
   const initialValues = {
     userName: "",
     password: "",
+    otp: "",
   };
   const [loginDetails, setLoginDetails] = useState(initialValues);
-  const { userName, password } = loginDetails;
+  const { userName, password, otp } = loginDetails;
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLoginDetails({ ...loginDetails, [name]: value });
   };
 
   // function to validate user through ActiveDirectory
-  const handleLoginValidation = () => {
-    try {
-      fetch(
-        `http://192.168.207.8:8080/api/ActiveDirectory/AuthenticateUser?userName=${userName}&password=${password}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-          },
-        }
-      )
-        .then((res) => res.json())
-        .then((user) => {
-          console.log(user, "confirm here");
-          let userDetail = JSON.stringify(user.data);
-          localStorage.setItem("Username", userDetail);
-          if (user.message) {
-            userRole();
-          } else alert("User does not exist");
-        });
-    } catch (error) {
-      console.log(error);
-    }
+  const handleLoginValidation = async () => {
+    let user;
+    const url =
+      "http://192.168.207.8:8080/api/ActiveDirectory/PTBAuthenticateUserOTP";
+    await axios
+      .post(url, loginDetails)
+      .then((response) => console.log(response.data.data, "auth here"));
+
+    // .then((user) => {
+    //   console.log(user, "confirm here");
+    //   let userDetail = JSON.stringify(user);
+    //   localStorage.setItem("Username", userDetail);
+    //   if (user.message) {
+    //     userRole();
+    //   } else alert("User does not exist");
+    // });
   };
+  // const handleLoginValidation = () => {
+  //   try {
+  //     fetch(
+  //       `http://192.168.207.8:8080/api/ActiveDirectory/AuthenticateUser?userName=${userName}&password=${password}`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-type": "application/json; charset=UTF-8",
+  //         },
+  //       }
+  //     )
+  //       .then((res) => res.json())
+  //       .then((user) => {
+  //         console.log(user, "confirm here");
+  //         let userDetail = JSON.stringify(user.data);
+  //         localStorage.setItem("Username", userDetail);
+  //         if (user.message) {
+  //           userRole();
+  //         } else alert("User does not exist");
+  //       });
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   // function to check user role and route to specific page
   const userRole = async () => {
@@ -100,6 +118,18 @@ const Signin = () => {
                 className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border rounded-md focus:border-red-400 focus:ring-red-300 focus:outline-none focus:ring focus:ring-opacity-40"
                 name="password"
                 value={password}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="mt-4">
+              <label htmlFor="password" className="block text-sm text-gray-800">
+                OTP
+              </label>
+              <input
+                type="text"
+                className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border rounded-md focus:border-red-400 focus:ring-red-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                name="otp"
+                value={otp}
                 onChange={handleChange}
               />
             </div>

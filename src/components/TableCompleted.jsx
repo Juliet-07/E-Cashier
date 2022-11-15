@@ -55,10 +55,10 @@ const Table = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
 
-  // function to send notification to XpressPay
+  // function to handle printing receipt
   const handleRequest = async (event, item) => {
     let result;
-    console.log("data From row", item);
+    // console.log("data From row", item);
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
       BranchCode: "001",
@@ -67,9 +67,16 @@ const Table = () => {
     }).then(async (response) => {
       result = await printReceipt(response.data);
       console.log({ result });
+      const url = window.URL.createObjectURL(new Blob([result]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "transaction_reciept.pdf"); //or any other extension
+      document.body.appendChild(link);
+      link.click();
     });
     return result;
   };
+
   const printReceipt = async (searchParams) => {
     const url = `http://80.88.8.239:9011/api/Receipt/PrintReceipt?request=${searchParams}`;
     let result;
@@ -77,7 +84,7 @@ const Table = () => {
       .post(url)
       .then(async (response) => {
         console.log(response.data, "response from print receipt");
-        result = await handleDecrypt(response.data.data);
+        result = await handleDecrypt(response.data);
         console.log("decrypted result", result);
       })
       .catch((error) => console.log(error));

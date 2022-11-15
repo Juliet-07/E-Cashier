@@ -58,6 +58,7 @@ const PayWithId = () => {
       const _itemsObject = {
         paymentItems: item.PaymentItemName,
         paymentAmount: String(item.Amount),
+        paymentItemCode: item.PaymentItemCode,
       };
       _items.push(_itemsObject);
     });
@@ -87,7 +88,8 @@ const PayWithId = () => {
       MerchantId: getMerchantDetails().MerchantId,
       BankBranchCode: "001",
       PaymentOptionId: 300,
-      CreatedBy: user.name,
+      // CreatedBy: user.name,
+      CreatedBy: "Test",
       PaymentItems: PaymentItemIds,
       PayerDetails: payerDetails,
       PaymentOptionItems: {
@@ -289,7 +291,6 @@ const PayWithId = () => {
                             name="Amount"
                             value={item.Amount}
                             disabled={item.PartPaymentAllowed === false}
-                            // onChange={setPaymentItemDetails()}
                           />
                         </td>
                       </tr>

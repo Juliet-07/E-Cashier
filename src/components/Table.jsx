@@ -8,6 +8,10 @@ import {
 } from "../shared/services/e-cashier-encryption.service";
 
 const Table = () => {
+  const current = new Date();
+  const date = `${current.getDate()}/${
+    current.getMonth() + 1
+  }/${current.getFullYear()}`;
   // branch code of the authorizer that logs in (make it dynamic)
   const branchCode = "000";
 
@@ -25,8 +29,8 @@ const Table = () => {
             console.log(response.data.result, "pending transaction");
             setTransactions(response.data.result);
           });
-      } catch (err) {
-        console.log(err);
+      } catch (error) {
+        console.log(error);
       }
     };
     fetchPendingTransaction();
@@ -52,29 +56,68 @@ const Table = () => {
 
   // to access user
   const [user, setUser] = useState("");
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("Username"));
-    if (user !== null || user !== undefined) {
-      setUser(user);
-    }
-  }, []);
-  // function for payment authorization
-  const current = new Date();
-  const date = `${current.getDate()}/${
-    current.getMonth() + 1
-  }/${current.getFullYear()}`;
+  // useEffect(() => {
+  //   const user = JSON.parse(localStorage.getItem("Username"));
+  //   if (user !== null || user !== undefined) {
+  //     setUser(user);
+  //   }
+  // }, []);
 
-  const handleAuthorize = (event, item) => {
+  const handleAction = async (event, item) => {
+    await handleAuthorize(event, item);
+    await handleDebit();
+    await handleRequest(event, item);
+  };
+  // function for payment authorization
+  const handleAuthorize = async (event, item) => {
     console.log(item, "iminkwa");
     const url = `http://192.168.207.18:8091/AuthorisedCashData?AuthorizedBy=${
       user.name
     }&DateAuthorized=${date}&TransactionReference=${
       item?.transactionReference
     }&_STATUS=${1}`;
-    axios
+    await axios
       .post(url)
       .then((response) => console.log(response, "response from authorizer"));
   };
+
+  // function for debit call
+  const handleDebit = async () => {
+    const url = "http://192.168.207.18:8085/api/Account/PostTransaction";
+    try {
+      const payload = {
+        amount: 3000,
+        sourceAccount: "160501000",
+        destinationAccount: "0070000018",
+        applyFee: true,
+        narration: "Deployed test",
+        fees: [
+          {
+            account: "160501000",
+
+            amount: 30,
+
+            narration: "Deployed Trans",
+          },
+
+          {
+            account: "160501000",
+
+            amount: 10,
+
+            narration: "Test Trans",
+          },
+        ],
+      };
+      await axios.post(url, payload).then((response) => {
+        console.log(response, "response from debit api");
+        window.alert(response.data.respMsg);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // function to send notification to XpressPay
   const handleRequest = async (event, item) => {
     let result;
@@ -121,7 +164,7 @@ const Table = () => {
         result = await handleDecrypt(response.data.data);
         console.log("decrypted result", result);
       })
-      .catch((error) => console.log(error));
+      .catch((erroror) => console.log(erroror));
     return result;
   };
 
@@ -214,7 +257,7 @@ const Table = () => {
                           <div className="flex items-center justify-center">
                             <div
                               className="m-2"
-                              onClick={(e) => handleAuthorize(e, item)}
+                              onClick={(e) => handleAction(e, item)}
                             >
                               <TiTick size={30} className="text-green-500" />
                             </div>
