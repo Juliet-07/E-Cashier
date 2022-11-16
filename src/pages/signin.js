@@ -21,47 +21,31 @@ const Signin = () => {
   };
 
   // function to validate user through ActiveDirectory
-  const handleLoginValidation = async () => {
-    let user;
-    const url =
-      "http://192.168.207.8:8080/api/ActiveDirectory/PTBAuthenticateUserOTP";
-    await axios
-      .post(url, loginDetails)
-      .then((response) => console.log(response.data.data, "auth here"));
-
-    // .then((user) => {
-    //   console.log(user, "confirm here");
-    //   let userDetail = JSON.stringify(user);
-    //   localStorage.setItem("Username", userDetail);
-    //   if (user.message) {
-    //     userRole();
-    //   } else alert("User does not exist");
-    // });
+  const handleLoginValidation = () => {
+    try {
+      fetch(
+        "http://192.168.207.8:8080/api/ActiveDirectory/PTBAuthenticateUserOTP",
+        {
+          method: "POST",
+          body: JSON.stringify(loginDetails),
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        }
+      )
+        .then((res) => res.json())
+        .then((user) => {
+          console.log(user, "confirm here");
+          let userDetail = JSON.stringify(user.data);
+          localStorage.setItem("Username", userDetail);
+          if (user.message) {
+            userRole();
+          } else alert("User does not exist");
+        });
+    } catch (error) {
+      console.log(error);
+    }
   };
-  // const handleLoginValidation = () => {
-  //   try {
-  //     fetch(
-  //       `http://192.168.207.8:8080/api/ActiveDirectory/AuthenticateUser?userName=${userName}&password=${password}`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-type": "application/json; charset=UTF-8",
-  //         },
-  //       }
-  //     )
-  //       .then((res) => res.json())
-  //       .then((user) => {
-  //         console.log(user, "confirm here");
-  //         let userDetail = JSON.stringify(user.data);
-  //         localStorage.setItem("Username", userDetail);
-  //         if (user.message) {
-  //           userRole();
-  //         } else alert("User does not exist");
-  //       });
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   // function to check user role and route to specific page
   const userRole = async () => {

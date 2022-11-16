@@ -70,7 +70,7 @@ const Table = () => {
       const url = window.URL.createObjectURL(new Blob([result]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "transaction_reciept.pdf"); //or any other extension
+      link.setAttribute("download", "transaction_receipt.pdf"); //or any other extension
       document.body.appendChild(link);
       link.click();
     });
@@ -84,11 +84,11 @@ const Table = () => {
       .post(url)
       .then(async (response) => {
         console.log(response.data, "response from print receipt");
-        result = await handleDecrypt(response.data);
-        console.log("decrypted result", result);
+        // result = await handleDecrypt(response.data);
+        // console.log("decrypted result", result);
       })
       .catch((error) => console.log(error));
-    return result;
+    // return result;
   };
 
   // function to decrypt encrypted data

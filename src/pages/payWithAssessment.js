@@ -57,6 +57,7 @@ const PayWithAssessment = () => {
       const _itemsObject = {
         paymentItems: item.PaymentItemName,
         paymentAmount: String(item.Amount),
+        paymentItemCode: item.PaymentItemCode,
       };
       _items.push(_itemsObject);
     });
@@ -101,6 +102,7 @@ const PayWithAssessment = () => {
     let result;
     await axios.post(url).then(async (response) => {
       console.log(response.data, "response from post request");
+      window.alert(response.data.responseMessage);
       result = await handleDecrypt(response.data.data);
       console.log("decrypted result", result);
       const detail = result.payerDetails;
@@ -417,6 +419,7 @@ const PayWithAssessment = () => {
                 type="text"
                 required
                 name="Date"
+                placeholder="dd-mm-yy"
                 value={Date}
                 onChange={handleChange}
               />

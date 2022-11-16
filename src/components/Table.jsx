@@ -56,17 +56,17 @@ const Table = () => {
 
   // to access user
   const [user, setUser] = useState("");
-  // useEffect(() => {
-  //   const user = JSON.parse(localStorage.getItem("Username"));
-  //   if (user !== null || user !== undefined) {
-  //     setUser(user);
-  //   }
-  // }, []);
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("Username"));
+    if (user !== null || user !== undefined) {
+      setUser(user);
+    }
+  }, []);
 
   const handleAction = async (event, item) => {
     await handleAuthorize(event, item);
-    await handleDebit();
-    await handleRequest(event, item);
+    await handleDebit(event, item);
+    // await handleRequest(event, item, bankpaymentreference);
   };
   // function for payment authorization
   const handleAuthorize = async (event, item) => {
@@ -80,9 +80,9 @@ const Table = () => {
       .post(url)
       .then((response) => console.log(response, "response from authorizer"));
   };
-
+  const [BankPaymentReference, setBankPaymentReference] = useState("");
   // function for debit call
-  const handleDebit = async () => {
+  const handleDebit = async (event, item) => {
     const url = "http://192.168.207.18:8085/api/Account/PostTransaction";
     try {
       const payload = {
@@ -94,24 +94,22 @@ const Table = () => {
         fees: [
           {
             account: "160501000",
-
             amount: 30,
-
             narration: "Deployed Trans",
           },
-
           {
             account: "160501000",
-
             amount: 10,
-
             narration: "Test Trans",
           },
         ],
       };
-      await axios.post(url, payload).then((response) => {
+      await axios.post(url, payload).then(async (response) => {
         console.log(response, "response from debit api");
         window.alert(response.data.respMsg);
+        // setBankPaymentReference(response.data.data.referenceNo);
+        // console.log("reference ndi bank", BankPaymentReference);
+        handleRequest(event, item, response.data.data.referenceNo);
       });
     } catch (error) {
       console.log(error);
@@ -119,13 +117,22 @@ const Table = () => {
   };
 
   // function to send notification to XpressPay
-  const handleRequest = async (event, item) => {
+  const handleRequest = async (event, item, bankpaymentreference) => {
     let result;
     console.log("data From row", item);
+    let paidItems = item.item;
+    let PaymentItemsPaid = [];
+    paidItems.forEach((element) => {
+      PaymentItemsPaid.push({
+        PaymentItemCode: element.paymentitemcode,
+        Amount: parseInt(element.paymenT_AMOUNT),
+      });
+      console.log(PaymentItemsPaid, "element");
+    });
     await encryptPayload({
       BankBranchCode: "001",
       TransactionReference: item?.transactionReference,
-      BankPaymentReference: "008ACWN222770001",
+      BankPaymentReference: bankpaymentreference,
       TransactionStatusId: 2,
       PaymentMethodId: 1,
       PaymentChannelId: 1,
@@ -143,10 +150,7 @@ const Table = () => {
       TaxOfficeId: 0,
       TotalAmountPaid: parseInt(item?.amount),
       Narration: "Payment from Premium",
-      PaymentItemsPaid: [
-        { PaymentItemCode: "402-6(III)", Amount: 400000 },
-        // { PaymentItemCode: "402-22(xv)", Amount: 0 },
-      ],
+      PaymentItemsPaid: PaymentItemsPaid,
     }).then(async (response) => {
       result = await paymentNotification(response.data);
       console.log({ result });

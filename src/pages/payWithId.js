@@ -88,8 +88,7 @@ const PayWithId = () => {
       MerchantId: getMerchantDetails().MerchantId,
       BankBranchCode: "001",
       PaymentOptionId: 300,
-      // CreatedBy: user.name,
-      CreatedBy: "Test",
+      CreatedBy: user.name,
       PaymentItems: PaymentItemIds,
       PayerDetails: payerDetails,
       PaymentOptionItems: {
@@ -430,6 +429,7 @@ const PayWithId = () => {
                 type="text"
                 required
                 name="Date"
+                placeholder="dd-mm-yy"
                 value={Date}
                 onChange={handleChange}
               />
