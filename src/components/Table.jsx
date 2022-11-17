@@ -12,12 +12,33 @@ const Table = () => {
   const date = `${current.getDate()}/${
     current.getMonth() + 1
   }/${current.getFullYear()}`;
-  // branch code of the authorizer that logs in (make it dynamic)
-  const branchCode = "000";
-
+  const [user, setUser] = useState("");
+  const [branchCode, setBranchCode] = useState("");
   const [transactions, setTransactions] = useState([]);
+  const [sourceAccount, setSourceAccount] = useState("");
+  const [destinationAccount, setDestinationAccount] = useState("");
+  // const [BankPaymentReference, setBankPaymentReference] = useState("");
 
-  // to get details from database and render on table.
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("Username"));
+    if (user !== null || user !== undefined) {
+      setUser(user);
+    }
+    const getUserDetail = async () => {
+      await axios
+        .get(
+          `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
+        )
+        .then((response) => {
+          console.log(response.data.result);
+          setBranchCode(response.data.result[0].branch);
+          setSourceAccount(response.data.result[0].sourcE_ACCOUNT);
+          setDestinationAccount(response.data.result[0].destinatioN_ACCOUNT);
+        });
+    };
+    getUserDetail();
+  }, []);
+
   useEffect(() => {
     const fetchPendingTransaction = async () => {
       try {
@@ -34,7 +55,7 @@ const Table = () => {
       }
     };
     fetchPendingTransaction();
-  }, []);
+  });
 
   const getStatus = (status) => {
     let statusClass;
@@ -54,20 +75,12 @@ const Table = () => {
     return statusClass;
   };
 
-  // to access user
-  const [user, setUser] = useState("");
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("Username"));
-    if (user !== null || user !== undefined) {
-      setUser(user);
-    }
-  }, []);
-
   const handleAction = async (event, item) => {
     await handleAuthorize(event, item);
     await handleDebit(event, item);
     // await handleRequest(event, item, bankpaymentreference);
   };
+
   // function for payment authorization
   const handleAuthorize = async (event, item) => {
     console.log(item, "iminkwa");
@@ -80,26 +93,26 @@ const Table = () => {
       .post(url)
       .then((response) => console.log(response, "response from authorizer"));
   };
-  const [BankPaymentReference, setBankPaymentReference] = useState("");
+
   // function for debit call
   const handleDebit = async (event, item) => {
     const url = "http://192.168.207.18:8085/api/Account/PostTransaction";
     try {
       const payload = {
-        amount: 3000,
-        sourceAccount: "160501000",
-        destinationAccount: "0070000018",
+        amount: parseInt(item?.amount),
+        sourceAccount: sourceAccount,
+        destinationAccount: destinationAccount,
         applyFee: true,
         narration: "Deployed test",
         fees: [
           {
-            account: "160501000",
-            amount: 30,
+            account: sourceAccount,
+            amount: 0,
             narration: "Deployed Trans",
           },
           {
-            account: "160501000",
-            amount: 10,
+            account: sourceAccount,
+            amount: 0,
             narration: "Test Trans",
           },
         ],
@@ -116,7 +129,7 @@ const Table = () => {
     }
   };
 
-  // function to send notification to XpressPay
+  // function to send notification to XpressPay {entire flow of encryption, call api and decryption}
   const handleRequest = async (event, item, bankpaymentreference) => {
     let result;
     console.log("data From row", item);
@@ -172,7 +185,6 @@ const Table = () => {
     return result;
   };
 
-  // function to decrypt encrypted data
   const handleDecrypt = async (encryptedData) => {
     let result;
     await decryptPayload(encryptedData).then((decryptResponse) => {
