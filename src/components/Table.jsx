@@ -13,7 +13,8 @@ const Table = () => {
     current.getMonth() + 1
   }/${current.getFullYear()}`;
   const [user, setUser] = useState("");
-  const [branchCode, setBranchCode] = useState("");
+  const [_branchCode, setBranchCode] = useState("");
+  const branchCode = "000";
   const [transactions, setTransactions] = useState([]);
   const [sourceAccount, setSourceAccount] = useState("");
   const [destinationAccount, setDestinationAccount] = useState("");
@@ -55,7 +56,7 @@ const Table = () => {
       }
     };
     fetchPendingTransaction();
-  });
+  }, []);
 
   const getStatus = (status) => {
     let statusClass;
@@ -75,10 +76,10 @@ const Table = () => {
     return statusClass;
   };
 
-  const handleAction = async (event, item) => {
+  const handleAction = async (event, item, bankpaymentreference) => {
     await handleAuthorize(event, item);
     await handleDebit(event, item);
-    // await handleRequest(event, item, bankpaymentreference);
+    await saveReference(event, item, bankpaymentreference);
   };
 
   // function for payment authorization
@@ -190,9 +191,20 @@ const Table = () => {
     await decryptPayload(encryptedData).then((decryptResponse) => {
       decryptResponse.data = JSON.parse(decryptResponse.data);
       result = decryptResponse.data;
+      window.alert(result.ResponseMessage);
       console.log(result);
     });
     return result;
+  };
+
+  // to save reference
+  const saveReference = async (event, item, bankpaymentreference) => {
+    const url = `http://192.168.207.18:8091/SaveDebitTransRef?TransactionReference=${bankpaymentreference}&EcashReference=${item?.transactionReference}`;
+    await axios
+      .post(url)
+      .then((response) =>
+        console.log(response, "response from savedReference")
+      );
   };
   return (
     <div className="flex flex-col">

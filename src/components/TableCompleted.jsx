@@ -84,6 +84,7 @@ const Table = () => {
       .post(url)
       .then(async (response) => {
         console.log(response.data, "response from print receipt");
+        window.alert(response.data.responseMessage);
         // result = await handleDecrypt(response.data);
         // console.log("decrypted result", result);
       })
