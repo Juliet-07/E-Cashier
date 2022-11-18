@@ -76,10 +76,9 @@ const Table = () => {
     return statusClass;
   };
 
-  const handleAction = async (event, item, bankpaymentreference) => {
+  const handleAction = async (event, item) => {
     await handleAuthorize(event, item);
     await handleDebit(event, item);
-    await saveReference(event, item, bankpaymentreference);
   };
 
   // function for payment authorization
@@ -124,6 +123,7 @@ const Table = () => {
         // setBankPaymentReference(response.data.data.referenceNo);
         // console.log("reference ndi bank", BankPaymentReference);
         handleRequest(event, item, response.data.data.referenceNo);
+        saveReference(event, item, response.data.data.referenceNo);
       });
     } catch (error) {
       console.log(error);
@@ -138,8 +138,8 @@ const Table = () => {
     let PaymentItemsPaid = [];
     paidItems.forEach((element) => {
       PaymentItemsPaid.push({
-        PaymentItemCode: element.paymentitemcode,
-        Amount: parseInt(element.paymenT_AMOUNT),
+        PaymentItemCode: element.PaymentItemCode,
+        Amount: parseInt(element.Amount),
       });
       console.log(PaymentItemsPaid, "element");
     });
@@ -197,7 +197,7 @@ const Table = () => {
     return result;
   };
 
-  // to save reference
+  // to save reference numbers in premium database
   const saveReference = async (event, item, bankpaymentreference) => {
     const url = `http://192.168.207.18:8091/SaveDebitTransRef?TransactionReference=${bankpaymentreference}&EcashReference=${item?.transactionReference}`;
     await axios

@@ -15,18 +15,18 @@ const PayWithId = () => {
   const initialValues = {
     PayerName: "",
     PayerEmail: "",
-    PayerPhone: "",
     PayerAddress: "",
+    PayerPhone: "",
     Amount: "",
-    TransactionReference: "",
-    Date: "",
-    PaymentPeriod: "",
     ConveniencyFee: "",
+    PaymentPeriod: "",
     Comment: "",
-    Branch_Code: "",
     InitialisedBy: "",
+    Branch_Code: "",
+    Date: "",
+    TransactionReference: "",
     DepositorSlipNo: "",
-    items: [],
+    item: [],
   };
   const [payerDetails, setPayerDetails] = useState(initialValues);
   const {
@@ -35,15 +35,15 @@ const PayWithId = () => {
     PayerAddress,
     PayerPhone,
     Amount,
-    TransactionReference,
-    Date,
-    PaymentPeriod,
     ConveniencyFee,
+    PaymentPeriod,
     Comment,
-    Branch_Code,
     InitialisedBy,
+    Branch_Code,
+    Date,
+    TransactionReference,
     DepositorSlipNo,
-    items,
+    item,
   } = payerDetails;
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,19 +56,18 @@ const PayWithId = () => {
     const _items = [];
     paymentItemDetails.forEach((item) => {
       const _itemsObject = {
-        paymentItems: item.PaymentItemName,
-        paymentAmount: String(item.Amount),
-        paymentItemCode: item.PaymentItemCode,
+        PaymentItemName: item.PaymentItemName,
+        Amount: String(item.Amount),
+        PaymentItemCode: item.PaymentItemCode,
       };
       _items.push(_itemsObject);
     });
-    setPayerDetails({ ...payerDetails, items: _items });
+    setPayerDetails({ ...payerDetails, item: _items });
     console.log(payerDetails, "engine oka");
-    axios
-      .post(url, payerDetails)
-      .then((response) =>
-        console.log(response.data, "response here for creating data")
-      );
+    axios.post(url, payerDetails).then((response) => {
+      console.log(response.data, "response here for creating data");
+      alert("Transaction Completed");
+    });
   };
   // function to use merchant details across application
   const getMerchantDetails = () => {

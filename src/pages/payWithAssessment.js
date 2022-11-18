@@ -25,7 +25,7 @@ const PayWithAssessment = () => {
     Branch_Code: "",
     InitialisedBy: "",
     DepositorSlipNo: "",
-    items: [],
+    item: [],
   };
   const [payerDetails, setPayerDetails] = useState(initialValues);
   const {
@@ -42,7 +42,7 @@ const PayWithAssessment = () => {
     Branch_Code,
     InitialisedBy,
     DepositorSlipNo,
-    items,
+    item,
   } = payerDetails;
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,7 +61,7 @@ const PayWithAssessment = () => {
       };
       _items.push(_itemsObject);
     });
-    setPayerDetails({ ...payerDetails, items: _items });
+    setPayerDetails({ ...payerDetails, item: _items });
     console.log(payerDetails, "engine oka");
     axios
       .post(url, payerDetails)
