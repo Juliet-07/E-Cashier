@@ -109,13 +109,17 @@ const Table = () => {
             account: sourceAccount,
             amount: 0,
             narration: "Deployed Trans",
+            trnCode: "122",
           },
           {
             account: sourceAccount,
             amount: 0,
             narration: "Test Trans",
+            trnCode: "122",
           },
         ],
+        externalReference: "4911111111111702",
+        trnCode: "122",
       };
       await axios.post(url, payload).then(async (response) => {
         console.log(response, "response from debit api");

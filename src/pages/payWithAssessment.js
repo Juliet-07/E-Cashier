@@ -102,7 +102,7 @@ const PayWithAssessment = () => {
     let result;
     await axios.post(url).then(async (response) => {
       console.log(response.data, "response from post request");
-      window.alert(response.data.responseMessage);
+      // window.alert(response.data.responseMessage);
       result = await handleDecrypt(response.data.data);
       console.log("decrypted result", result);
       const detail = result.payerDetails;
