@@ -95,8 +95,18 @@ const Table = () => {
   };
 
   // function for debit call
+  function randomString(length, chars) {
+    var result = "";
+    for (var i = length; i > 0; --i)
+      result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+  }
   const handleDebit = async (event, item) => {
     const url = "http://192.168.207.18:8085/api/Account/PostTransaction";
+    let externalReference = randomString(
+      16,
+      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    );
     try {
       const payload = {
         amount: parseInt(item?.amount),
@@ -118,7 +128,7 @@ const Table = () => {
             trnCode: "122",
           },
         ],
-        externalReference: "4911111111111702",
+        externalReference: externalReference,
         trnCode: "122",
       };
       await axios.post(url, payload).then(async (response) => {

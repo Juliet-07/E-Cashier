@@ -7,11 +7,13 @@ import {
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
 import PaymentItems from "../components/PaymentItems";
+import Modal from "../components/confirmModal";
 
 const PayWithId = () => {
   const { handleSubmit } = useForm();
   const [CustomerReference, setCustomerReference] = useState("");
   const [paymentItemDetails, setPaymentItemDetails] = useState([]);
+  const [detailsToConfirm, setDetailsToConfirm] = useState([]);
   const initialValues = {
     PayerName: "",
     PayerEmail: "",
@@ -98,6 +100,8 @@ const PayWithId = () => {
     }).then(async (response) => {
       result = await postRequest(response.data);
       console.log({ result });
+      setDetailsToConfirm({ result });
+      console.log(detailsToConfirm, "confirmation");
     });
     return result;
   };
@@ -121,8 +125,7 @@ const PayWithId = () => {
       });
     });
     setPaymentItemDetails(result.paymentItemDetails);
-    // console
-    //   .log(paymentItemDetails, "julie")
+    // console.log(paymentItemDetails, "julie");
     // .catch((error) => console.log(error));
     return result;
   };
@@ -435,7 +438,8 @@ const PayWithId = () => {
               />
             </div>
           </div>
-          <div className="flex items-end justify-end m-4">
+          <div className="flex items-end justify-between m-4">
+            <Modal />
             <button className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-medium text-sm p-2.5 text-center w-[200px]">
               Complete Transaction
             </button>

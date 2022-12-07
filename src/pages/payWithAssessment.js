@@ -102,7 +102,7 @@ const PayWithAssessment = () => {
     let result;
     await axios.post(url).then(async (response) => {
       console.log(response.data, "response from post request");
-      // window.alert(response.data.responseMessage);
+      window.alert(response.data.responseMessage);
       result = await handleDecrypt(response.data.data);
       console.log("decrypted result", result);
       const detail = result.payerDetails;
@@ -147,7 +147,7 @@ const PayWithAssessment = () => {
       <div className="h-[170px] shadow-xl mx-20 border rounded border-red-600 text-red-600 font-medium text-sm p-4">
         <form
           className="flex items-center m-4 p-4"
-          onClick={handleSubmit(handleRequest)}
+          onSubmit={handleSubmit(handleRequest)}
         >
           <div>
             <label
@@ -161,7 +161,6 @@ const PayWithAssessment = () => {
               id="ref"
               className="shadow-sm bg-gray-50 border border-red-600 text-gray-900 text-sm block p-2.5 w-[500px]"
               required
-              name="assessment"
               value={assessment}
               onChange={(e) => setAssesment(e.target.value)}
             />
