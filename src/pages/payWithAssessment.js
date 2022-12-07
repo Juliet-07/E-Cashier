@@ -63,11 +63,10 @@ const PayWithAssessment = () => {
     });
     setPayerDetails({ ...payerDetails, item: _items });
     console.log(payerDetails, "engine oka");
-    axios
-      .post(url, payerDetails)
-      .then((response) =>
-        console.log(response.data, "response here for creating data ")
-      );
+    axios.post(url, payerDetails).then((response) => {
+      console.log(response.data, "response here for creating data ");
+      alert("Transaction Completed");
+    });
   };
 
   // function to use merchant details across application

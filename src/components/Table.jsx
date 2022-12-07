@@ -112,7 +112,7 @@ const Table = () => {
         amount: parseInt(item?.amount),
         sourceAccount: sourceAccount,
         destinationAccount: destinationAccount,
-        applyFee: true,
+        applyFee: false,
         narration: "Deployed test",
         fees: [
           {
@@ -149,13 +149,14 @@ const Table = () => {
     let result;
     console.log("data From row", item);
     let paidItems = item.item;
+    console.log(paidItems, "what is here");
     let PaymentItemsPaid = [];
     paidItems.forEach((element) => {
       PaymentItemsPaid.push({
         PaymentItemCode: element.PaymentItemCode,
         Amount: parseInt(element.Amount),
       });
-      console.log(PaymentItemsPaid, "element");
+      console.log(PaymentItemsPaid.Amount, "element");
     });
     await encryptPayload({
       BankBranchCode: "001",
@@ -192,7 +193,7 @@ const Table = () => {
     await axios
       .post(url)
       .then(async (response) => {
-        console.log(response.data, "response from post request");
+        console.log(response.data, "response from payment request");
         result = await handleDecrypt(response.data.data);
         console.log("decrypted result", result);
       })
