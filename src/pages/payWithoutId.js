@@ -32,7 +32,7 @@ const PayWithoutId = () => {
     TransactionReference: "",
     Date: "",
     PaymentPeriod: "",
-    ConveniencyFee: "",
+    DepositorSlipNo: "",
     Comment: "",
     Branch_Code: "",
     InitialisedBy: "",
@@ -48,7 +48,7 @@ const PayWithoutId = () => {
     TransactionReference,
     Date,
     PaymentPeriod,
-    ConveniencyFee,
+    DepositorSlipNo,
     Comment,
     Branch_Code,
     InitialisedBy,
@@ -64,8 +64,9 @@ const PayWithoutId = () => {
     const _items = [];
     paymentItemDetails.forEach((item) => {
       const _itemsObject = {
-        paymentItems: item.PaymentItemName,
-        paymentAmount: String(item.Amount),
+        PaymentItemName: item.PaymentItemName,
+        Amount: String(item.Amount),
+        PaymentItemCode: item.PaymentItemCode,
       };
       _items.push(_itemsObject);
     });
@@ -73,8 +74,10 @@ const PayWithoutId = () => {
     console.log(details, "engine oka");
     axios
       .post(url, details)
-      .then((response) => console.log(response.data, "response here o "));
-    alert("SENT").catch((err) => console.log(err));
+      .then((response) =>{
+        console.log(response.data, "response here for creating data")
+        alert("Transaction Completed");
+  });
   };
 
   // function to use merchant details across application
@@ -83,21 +86,21 @@ const PayWithoutId = () => {
   };
 
   // accessing paymentItemDetails from local storage
-  const id = JSON.parse(localStorage.getItem("PaymentItemId"));
 
   // function for the entire api flow;{encryption, handlePostRequest & decryption}
   const handleRequest = async () => {
-    let result;
+    const id = JSON.parse(localStorage.getItem("PaymentItemId"));
     let PaymentItemIds = [];
     id.forEach((element) => {
       PaymentItemIds.push({ PaymentItemId: element.id });
       console.log(PaymentItemIds, "element");
     });
+    let result;
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
       BankBranchCode: "001",
       PaymentOptionId: 301,
-      CreatedBy: "Test",
+      CreatedBy: user.name,
       PaymentItems: PaymentItemIds,
       PayerDetails: postDetails,
       PaymentOptionItems: {
@@ -117,6 +120,7 @@ const PayWithoutId = () => {
     let result;
     await axios.post(url).then(async (response) => {
       console.log(response.data, "response from post request");
+      window.alert(response.data.responseMessage);
       result = await handleDecrypt(response.data.data);
       const detail = result.payerDetails;
       setDetails({
@@ -129,9 +133,9 @@ const PayWithoutId = () => {
       });
     });
     setPaymentItemDetails(result.paymentItemDetails);
-    console
-      .log(paymentItemDetails, "julie")
-      .catch((error) => console.log(error));
+    // console
+    //   .log(paymentItemDetails, "julie")
+    //   .catch((error) => console.log(error));
     return result;
   };
 
@@ -262,7 +266,7 @@ const PayWithoutId = () => {
                 className="block tracking-wide text-black text-xs font-bold mb-2"
                 htmlFor="grid-first-name"
               >
-                Name
+                Payer Name
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
@@ -400,15 +404,15 @@ const PayWithoutId = () => {
                 className="block tracking-wide text-black text-xs font-bold mb-2"
                 htmlFor="fee"
               >
-                Conveniency Fee
+                Depositor SLip Number
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="fee"
                 type="text"
-                name="ConveniencyFee"
-                value={ConveniencyFee}
-                onChange={(e) => changePaymentDetails(e, "ConveniencyFee")}
+                name="DepositorSlipNo"
+                value={DepositorSlipNo}
+                onChange={(e) => changePaymentDetails(e, "DepositorSlipNo")}
                 required
               />
             </div>

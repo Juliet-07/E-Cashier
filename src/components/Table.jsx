@@ -149,14 +149,13 @@ const Table = () => {
     let result;
     console.log("data From row", item);
     let paidItems = item.item;
-    console.log(paidItems, "what is here");
     let PaymentItemsPaid = [];
     paidItems.forEach((element) => {
       PaymentItemsPaid.push({
-        PaymentItemCode: element.PaymentItemCode,
-        Amount: parseInt(element.Amount),
+        PaymentItemCode: element.paymentItemCode,
+        Amount: parseInt(element.amount),
       });
-      console.log(PaymentItemsPaid.Amount, "element");
+      console.log(PaymentItemsPaid, "element");
     });
     await encryptPayload({
       BankBranchCode: "001",

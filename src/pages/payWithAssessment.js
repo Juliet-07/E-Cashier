@@ -55,9 +55,9 @@ const PayWithAssessment = () => {
     const _items = [];
     paymentItemDetails.forEach((item) => {
       const _itemsObject = {
-        paymentItems: item.PaymentItemName,
-        paymentAmount: String(item.Amount),
-        paymentItemCode: item.PaymentItemCode,
+        PaymentItemName: item.PaymentItemName,
+        Amount: String(item.Amount),
+        PaymentItemCode: item.PaymentItemCode,
       };
       _items.push(_itemsObject);
     });
@@ -68,7 +68,6 @@ const PayWithAssessment = () => {
       alert("Transaction Completed");
     });
   };
-
   // function to use merchant details across application
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));

@@ -64,10 +64,12 @@ const Table = () => {
       BranchCode: "001",
       TransactionReference: item?.transactionReference,
       ControlNo: controlNo,
+      PayerEmail: item?.payerEmail,
     }).then(async (response) => {
       result = await printReceipt(response.data);
       console.log({ result });
       const url = window.URL.createObjectURL(new Blob([result]));
+      console.log(url, "url");
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", "transaction_receipt.pdf"); //or any other extension
@@ -82,24 +84,11 @@ const Table = () => {
     let result;
     await axios
       .post(url)
-      .then(async (response) => {
+      .then((response) => {
         console.log(response.data, "response from print receipt");
-        window.alert(response.data.responseMessage);
-        // result = await handleDecrypt(response.data);
-        // console.log("decrypted result", result);
+        result = response.data;
       })
       .catch((error) => console.log(error));
-    // return result;
-  };
-
-  // function to decrypt encrypted data
-  const handleDecrypt = async (encryptedData) => {
-    let result;
-    await decryptPayload(encryptedData).then((decryptResponse) => {
-      decryptResponse.data = JSON.parse(decryptResponse.data);
-      result = decryptResponse.data;
-      console.log(result);
-    });
     return result;
   };
   return (

@@ -100,8 +100,8 @@ const PayWithId = () => {
     }).then(async (response) => {
       result = await postRequest(response.data);
       console.log({ result });
-      setDetailsToConfirm({ result });
-      console.log(detailsToConfirm, "confirmation");
+      // setDetailsToConfirm({ result });
+      // console.log(detailsToConfirm, "confirmation");
     });
     return result;
   };
@@ -382,7 +382,8 @@ const PayWithId = () => {
                 id="initializer"
                 type="text"
                 name="InitialisedBy"
-                value={InitialisedBy}
+                // value={InitialisedBy}
+                value={user.name}
                 onChange={handleChange}
               />
             </div>
