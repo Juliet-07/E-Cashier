@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  decryptPayload,
-  encryptPayload,
-} from "../shared/services/e-cashier-encryption.service";
+import { encryptPayload } from "../shared/services/e-cashier-encryption.service";
 
 const Table = () => {
   // branch code of the authorizer that logs in
@@ -58,7 +55,6 @@ const Table = () => {
   // function to handle printing receipt
   const handleRequest = async (event, item) => {
     let result;
-    // console.log("data From row", item);
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
       BranchCode: "001",
@@ -67,7 +63,7 @@ const Table = () => {
       PayerEmail: item?.payerEmail,
     }).then(async (response) => {
       result = await printReceipt(response.data);
-      console.log({ result });
+      console.log(result);
       const url = window.URL.createObjectURL(new Blob([result]));
       console.log(url, "url");
       const link = document.createElement("a");
@@ -82,8 +78,7 @@ const Table = () => {
   const printReceipt = async (searchParams) => {
     const url = `http://80.88.8.239:9011/api/Receipt/PrintReceipt?request=${searchParams}`;
     let result;
-    await axios
-      .post(url)
+    await axios({ url: url, method: "POST", responseType: "blob" })
       .then((response) => {
         console.log(response.data, "response from print receipt");
         result = response.data;

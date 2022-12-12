@@ -220,6 +220,46 @@ const Table = () => {
         console.log(response, "response from savedReference")
       );
   };
+
+  // function to decline transaction {entire flow of encryption, call api and decryption}
+  const handleDecline = async (event, item) => {
+    let result;
+    await encryptPayload({
+      BankBranchCode: "001",
+      TransactionReference: item?.transactionReference,
+      DeclinedBy: "Idris.Abebefe",
+      DeclineComments: "Cheque not valued",
+    }).then(async (response) => {
+      result = await declineTransaction(response.data);
+      console.log({ result });
+    });
+    return result;
+  };
+
+  const declineTransaction = async (searchParams) => {
+    const url = `http://80.88.8.239:9011/api/ApiGateway/DeclineTranaction?request=${searchParams}`;
+    let result;
+    await axios
+      .post(url)
+      .then(async (response) => {
+        console.log(response.data, "response from decline request");
+        result = await decryptResponse(response.data.data);
+        console.log("decrypted result", result);
+      })
+      .catch((erroror) => console.log(erroror));
+    return result;
+  };
+
+  const decryptResponse = async (encryptedData) => {
+    let result;
+    await decryptPayload(encryptedData).then((decryptResponse) => {
+      decryptResponse.data = JSON.parse(decryptResponse.data);
+      result = decryptResponse.data;
+      window.alert(result.ResponseMessage);
+      console.log(result);
+    });
+    return result;
+  };
   return (
     <div className="flex flex-col">
       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -307,6 +347,7 @@ const Table = () => {
                               <RiDeleteBack2Fill
                                 size={20}
                                 className="text-red-600"
+                                onClick={(e) => handleDecline(e, item)}
                               />
                             </div>
                           </div>
