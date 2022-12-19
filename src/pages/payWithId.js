@@ -107,7 +107,7 @@ const PayWithId = () => {
   };
 
   const postRequest = async (searchParams) => {
-    const url = `http://80.88.8.239:9011/api/ApiGateway/PostTransaction?request=${searchParams}`;
+    const url = `https://test.xpresspayments.com:9015/api/ApiGateway/PostTransaction?request=${searchParams}`;
     let result;
     await axios.post(url).then(async (response) => {
       console.log(response.data, "response from post request");
@@ -382,8 +382,7 @@ const PayWithId = () => {
                 id="initializer"
                 type="text"
                 name="InitialisedBy"
-                // value={InitialisedBy}
-                value={user.name}
+                value={InitialisedBy}
                 onChange={handleChange}
               />
             </div>

@@ -1,8 +1,8 @@
 const { default: axios } = require("axios");
 
 /** Encrypt and decrypt payload over e-cashier server */
-const ENCRYPTION_URL = "http://80.88.8.239:9011/api/ApiGateway/EncryptRequest";
-const DECRYPTION_URL = "http://80.88.8.239:9011/api/ApiGateway/DecryptRequest";
+const ENCRYPTION_URL = "https://test.xpresspayments.com:9015/api/ApiGateway/EncryptRequest";
+const DECRYPTION_URL = "https://test.xpresspayments.com:9015/api/ApiGateway/DecryptRequest";
 
 export const encryptPayload = async (payload) => {
   const url = `${ENCRYPTION_URL}?request=${JSON.stringify(payload)}`;

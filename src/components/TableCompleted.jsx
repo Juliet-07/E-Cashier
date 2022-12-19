@@ -76,7 +76,7 @@ const Table = () => {
   };
 
   const printReceipt = async (searchParams) => {
-    const url = `http://80.88.8.239:9011/api/Receipt/PrintReceipt?request=${searchParams}`;
+    const url = `https://test.xpresspayments.com:9015/api/Receipt/PrintReceipt?request=${searchParams}`;
     let result;
     await axios({ url: url, method: "POST", responseType: "blob" })
       .then((response) => {

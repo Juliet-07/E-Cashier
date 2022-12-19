@@ -38,7 +38,7 @@ const TaxOffice = () => {
 
   // function to getData for available Merchants
   const getTaxOffices = async (searchParams) => {
-    const url = `http://80.88.8.239:9011/api/ApiGateway/GetTaxOffices?request=${searchParams}`;
+    const url = `https://test.xpresspayments.com:9015//api/ApiGateway/GetTaxOffices?request=${searchParams}`;
     let result;
     await axios
       .get(url)

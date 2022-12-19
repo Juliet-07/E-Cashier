@@ -36,7 +36,7 @@ const PaymentItems = () => {
 
   // function to getData for Merchants Payment Items
   const getMerchantPaymentItems = async (searchParams) => {
-    const url = `http://80.88.8.239:9011/api/ApiGateway/GetMerchantPaymentItems?request=${searchParams}`;
+    const url = `https://test.xpresspayments.com:9015/api/ApiGateway/GetMerchantPaymentItems?request=${searchParams}`;
     let result;
     await axios
       .get(url)

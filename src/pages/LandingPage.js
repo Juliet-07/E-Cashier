@@ -45,7 +45,7 @@ const LandingPage = () => {
 
   // function to getData for available Merchants
   const getAvailableMerchants = async (searchParams) => {
-    const url = `http://80.88.8.239:9011/api/ApiGateway/GetAvailableMerchants?request=${searchParams}`;
+    const url = `https://test.xpresspayments.com:9015/api/ApiGateway/GetAvailableMerchants?request=${searchParams}`;
     let result;
     await axios
       .get(url)
