@@ -312,6 +312,7 @@ const PayWithAssessment = () => {
                 type="text"
                 required
                 name="PaymentPeriod"
+                placeholder="Jan - Dec 2000"
                 value={PaymentPeriod}
                 onChange={handleChange}
               />

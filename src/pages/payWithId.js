@@ -52,25 +52,6 @@ const PayWithId = () => {
     setPayerDetails({ ...payerDetails, [name]: value });
   };
 
-  // sending received data to premium database.
-  const url = "http://192.168.207.18:8091/CreateECashData";
-  const createData = () => {
-    const _items = [];
-    paymentItemDetails.forEach((item) => {
-      const _itemsObject = {
-        PaymentItemName: item.PaymentItemName,
-        Amount: String(item.Amount),
-        PaymentItemCode: item.PaymentItemCode,
-      };
-      _items.push(_itemsObject);
-    });
-    setPayerDetails({ ...payerDetails, item: _items });
-    console.log(payerDetails, "engine oka");
-    axios.post(url, payerDetails).then((response) => {
-      console.log(response.data, "response here for creating data");
-      alert("Transaction Completed");
-    });
-  };
   // function to use merchant details across application
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
@@ -123,13 +104,28 @@ const PayWithId = () => {
         Amount: String(result.TotalAmount),
         TransactionReference: result.TransactionReference,
       });
+      setPaymentItemDetails(result.paymentItemDetails);
+      // setPaymentItemDetails(itemDetails);
+      // console.log(paymentItemDetails, "julie");
     });
-    setPaymentItemDetails(result.paymentItemDetails);
-    // console.log(paymentItemDetails, "julie");
     // .catch((error) => console.log(error));
     return result;
   };
-
+  // for loop
+  // const itemDetails = (item_detail) => {
+  //   const _items = [];
+  //   for (let index = 0; index < item_detail.length; index++) {
+  //     const element = item_detail[index];
+  //     const _itemsObject = {
+  //       PaymentItemName: element.PaymentItemName,
+  //       Amount: String(element.Amount),
+  //       PaymentItemCode: element.PaymentItemCode,
+  //     };
+  //     _items.push(_itemsObject);
+  //   }
+  //   setPaymentItemDetails(_items);
+  //   console.log(item, "items details");
+  // };
   // function to decrypt encrypted data
   const handleDecrypt = async (encryptedData) => {
     let result;
@@ -141,6 +137,27 @@ const PayWithId = () => {
     return result;
   };
 
+  // sending received data to premium database.
+  const url = "http://192.168.207.18:8091/CreateECashData";
+  const createData = () => {
+    const _items = [];
+    paymentItemDetails.forEach((item) => {
+      const _itemsObject = {
+        PaymentItemName: item.PaymentItemName,
+        Amount: String(item.Amount),
+        PaymentItemCode: item.PaymentItemCode,
+      };
+      _items.push(_itemsObject);
+    });
+    setPayerDetails({ ...payerDetails, item: _items });
+    console.log(payerDetails, "details");
+    console.log(item, "details for array");
+    axios.post(url, payerDetails).then((response) => {
+      console.log(response.data, "response here for creating data");
+      alert("Transaction Completed");
+    });
+  };
+
   // getting initialiser
   const [user, setUser] = useState("");
   useEffect(() => {
@@ -148,6 +165,20 @@ const PayWithId = () => {
     if (user !== null || user !== undefined) {
       setUser(user);
     }
+
+    const getUserDetail = async () => {
+      await axios
+        .get(
+          `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
+        )
+        .then((response) => {
+          console.log(response.data.result);
+          // setBranchCode(response.data.result[0].branch);
+          // setSourceAccount(response.data.result[0].sourcE_ACCOUNT);
+          // setDestinationAccount(response.data.result[0].destinatioN_ACCOUNT);
+        });
+    };
+    getUserDetail();
   }, []);
   return (
     <>
@@ -330,6 +361,7 @@ const PayWithId = () => {
                 id="period"
                 type="text"
                 name="PaymentPeriod"
+                placeholder="Jan - Dec 2000"
                 value={PaymentPeriod}
                 onChange={handleChange}
               />

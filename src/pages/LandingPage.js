@@ -50,7 +50,6 @@ const LandingPage = () => {
     await axios
       .get(url)
       .then(async (response) => {
-        // console.log(response.data);
         result = await handleDecrypt(response.data.data);
       })
       .catch((error) => console.log(error));
@@ -61,7 +60,6 @@ const LandingPage = () => {
   const handleDecrypt = async (encryptedData) => {
     let result;
     await decryptPayload(encryptedData).then((decryptResponse) => {
-      // console.log("logging decrypted response", decryptResponse);
       decryptResponse.data = JSON.parse(decryptResponse.data);
       result = decryptResponse.data;
       console.log(result);
@@ -69,6 +67,7 @@ const LandingPage = () => {
     return result;
   };
 
+  // function to save merchant details
   const saveMerchantDetails = () => {
     if (selectedValue !== null) {
       localStorage.setItem("Merchant", JSON.stringify(selectedValue));
