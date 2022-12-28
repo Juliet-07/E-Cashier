@@ -12,20 +12,15 @@ import Modal from "../components/confirmModal";
 const PayWithId = () => {
   const { handleSubmit } = useForm();
   const [CustomerReference, setCustomerReference] = useState("");
-  const [paymentItemDetails, setPaymentItemDetails] = useState([]);
-  const [detailsToConfirm, setDetailsToConfirm] = useState([]);
   const initialValues = {
     PayerName: "",
     PayerEmail: "",
     PayerAddress: "",
     PayerPhone: "",
-    Amount: "",
-    ConveniencyFee: "",
+    TotalAmount: "",
+    branchcode: "",
     PaymentPeriod: "",
     Comment: "",
-    InitialisedBy: "",
-    Branch_Code: "",
-    Date: "",
     TransactionReference: "",
     DepositorSlipNo: "",
     item: [],
@@ -36,13 +31,10 @@ const PayWithId = () => {
     PayerEmail,
     PayerAddress,
     PayerPhone,
-    Amount,
-    ConveniencyFee,
+    TotalAmount,
+    branchcode,
     PaymentPeriod,
     Comment,
-    InitialisedBy,
-    Branch_Code,
-    Date,
     TransactionReference,
     DepositorSlipNo,
     item,
@@ -57,6 +49,34 @@ const PayWithId = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
 
+  // function to fetch initialiser details
+  const [user, setUser] = useState("");
+  // const [_branchCode, setBranchCode] = useState("");
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("Username"));
+    if (user !== null || user !== undefined) {
+      setUser(user);
+    }
+    const getUserDetail = async () => {
+      await axios
+        .get(
+          `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
+        )
+        .then((response) => {
+          console.log(response.data.result);
+          const data = response.data.result;
+          // console.log(data.branchCode, "checking what is here");
+          payerDetails.branchcode = data.branchCode;
+          console.log(payerDetails.branchcode, "here");
+          // setPayerDetails({
+          //   branchCode: data.branchCode,
+          // });
+          // setBranchCode(response.data.result.branchCode);
+        });
+    };
+    getUserDetail();
+  }, []);
+
   // function for the entire api flow;{encryption, postTransaction & decryption}
   const handleRequest = async () => {
     const id = JSON.parse(localStorage.getItem("PaymentItemId"));
@@ -68,7 +88,7 @@ const PayWithId = () => {
     let result;
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
-      BankBranchCode: "001",
+      BankBranchCode: branchcode,
       PaymentOptionId: 300,
       CreatedBy: user.name,
       PaymentItems: PaymentItemIds,
@@ -81,8 +101,6 @@ const PayWithId = () => {
     }).then(async (response) => {
       result = await postRequest(response.data);
       console.log({ result });
-      // setDetailsToConfirm({ result });
-      // console.log(detailsToConfirm, "confirmation");
     });
     return result;
   };
@@ -96,36 +114,28 @@ const PayWithId = () => {
       result = await handleDecrypt(response.data.data);
       console.log("decrypted result", result);
       const detail = result.payerDetails;
+      const _items = [];
+      result.paymentItemDetails.forEach((item) => {
+        const _itemsObject = {
+          PaymentItemName: item.PaymentItemName,
+          Amount: String(item.Amount),
+          PaymentItemCode: item.PaymentItemCode,
+        };
+        _items.push(_itemsObject);
+      });
       setPayerDetails({
         PayerName: detail.PayerName,
         PayerEmail: detail.PayerEmail,
         PayerPhone: detail.PayerPhone,
         PayerAddress: detail.PayerAddress,
-        Amount: String(result.TotalAmount),
+        TotalAmount: String(result.TotalAmount),
         TransactionReference: result.TransactionReference,
+        item: [...[], ..._items],
       });
-      setPaymentItemDetails(result.paymentItemDetails);
-      // setPaymentItemDetails(itemDetails);
-      // console.log(paymentItemDetails, "julie");
     });
-    // .catch((error) => console.log(error));
     return result;
   };
-  // for loop
-  // const itemDetails = (item_detail) => {
-  //   const _items = [];
-  //   for (let index = 0; index < item_detail.length; index++) {
-  //     const element = item_detail[index];
-  //     const _itemsObject = {
-  //       PaymentItemName: element.PaymentItemName,
-  //       Amount: String(element.Amount),
-  //       PaymentItemCode: element.PaymentItemCode,
-  //     };
-  //     _items.push(_itemsObject);
-  //   }
-  //   setPaymentItemDetails(_items);
-  //   console.log(item, "items details");
-  // };
+
   // function to decrypt encrypted data
   const handleDecrypt = async (encryptedData) => {
     let result;
@@ -140,46 +150,13 @@ const PayWithId = () => {
   // sending received data to premium database.
   const url = "http://192.168.207.18:8091/CreateECashData";
   const createData = () => {
-    const _items = [];
-    paymentItemDetails.forEach((item) => {
-      const _itemsObject = {
-        PaymentItemName: item.PaymentItemName,
-        Amount: String(item.Amount),
-        PaymentItemCode: item.PaymentItemCode,
-      };
-      _items.push(_itemsObject);
-    });
-    setPayerDetails({ ...payerDetails, item: _items });
-    console.log(payerDetails, "details");
-    console.log(item, "details for array");
+    console.log(payerDetails);
     axios.post(url, payerDetails).then((response) => {
       console.log(response.data, "response here for creating data");
       alert("Transaction Completed");
     });
   };
 
-  // getting initialiser
-  const [user, setUser] = useState("");
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("Username"));
-    if (user !== null || user !== undefined) {
-      setUser(user);
-    }
-
-    const getUserDetail = async () => {
-      await axios
-        .get(
-          `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
-        )
-        .then((response) => {
-          console.log(response.data.result);
-          // setBranchCode(response.data.result[0].branch);
-          // setSourceAccount(response.data.result[0].sourcE_ACCOUNT);
-          // setDestinationAccount(response.data.result[0].destinatioN_ACCOUNT);
-        });
-    };
-    getUserDetail();
-  }, []);
   return (
     <>
       <Navbar />
@@ -310,20 +287,28 @@ const PayWithId = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {paymentItemDetails.length > 0 &&
-                  paymentItemDetails.map((item, index) => {
+                {payerDetails.item.length > 0 &&
+                  payerDetails.item.map((data, index) => {
                     return (
                       <tr key={index}>
                         <td className="p-4 whitespace-nowrap text-left text-black">
-                          {item.PaymentItemName}
+                          {data.PaymentItemName}
                         </td>
                         <td>
                           <input
                             className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                             type="text"
-                            name="Amount"
-                            value={item.Amount}
-                            disabled={item.PartPaymentAllowed === false}
+                            name={index}
+                            value={data.Amount}
+                            onChange={(e) => {
+                              data.Amount = e.target.value;
+                              setPayerDetails({ ...payerDetails });
+                              const total = payerDetails.item
+                                .map((x) => parseInt(x.Amount))
+                                .reduce((a, b) => a + b, 0);
+                              payerDetails.TotalAmount = `${total}`;
+                              setPayerDetails({ ...payerDetails });
+                            }}
                           />
                         </td>
                       </tr>
@@ -344,9 +329,10 @@ const PayWithId = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="total"
                 type="text"
-                name="Amount"
-                value={Amount}
+                name="TotalAmount"
+                value={TotalAmount}
                 onChange={handleChange}
+                readOnly
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -404,40 +390,6 @@ const PayWithId = () => {
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3">
               <label
-                htmlFor="initializer"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Initialised By
-              </label>
-              <input
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="initializer"
-                type="text"
-                name="InitialisedBy"
-                value={InitialisedBy}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="w-full md:w-1/2 px-3">
-              <label
-                htmlFor="branchcode"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Branch Code
-              </label>
-              <input
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="branchcode"
-                type="text"
-                name="Branch_Code"
-                value={Branch_Code}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-          <div className="flex flex-wrap -mx-3 mb-6">
-            <div className="w-full md:w-1/2 px-3">
-              <label
                 htmlFor="transactionReference"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
@@ -453,19 +405,18 @@ const PayWithId = () => {
             </div>
             <div className="w-full md:w-1/2 px-3">
               <label
-                htmlFor="date"
+                htmlFor="branchcode"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Date
+                Branch Code
               </label>
               <input
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="date"
+                id="branchcode"
                 type="text"
+                name="branchcode"
                 required
-                name="Date"
-                placeholder="dd-mm-yy"
-                value={Date}
+                value={branchcode}
                 onChange={handleChange}
               />
             </div>

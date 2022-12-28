@@ -54,17 +54,10 @@ const Signin = () => {
         `http://192.168.207.18:8091/GetUserDetail?UserID=${userName}`
       );
       console.log(response.data.result);
-      console.log(response.data, "checking here");
-      if (
-        response.data.result.length &&
-        response.data.result[0].role === "INITIATOR"
-      ) {
+      if (response.data.result.role === "INITIATOR") {
         return navigate("/landingpage");
       }
-      if (
-        response.data.result.length &&
-        response.data.result[0].role === "AUTHORISER"
-      ) {
+      if (response.data.result.role === "AUTHORISER") {
         return navigate("/authorizer");
       }
     } catch (error) {

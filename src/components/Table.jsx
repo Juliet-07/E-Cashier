@@ -13,13 +13,26 @@ const Table = () => {
     current.getMonth() + 1
   }/${current.getFullYear()}`;
   const [user, setUser] = useState("");
-  const [_branchCode, setBranchCode] = useState("");
-  const branchCode = "000";
+  const [branchCode, setBranchCode] = useState("");
+  // const branchCode = "001";
   const [transactions, setTransactions] = useState([]);
   const [sourceAccount, setSourceAccount] = useState("");
   const [destinationAccount, setDestinationAccount] = useState("");
   // const [BankPaymentReference, setBankPaymentReference] = useState("");
-
+  const fetchPendingTransaction = async () => {
+    try {
+      await axios
+        .get(
+          `http://192.168.207.18:8091/GetPendingTransaction?Auth_BRANCH_CODE=${branchCode}`
+        )
+        .then((response) => {
+          console.log(response.data.result, "pending transaction");
+          setTransactions(response.data.result);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("Username"));
     if (user !== null || user !== undefined) {
@@ -32,31 +45,33 @@ const Table = () => {
         )
         .then((response) => {
           console.log(response.data.result);
-          setBranchCode(response.data.result[0].branch);
-          setSourceAccount(response.data.result[0].sourcE_ACCOUNT);
-          setDestinationAccount(response.data.result[0].destinatioN_ACCOUNT);
+          // setBranchCode(response.data.result.branchCode);
+          // console.log(branchCode);
+          fetchPendingTransaction();
+          setSourceAccount(response.data.result.sourceAccount);
+          setDestinationAccount(response.data.result.destinationAccount);
         });
     };
     getUserDetail();
   }, []);
 
-  useEffect(() => {
-    const fetchPendingTransaction = async () => {
-      try {
-        await axios
-          .get(
-            `http://192.168.207.18:8091/GetPendingTransaction?Auth_BRANCH_CODE=${branchCode}`
-          )
-          .then((response) => {
-            console.log(response.data.result, "pending transaction");
-            setTransactions(response.data.result);
-          });
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchPendingTransaction();
-  }, []);
+  // useEffect(() => {
+  //   const fetchPendingTransaction = async () => {
+  //     try {
+  //       await axios
+  //         .get(
+  //           `http://192.168.207.18:8091/GetPendingTransaction?Auth_BRANCH_CODE=${branchCode}`
+  //         )
+  //         .then((response) => {
+  //           console.log(response.data.result, "pending transaction");
+  //           setTransactions(response.data.result);
+  //         });
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   fetchPendingTransaction();
+  // }, []);
 
   const getStatus = (status) => {
     let statusClass;
@@ -109,7 +124,7 @@ const Table = () => {
     );
     try {
       const payload = {
-        amount: parseInt(item?.amount),
+        amount: parseInt(item?.totalAmount),
         sourceAccount: sourceAccount,
         destinationAccount: destinationAccount,
         applyFee: false,
@@ -158,7 +173,8 @@ const Table = () => {
       console.log(PaymentItemsPaid, "element");
     });
     await encryptPayload({
-      BankBranchCode: "001",
+      // BankBranchCode: "001",
+      BankBranchCode: branchCode,
       TransactionReference: item?.transactionReference,
       BankPaymentReference: bankpaymentreference,
       TransactionStatusId: 2,
@@ -173,11 +189,12 @@ const Table = () => {
       DebitAccNo: "11110111121",
       DepositorName: "Payer Name",
       DepositorSlipNo: item?.depositorSlipNo,
-      PostedBy: "unknown",
+      // PostedBy: "unknown",
+      PostedBy: user.name,
       TerminalId: "",
       TaxOfficeId: 0,
-      TotalAmountPaid: parseInt(item?.amount),
-      Narration: "Payment from Premium",
+      TotalAmountPaid: parseInt(item?.totalAmount),
+      Narration: "Payment from PremiumTrust Bank",
       PaymentItemsPaid: PaymentItemsPaid,
     }).then(async (response) => {
       result = await paymentNotification(response.data);
@@ -255,7 +272,7 @@ const Table = () => {
     await decryptPayload(encryptedData).then((decryptResponse) => {
       decryptResponse.data = JSON.parse(decryptResponse.data);
       result = decryptResponse.data;
-      window.alert(result.ResponseMessage);
+      window.alert(result.responseMessage);
       console.log(result);
     });
     return result;
@@ -270,9 +287,9 @@ const Table = () => {
                 <tr>
                   <th
                     scope="col"
-                    className="text-sm font-semibold text-gray-500 uppercase"
+                    className="text-sm font-semibold text-gray-500 uppercase text-left px-6"
                   >
-                    Name
+                    Payer Name
                   </th>
                   <th
                     scope="col"
@@ -317,17 +334,17 @@ const Table = () => {
                   transactions.map((item, index) => {
                     return (
                       <tr key={index}>
-                        <td className="p-4 whitespace-nowrap text-center">
+                        <td className="px-6 whitespace-nowrap">
                           {item?.payerName}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center">
                           {item?.transactionReference}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center">
-                          {item?.amount}
+                          {item?.totalAmount}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center">
-                          {item?.date}
+                          {item?.requestDate}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center">
                           {item?.initialisedBy}

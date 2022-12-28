@@ -4,7 +4,7 @@ import { encryptPayload } from "../shared/services/e-cashier-encryption.service"
 
 const Table = () => {
   // branch code of the authorizer that logs in
-  const branchCode = "000";
+  const branchCode = "001";
 
   const [transactions, setTransactions] = useState([]);
 
@@ -150,10 +150,10 @@ const Table = () => {
                           {item?.transactionReference}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center">
-                          {item?.amount}
+                          {item?.totalAmount}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center">
-                          {item?.date}
+                          {item?.requestDate}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center">
                           {item?.initialisedBy}

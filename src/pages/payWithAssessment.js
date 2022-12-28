@@ -10,20 +10,15 @@ import axios from "axios";
 const PayWithAssessment = () => {
   const { handleSubmit } = useForm();
   const [assessment, setAssesment] = useState("");
-  const [paymentItemDetails, setPaymentItemDetails] = useState([]);
   const initialValues = {
     PayerName: "",
     PayerEmail: "",
-    PayerPhone: "",
     PayerAddress: "",
-    Amount: "",
-    TransactionReference: "",
-    Date: "",
+    PayerPhone: "",
+    TotalAmount: "",
     PaymentPeriod: "",
-    ConveniencyFee: "",
     Comment: "",
-    Branch_Code: "",
-    InitialisedBy: "",
+    TransactionReference: "",
     DepositorSlipNo: "",
     item: [],
   };
@@ -33,14 +28,10 @@ const PayWithAssessment = () => {
     PayerEmail,
     PayerAddress,
     PayerPhone,
-    Amount,
-    TransactionReference,
-    Date,
+    TotalAmount,
     PaymentPeriod,
-    ConveniencyFee,
     Comment,
-    Branch_Code,
-    InitialisedBy,
+    TransactionReference,
     DepositorSlipNo,
     item,
   } = payerDetails;
@@ -49,36 +40,36 @@ const PayWithAssessment = () => {
     setPayerDetails({ ...payerDetails, [name]: value });
   };
 
-  // sending received data to premium database.
-  const url = "http://192.168.207.18:8091/CreateECashData";
-  const createData = () => {
-    const _items = [];
-    paymentItemDetails.forEach((item) => {
-      const _itemsObject = {
-        PaymentItemName: item.PaymentItemName,
-        Amount: String(item.Amount),
-        PaymentItemCode: item.PaymentItemCode,
-      };
-      _items.push(_itemsObject);
-    });
-    setPayerDetails({ ...payerDetails, item: _items });
-    console.log(payerDetails, "engine oka");
-    axios.post(url, payerDetails).then((response) => {
-      console.log(response.data, "response here for creating data ");
-      alert("Transaction Completed");
-    });
-  };
   // function to use merchant details across application
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
-
+  // function to fetch initialiser details
+  const [user, setUser] = useState("");
+  const [branchCode, setBranchCode] = useState("");
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("Username"));
+    if (user !== null || user !== undefined) {
+      setUser(user);
+    }
+    const getUserDetail = async () => {
+      await axios
+        .get(
+          `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
+        )
+        .then((response) => {
+          console.log(response.data.result);
+          setBranchCode(response.data.result.branchCode);
+        });
+    };
+    getUserDetail();
+  }, []);
   // function for the entire api flow;{encryption, handlePostRequest & decryption}
   const handleRequest = async () => {
     let result;
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
-      BankBranchCode: "001",
+      BankBranchCode: branchCode,
       PaymentOptionId: 302,
       CreatedBy: user.name,
       PaymentItems: [],
@@ -104,17 +95,25 @@ const PayWithAssessment = () => {
       result = await handleDecrypt(response.data.data);
       console.log("decrypted result", result);
       const detail = result.payerDetails;
+      const _items = [];
+      result.paymentItemDetails.forEach((item) => {
+        const _itemsObject = {
+          PaymentItemName: item.PaymentItemName,
+          Amount: String(item.Amount),
+          PaymentItemCode: item.PaymentItemCode,
+        };
+        _items.push(_itemsObject);
+      });
       setPayerDetails({
         PayerName: detail.PayerName,
         PayerEmail: detail.PayerEmail,
         PayerPhone: detail.PayerPhone,
         PayerAddress: detail.PayerAddress,
-        Amount: String(result.TotalAmount),
+        TotalAmount: String(result.TotalAmount),
         TransactionReference: result.TransactionReference,
+        item: [...[], ..._items],
       });
     });
-    setPaymentItemDetails(result.paymentItemDetails);
-    console.log(paymentItemDetails, "julie");
     return result;
   };
 
@@ -128,14 +127,15 @@ const PayWithAssessment = () => {
     });
     return result;
   };
-  // getting initialiser
-  const [user, setUser] = useState("");
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("Username"));
-    if (user !== null || user !== undefined) {
-      setUser(user);
-    }
-  }, []);
+  // sending received data to premium database.
+  const url = "http://192.168.207.18:8091/CreateECashData";
+  const createData = () => {
+    console.log(payerDetails);
+    axios.post(url, payerDetails).then((response) => {
+      console.log(response.data, "response here for creating data");
+      alert("Transaction Completed");
+    });
+  };
   return (
     <>
       <Navbar />
@@ -259,8 +259,8 @@ const PayWithAssessment = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {paymentItemDetails.length > 0 &&
-                  paymentItemDetails.map((item, index) => {
+                {payerDetails.item.length > 0 &&
+                  payerDetails.item.map((item, index) => {
                     return (
                       <tr key={index}>
                         <td className="p-4 whitespace-nowrap text-left text-black">
@@ -270,10 +270,17 @@ const PayWithAssessment = () => {
                           <input
                             className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                             type="text"
-                            name="Amount"
+                            name={index}
                             value={item?.Amount}
-                            disabled={item.PartPaymentAllowed === false}
-                            // onChange={setPaymentItemDetails()}
+                            onChange={(e) => {
+                              item.Amount = e.target.value;
+                              setPayerDetails({ ...payerDetails });
+                              const total = payerDetails.item
+                                .map((x) => parseInt(x.Amount))
+                                .reduce((a, b) => a + b, 0);
+                              payerDetails.TotalAmount = `${total}`;
+                              setPayerDetails({ ...payerDetails });
+                            }}
                           />
                         </td>
                       </tr>
@@ -294,8 +301,8 @@ const PayWithAssessment = () => {
                 className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
                 id="amount"
                 type="text"
-                name="Amount"
-                value={Amount}
+                name="TotalAmount"
+                value={TotalAmount}
                 onChange={handleChange}
               />
             </div>
@@ -357,40 +364,6 @@ const PayWithAssessment = () => {
           <div className="flex flex-wrap -mx-3 mb-6">
             <div className="w-full md:w-1/2 px-3">
               <label
-                htmlFor="initializer"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Initialised By
-              </label>
-              <input
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="initializer"
-                type="text"
-                name="InitialisedBy"
-                value={InitialisedBy}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="w-full md:w-1/2 px-3">
-              <label
-                htmlFor="branchcode"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Branch Code
-              </label>
-              <input
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="branchcode"
-                type="text"
-                name="Branch_Code"
-                value={Branch_Code}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-          <div className="flex flex-wrap -mx-3 mb-6">
-            <div className="w-full md:w-1/2 px-3">
-              <label
                 htmlFor="transactionReference"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
@@ -402,24 +375,6 @@ const PayWithAssessment = () => {
                 type="text"
                 value={TransactionReference}
                 readOnly
-              />
-            </div>
-            <div className="w-full md:w-1/2 px-3">
-              <label
-                htmlFor="date"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Date
-              </label>
-              <input
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="date"
-                type="text"
-                required
-                name="Date"
-                placeholder="dd-mm-yy"
-                value={Date}
-                onChange={handleChange}
               />
             </div>
           </div>
