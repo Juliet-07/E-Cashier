@@ -16,6 +16,7 @@ const PayWithAssessment = () => {
     PayerAddress: "",
     PayerPhone: "",
     TotalAmount: "",
+    branchcode: "",
     PaymentPeriod: "",
     Comment: "",
     TransactionReference: "",
@@ -29,6 +30,7 @@ const PayWithAssessment = () => {
     PayerAddress,
     PayerPhone,
     TotalAmount,
+    branchcode,
     PaymentPeriod,
     Comment,
     TransactionReference,
@@ -46,7 +48,6 @@ const PayWithAssessment = () => {
   };
   // function to fetch initialiser details
   const [user, setUser] = useState("");
-  const [branchCode, setBranchCode] = useState("");
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("Username"));
     if (user !== null || user !== undefined) {
@@ -59,17 +60,20 @@ const PayWithAssessment = () => {
         )
         .then((response) => {
           console.log(response.data.result);
-          setBranchCode(response.data.result.branchCode);
+          const data = response.data.result;
+          payerDetails.branchcode = data.branchCode;
+          console.log(payerDetails.branchcode, "here");
         });
     };
     getUserDetail();
   }, []);
+
   // function for the entire api flow;{encryption, handlePostRequest & decryption}
   const handleRequest = async () => {
     let result;
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
-      BankBranchCode: branchCode,
+      BankBranchCode: branchcode,
       PaymentOptionId: 302,
       CreatedBy: user.name,
       PaymentItems: [],
@@ -375,6 +379,23 @@ const PayWithAssessment = () => {
                 type="text"
                 value={TransactionReference}
                 readOnly
+              />
+            </div>
+            <div className="w-full md:w-1/2 px-3">
+              <label
+                htmlFor="branchcode"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Branch Code
+              </label>
+              <input
+                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                id="branchcode"
+                type="text"
+                name="branchcode"
+                required
+                value={branchcode}
+                onChange={handleChange}
               />
             </div>
           </div>

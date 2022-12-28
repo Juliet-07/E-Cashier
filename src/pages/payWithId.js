@@ -51,7 +51,6 @@ const PayWithId = () => {
 
   // function to fetch initialiser details
   const [user, setUser] = useState("");
-  // const [_branchCode, setBranchCode] = useState("");
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("Username"));
     if (user !== null || user !== undefined) {
