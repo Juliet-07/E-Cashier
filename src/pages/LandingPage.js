@@ -78,7 +78,7 @@ const LandingPage = () => {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-black via-white to-red-600 w-full h-screen">
+      <div className="bg-gradient-to-r from-black to-red-600 w-full h-screen">
         <div className="w-[300px] h-[150px]">
           <img src={Logo} alt="premium trust" />
         </div>
@@ -98,9 +98,9 @@ const LandingPage = () => {
             loop
           />
         </div>
-        <div className="text-black font-bold text-xl flex items-center justify-center mb-4">
+        {/* <div className="text-black font-bold text-xl flex items-center justify-center mb-4">
           Selected Value:{JSON.stringify(selectedValue || {}, null, 2)}
-        </div>
+        </div> */}
         <div className="flex items-center justify-center">
           <div className="w-[500px]">
             <AsyncSelect

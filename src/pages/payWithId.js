@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import axios from "axios";
 import {
@@ -10,6 +11,7 @@ import PaymentItems from "../components/PaymentItems";
 import Modal from "../components/confirmModal";
 
 const PayWithId = () => {
+  const navigate = useNavigate();
   const { handleSubmit } = useForm();
   const [CustomerReference, setCustomerReference] = useState("");
   const initialValues = {
@@ -18,7 +20,6 @@ const PayWithId = () => {
     PayerAddress: "",
     PayerPhone: "",
     TotalAmount: "",
-    branchcode: "",
     PaymentPeriod: "",
     Comment: "",
     TransactionReference: "",
@@ -32,7 +33,6 @@ const PayWithId = () => {
     PayerAddress,
     PayerPhone,
     TotalAmount,
-    branchcode,
     PaymentPeriod,
     Comment,
     TransactionReference,
@@ -62,19 +62,15 @@ const PayWithId = () => {
           `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
         )
         .then((response) => {
-          console.log(response.data.result);
+          // console.log(response.data.result);
           const data = response.data.result;
-          // console.log(data.branchCode, "checking what is here");
-          payerDetails.branchcode = data.branchCode;
-          console.log(payerDetails.branchcode, "here");
-          // setPayerDetails({
-          //   branchCode: data.branchCode,
-          // });
-          // setBranchCode(response.data.result.branchCode);
+          setUserDetails(data);
+          console.log(userDetails, "user-details");
         });
     };
     getUserDetail();
   }, []);
+  const [userDetails, setUserDetails] = useState({});
 
   // function for the entire api flow;{encryption, postTransaction & decryption}
   const handleRequest = async () => {
@@ -87,7 +83,7 @@ const PayWithId = () => {
     let result;
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
-      BankBranchCode: branchcode,
+      BankBranchCode: userDetails.branchCode,
       PaymentOptionId: 300,
       CreatedBy: user.name,
       PaymentItems: PaymentItemIds,
@@ -149,10 +145,13 @@ const PayWithId = () => {
   // sending received data to premium database.
   const url = "http://192.168.207.18:8091/CreateECashData";
   const createData = () => {
+    payerDetails.branchcode = userDetails.branchCode;
+    payerDetails.initialisedBy = userDetails.userName;
     console.log(payerDetails);
     axios.post(url, payerDetails).then((response) => {
       console.log(response.data, "response here for creating data");
       alert("Transaction Completed");
+      navigate("/transactionSuccessful");
     });
   };
 
@@ -194,9 +193,9 @@ const PayWithId = () => {
           <div className="flex items-end justify-end m-2">
             <button
               type="submit"
-              className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-medium text-sm p-2.5 text-center w-[150px]"
+              className="text-white font-semibold bg-red-600 hover:bg-red-700 hover:font-bold text-sm p-2.5 text-center w-[150px]"
             >
-              Search
+              Fetch
             </button>
           </div>
         </form>
@@ -402,7 +401,7 @@ const PayWithId = () => {
                 readOnly
               />
             </div>
-            <div className="w-full md:w-1/2 px-3">
+            {/* <div className="w-full md:w-1/2 px-3">
               <label
                 htmlFor="branchcode"
                 className="block mb-2 text-sm font-medium text-gray-900"
@@ -418,10 +417,10 @@ const PayWithId = () => {
                 value={branchcode}
                 onChange={handleChange}
               />
-            </div>
+            </div> */}
           </div>
-          <div className="flex items-end justify-between m-4">
-            <Modal />
+          <div className="flex items-end justify-end m-4">
+            {/* <Modal /> */}
             <button className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-medium text-sm p-2.5 text-center w-[200px]">
               Complete Transaction
             </button>

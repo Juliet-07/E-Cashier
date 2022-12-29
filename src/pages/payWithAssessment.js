@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import {
   decryptPayload,
@@ -8,6 +9,7 @@ import {
 import axios from "axios";
 
 const PayWithAssessment = () => {
+  const navigate = useNavigate();
   const { handleSubmit } = useForm();
   const [assessment, setAssesment] = useState("");
   const initialValues = {
@@ -16,7 +18,6 @@ const PayWithAssessment = () => {
     PayerAddress: "",
     PayerPhone: "",
     TotalAmount: "",
-    branchcode: "",
     PaymentPeriod: "",
     Comment: "",
     TransactionReference: "",
@@ -30,7 +31,6 @@ const PayWithAssessment = () => {
     PayerAddress,
     PayerPhone,
     TotalAmount,
-    branchcode,
     PaymentPeriod,
     Comment,
     TransactionReference,
@@ -59,21 +59,22 @@ const PayWithAssessment = () => {
           `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
         )
         .then((response) => {
-          console.log(response.data.result);
+          // console.log(response.data.result);
           const data = response.data.result;
-          payerDetails.branchcode = data.branchCode;
-          console.log(payerDetails.branchcode, "here");
+          setUserDetails(data);
+          console.log(userDetails, "user-details");
         });
     };
     getUserDetail();
   }, []);
+  const [userDetails, setUserDetails] = useState({});
 
   // function for the entire api flow;{encryption, handlePostRequest & decryption}
   const handleRequest = async () => {
     let result;
     await encryptPayload({
       MerchantId: getMerchantDetails().MerchantId,
-      BankBranchCode: branchcode,
+      BankBranchCode: userDetails.branchCode,
       PaymentOptionId: 302,
       CreatedBy: user.name,
       PaymentItems: [],
@@ -134,10 +135,13 @@ const PayWithAssessment = () => {
   // sending received data to premium database.
   const url = "http://192.168.207.18:8091/CreateECashData";
   const createData = () => {
+    payerDetails.branchcode = userDetails.branchCode;
+    payerDetails.initialisedBy = userDetails.userName;
     console.log(payerDetails);
     axios.post(url, payerDetails).then((response) => {
       console.log(response.data, "response here for creating data");
       alert("Transaction Completed");
+      navigate("/transactionSuccessful");
     });
   };
   return (
@@ -379,23 +383,6 @@ const PayWithAssessment = () => {
                 type="text"
                 value={TransactionReference}
                 readOnly
-              />
-            </div>
-            <div className="w-full md:w-1/2 px-3">
-              <label
-                htmlFor="branchcode"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Branch Code
-              </label>
-              <input
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="branchcode"
-                type="text"
-                name="branchcode"
-                required
-                value={branchcode}
-                onChange={handleChange}
               />
             </div>
           </div>

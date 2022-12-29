@@ -13,13 +13,39 @@ const Table = () => {
     current.getMonth() + 1
   }/${current.getFullYear()}`;
   const [user, setUser] = useState("");
-  const [branchCode, setBranchCode] = useState("");
-  // const branchCode = "001";
   const [transactions, setTransactions] = useState([]);
-  const [sourceAccount, setSourceAccount] = useState("");
-  const [destinationAccount, setDestinationAccount] = useState("");
-  // const [BankPaymentReference, setBankPaymentReference] = useState("");
-  const fetchPendingTransaction = async () => {
+  const [userDetails, setUserDetails] = useState(null);
+
+  useEffect(() => {
+    try {
+      const getData = async () => {
+        const user = JSON.parse(localStorage.getItem("Username"));
+        if (user !== null || user !== undefined) {
+          setUser(user);
+          console.log(user, "user");
+          if (user.givenname) await getUserDetail(user.givenname);
+        }
+      };
+      getData();
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  const getUserDetail = async (givenname) => {
+    await axios
+      .get(`http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`)
+      .then(async (response) => {
+        const data = response.data.result;
+        console.log({ data });
+        setUserDetails(data);
+        console.log(userDetails, "user-details");
+        const { branchCode } = data;
+        if (branchCode) await fetchPendingTransaction(branchCode);
+      });
+  };
+
+  const fetchPendingTransaction = async (branchCode) => {
     try {
       await axios
         .get(
@@ -33,45 +59,6 @@ const Table = () => {
       console.log(error);
     }
   };
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("Username"));
-    if (user !== null || user !== undefined) {
-      setUser(user);
-    }
-    const getUserDetail = async () => {
-      await axios
-        .get(
-          `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
-        )
-        .then((response) => {
-          console.log(response.data.result);
-          // setBranchCode(response.data.result.branchCode);
-          // console.log(branchCode);
-          fetchPendingTransaction();
-          setSourceAccount(response.data.result.sourceAccount);
-          setDestinationAccount(response.data.result.destinationAccount);
-        });
-    };
-    getUserDetail();
-  }, []);
-
-  // useEffect(() => {
-  //   const fetchPendingTransaction = async () => {
-  //     try {
-  //       await axios
-  //         .get(
-  //           `http://192.168.207.18:8091/GetPendingTransaction?Auth_BRANCH_CODE=${branchCode}`
-  //         )
-  //         .then((response) => {
-  //           console.log(response.data.result, "pending transaction");
-  //           setTransactions(response.data.result);
-  //         });
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   fetchPendingTransaction();
-  // }, []);
 
   const getStatus = (status) => {
     let statusClass;
@@ -125,19 +112,19 @@ const Table = () => {
     try {
       const payload = {
         amount: parseInt(item?.totalAmount),
-        sourceAccount: sourceAccount,
-        destinationAccount: destinationAccount,
+        sourceAccount: userDetails.sourceAccount,
+        destinationAccount: userDetails.destinationAccount,
         applyFee: false,
         narration: "Deployed test",
         fees: [
           {
-            account: sourceAccount,
+            account: userDetails.sourceAccount,
             amount: 0,
             narration: "Deployed Trans",
             trnCode: "122",
           },
           {
-            account: sourceAccount,
+            account: userDetails.sourceAccount,
             amount: 0,
             narration: "Test Trans",
             trnCode: "122",
@@ -173,8 +160,7 @@ const Table = () => {
       console.log(PaymentItemsPaid, "element");
     });
     await encryptPayload({
-      // BankBranchCode: "001",
-      BankBranchCode: branchCode,
+      BankBranchCode: userDetails.branchCode,
       TransactionReference: item?.transactionReference,
       BankPaymentReference: bankpaymentreference,
       TransactionStatusId: 2,
@@ -189,7 +175,6 @@ const Table = () => {
       DebitAccNo: "11110111121",
       DepositorName: "Payer Name",
       DepositorSlipNo: item?.depositorSlipNo,
-      // PostedBy: "unknown",
       PostedBy: user.name,
       TerminalId: "",
       TaxOfficeId: 0,
@@ -242,9 +227,9 @@ const Table = () => {
   const handleDecline = async (event, item) => {
     let result;
     await encryptPayload({
-      BankBranchCode: "001",
+      BankBranchCode: userDetails.branchCode,
       TransactionReference: item?.transactionReference,
-      DeclinedBy: "Idris.Abebefe",
+      DeclinedBy: user.name,
       DeclineComments: "Cheque not valued",
     }).then(async (response) => {
       result = await declineTransaction(response.data);
@@ -313,7 +298,7 @@ const Table = () => {
                     scope="col"
                     className="text-sm font-semibold text-gray-500 uppercase"
                   >
-                    Initiated by
+                    Initialised by
                   </th>
                   <th
                     scope="col"
