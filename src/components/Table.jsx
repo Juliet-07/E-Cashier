@@ -229,17 +229,33 @@ const Table = () => {
     await encryptPayload({
       BankBranchCode: userDetails.branchCode,
       TransactionReference: item?.transactionReference,
-      DeclinedBy: user.name,
-      DeclineComments: "Cheque not valued",
+      BankPaymentReference: item?.transactionReference,
+      TransactionStatusId: 3,
+      PaymentMethodId: 1,
+      PaymentChannelId: 1,
+      IsChequeTransaction: false,
+      IsThirdPartyCheque: false,
+      ChequeIssuingBankCode: "",
+      ChequeNo: "",
+      ChequeDate: "",
+      DebitAccName: "TellerTill",
+      DebitAccNo: "11110111111",
+      DepositorName: "TestTeller",
+      DepositorSlipNo: item?.depositorSlipNo,
+      PostedBy: "TellerTill",
+      TerminalId: "",
+      TaxOfficeId: 0,
+      TotalAmountPaid: parseInt(item?.totalAmount),
+      Narration: "Payment from PremiumTrust Bank",
+      PaymentItemsPaid: [],
     }).then(async (response) => {
       result = await declineTransaction(response.data);
       console.log({ result });
     });
     return result;
   };
-
   const declineTransaction = async (searchParams) => {
-    const url = `https://test.xpresspayments.com:9015/api/ApiGateway/DeclineTranaction?request=${searchParams}`;
+    const url = `https://test.xpresspayments.com:9015/api/ApiGateway/PaymentNotification?request=${searchParams}`;
     let result;
     await axios
       .post(url)
@@ -257,7 +273,7 @@ const Table = () => {
     await decryptPayload(encryptedData).then((decryptResponse) => {
       decryptResponse.data = JSON.parse(decryptResponse.data);
       result = decryptResponse.data;
-      window.alert(result.responseMessage);
+      window.alert(result.ResponseMessage);
       console.log(result);
     });
     return result;
