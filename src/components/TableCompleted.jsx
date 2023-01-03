@@ -96,13 +96,13 @@ const Table = () => {
                 <tr>
                   <th
                     scope="col"
-                    className="text-sm font-semibold text-gray-500 uppercase"
+                    className="text-sm font-semibold text-gray-500 uppercase text-left px-6"
                   >
                     Name
                   </th>
                   <th
                     scope="col"
-                    className="text-sm font-semibold text-gray-500 uppercase"
+                    className="text-sm font-semibold text-gray-500 uppercase text-left px-6"
                   >
                     Reference No.
                   </th>
@@ -120,7 +120,7 @@ const Table = () => {
                   </th>
                   <th
                     scope="col"
-                    className="text-sm font-semibold text-gray-500 uppercase"
+                    className="text-sm font-semibold text-gray-500 uppercase text-left px-6"
                   >
                     Initiated by
                   </th>
@@ -143,19 +143,19 @@ const Table = () => {
                   transactions.map((item, index) => {
                     return (
                       <tr key={index}>
-                        <td className="p-4 whitespace-nowrap text-center">
+                        <td className="px-6 whitespace-nowrap">
                           {item?.payerName}
                         </td>
-                        <td className="p-4 whitespace-nowrap text-center">
+                        <td className="p-4 whitespace-nowrap">
                           {item?.transactionReference}
                         </td>
-                        <td className="p-4 whitespace-nowrap text-center">
+                        <td className="p-4 whitespace-nowrap text-right">
                           {item?.totalAmount}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center">
                           {item?.requestDate}
                         </td>
-                        <td className="p-4 whitespace-nowrap text-center">
+                        <td className="p-4 whitespace-nowrap text-left">
                           {item?.initialisedBy}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center text-green-500">
@@ -166,17 +166,20 @@ const Table = () => {
                             placeholder="Control No."
                             type="text"
                             className=" text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                            name="controlNo"
-                            value={controlNo}
-                            onChange={(e) => setControlNo(e.target.value)}
+                            // name={index}
+                            value={index.controlNo}
+                            onChange={(e, index) =>
+                              setControlNo(e.target.value, 
+                                index)
+                            }
                           />
 
                           <button
                             type="submit"
                             onClick={(e) => handleRequest(e, item)}
-                            className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-semibold text-sm p-2.5 text-center w-[130px] h-[50px]"
+                            className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-semibold text-sm p-2.5 text-center w-[150px] h-[50px]"
                           >
-                            Print Receipt
+                            Download Receipt
                           </button>
                         </td>
                       </tr>

@@ -261,6 +261,8 @@ const Table = () => {
       .post(url)
       .then(async (response) => {
         console.log(response.data, "response from decline request");
+        // window.alert(response.data.responseMessage);
+        window.alert("Transaction has been declined")
         result = await decryptResponse(response.data.data);
         console.log("decrypted result", result);
       })
