@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/AuthorizerNavbar";
-import Table from "../components/Table";
+import Table from "../components/TableRejected";
 
-const Authorizer = () => {
+const Rejected = () => {
   return (
     <>
       <Navbar />
@@ -66,4 +66,4 @@ const Authorizer = () => {
   );
 };
 
-export default Authorizer;
+export default Rejected;

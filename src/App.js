@@ -9,6 +9,7 @@ import Authorizer from "./pages/authorizer";
 import Completed from "./pages/authorizerCompleted";
 import ConfirmationPage from "./pages/confirmationPage";
 import TransactionSuccessful from "./pages/transactionSuccessful";
+import Rejected from "./pages/authorizerRejected";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
       <Route path="/paywithoutid" element={<PayWithoutId />} />
       <Route path="/paywithassessment" element={<PayWithAssessment />} />
       <Route path="/authorizerCompleted" element={<Completed />} />
+      <Route path="/authorizerRejected" element={<Rejected />} />
       <Route path="/transactionSuccessful" element={<TransactionSuccessful />} />
     </Routes>
   );

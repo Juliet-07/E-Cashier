@@ -223,8 +223,21 @@ const Table = () => {
       );
   };
 
-  // function to decline transaction {entire flow of encryption, call api and decryption}
+  // to move the declined transaction to decline tab
   const handleDecline = async (event, item) => {
+    console.log(item, "iminkwa");
+    const url = `http://192.168.207.18:8091/AuthorisedCashData?AuthorizedBy=${
+      user.name
+    }&DateAuthorized=${date}&TransactionReference=${
+      item?.transactionReference
+    }&_STATUS=${2}`;
+    await axios.post(url).then((response) => {
+      console.log(response, "response from authorizer");
+      handleDeclineRequest(event, item);
+    });
+  };
+  // function to decline transaction {entire flow of encryption, call api and decryption}
+  const handleDeclineRequest = async (event, item) => {
     let result;
     await encryptPayload({
       BankBranchCode: userDetails.branchCode,
@@ -280,6 +293,7 @@ const Table = () => {
     });
     return result;
   };
+
   return (
     <div className="flex flex-col">
       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -339,7 +353,7 @@ const Table = () => {
                       <tr key={index}>
                         <td className="px-6 whitespace-nowrap">
                           {item?.payerName}
-                          {item ?.name}
+                          {item?.name}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center">
                           {item?.transactionReference}
