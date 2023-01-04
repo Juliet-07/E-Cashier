@@ -64,14 +64,14 @@ const Table = () => {
     let statusClass;
     switch (status) {
       case "approved":
+        statusClass = "Success";
+        break;
+
+      case "declined":
         statusClass = "Failed";
         break;
 
-      case "pending":
-        statusClass = "Approved";
-        break;
-
-      default: //failed
+      default:
         statusClass = "Pending";
         break;
     }
@@ -262,7 +262,7 @@ const Table = () => {
       .then(async (response) => {
         console.log(response.data, "response from decline request");
         // window.alert(response.data.responseMessage);
-        window.alert("Transaction has been declined")
+        window.alert("Transaction has been declined");
         result = await decryptResponse(response.data.data);
         console.log("decrypted result", result);
       })
@@ -338,7 +338,7 @@ const Table = () => {
                     return (
                       <tr key={index}>
                         <td className="px-6 whitespace-nowrap">
-                          {item?.payerName}
+                          {item ? item.payerName : item.name}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center">
                           {item?.transactionReference}
@@ -358,12 +358,12 @@ const Table = () => {
                         <td>
                           <div className="flex items-center justify-center">
                             <div
-                              className="m-2"
+                              className="m-2 cursor-pointer"
                               onClick={(e) => handleAction(e, item)}
                             >
                               <TiTick size={30} className="text-green-500" />
                             </div>
-                            <div className="m-2">
+                            <div className="m-2 cursor-pointer">
                               <RiDeleteBack2Fill
                                 size={20}
                                 className="text-red-600"
