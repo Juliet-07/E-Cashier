@@ -338,7 +338,8 @@ const Table = () => {
                     return (
                       <tr key={index}>
                         <td className="px-6 whitespace-nowrap">
-                          {item ? item.payerName : item.name}
+                          {item?.payerName}
+                          {item ?.name}
                         </td>
                         <td className="p-4 whitespace-nowrap text-center">
                           {item?.transactionReference}
