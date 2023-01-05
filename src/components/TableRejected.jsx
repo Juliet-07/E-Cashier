@@ -90,7 +90,7 @@ const Table = () => {
                   </th>
                   <th
                     scope="col"
-                    className="text-sm font-semibold text-gray-500 uppercase"
+                    className="text-sm font-semibold text-gray-500 uppercase text-right"
                   >
                     Amount
                   </th>

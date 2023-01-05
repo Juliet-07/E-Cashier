@@ -330,7 +330,7 @@ const Table = () => {
                     scope="col"
                     className="text-sm font-semibold text-gray-500 uppercase"
                   >
-                    Initialised by
+                    initiated by
                   </th>
                   <th
                     scope="col"
