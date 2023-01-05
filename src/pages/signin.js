@@ -36,6 +36,7 @@ const Signin = () => {
         .then((res) => res.json())
         .then((user) => {
           console.log(user, "confirm here");
+          window.alert(user.message);
           let userDetail = JSON.stringify(user.data);
           localStorage.setItem("Username", userDetail);
           if (user.message) {
