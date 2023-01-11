@@ -463,6 +463,7 @@ const PayWithoutId = () => {
                 type="text"
                 value={TransactionReference}
                 readOnly
+                required
               />
             </div>
           </div>

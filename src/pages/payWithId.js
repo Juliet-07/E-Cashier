@@ -236,6 +236,7 @@ const PayWithId = () => {
                 name="PayerEmail"
                 value={PayerEmail}
                 onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -254,6 +255,7 @@ const PayWithId = () => {
                 name="PayerPhone"
                 value={PayerPhone}
                 onChange={handleChange}
+                required
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -269,6 +271,7 @@ const PayWithId = () => {
                 type="text"
                 name="PayerAddress"
                 value={PayerAddress}
+                required
               />
             </div>
           </div>
@@ -331,6 +334,7 @@ const PayWithId = () => {
                 value={TotalAmount}
                 onChange={handleChange}
                 readOnly
+                required
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -348,6 +352,7 @@ const PayWithId = () => {
                 placeholder="Jan - Dec 2000"
                 value={PaymentPeriod}
                 onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -366,6 +371,7 @@ const PayWithId = () => {
                 name="DepositorSlipNo"
                 value={DepositorSlipNo}
                 onChange={handleChange}
+                required
               />
             </div>
             <div className="w-full md:w-1/2 px-3">
@@ -382,6 +388,7 @@ const PayWithId = () => {
                 name="Comment"
                 value={Comment}
                 onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -399,25 +406,9 @@ const PayWithId = () => {
                 type="text"
                 value={TransactionReference}
                 readOnly
+                required
               />
             </div>
-            {/* <div className="w-full md:w-1/2 px-3">
-              <label
-                htmlFor="branchcode"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Branch Code
-              </label>
-              <input
-                className="w-full text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
-                id="branchcode"
-                type="text"
-                name="branchcode"
-                required
-                value={branchcode}
-                onChange={handleChange}
-              />
-            </div> */}
           </div>
           <div className="flex items-end justify-end m-4">
             {/* <Modal /> */}
