@@ -23,6 +23,7 @@ const LandingPage = () => {
   };
 
   const [user, setUser] = useState("");
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("Username"));
     if (user !== null || user !== undefined) {
@@ -76,18 +77,35 @@ const LandingPage = () => {
     return alert("Please select Merchant");
   };
 
+  const logout = () => {
+    localStorage.clear();
+    navigate("/");
+  };
   return (
     <>
       <div className="bg-gradient-to-r from-black to-red-600 w-full h-screen">
         <div className="w-[300px] h-[150px]">
           <img src={Logo} alt="premium trust" />
         </div>
-        <div
-          className="text-white font-semibold text-2
-        xl m-4"
-        >
-          Welcome {user.name}
+        <div className="flex items-center justify-between">
+          <div
+            className="text-white font-semibold text-2
+        xl mx-4"
+          >
+            Welcome {user.name}
+          </div>
+          <div className="mx-4">
+            <button
+              onClick={logout}
+              type="submit"
+              className="text-white bg-black font-bold text-sm p-2.5 text-center w-[100px]"
+            >
+              Logout
+            </button>
+            <div className="bg-red-700"></div>
+          </div>
         </div>
+
         <div className="flex justify-center items-center">
           <p className="text-xl font-bold py-4">Please Select Merchant for</p>
           <Typed

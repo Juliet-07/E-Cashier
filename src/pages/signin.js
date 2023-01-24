@@ -65,6 +65,10 @@ const Signin = () => {
       console.log(error);
     }
   };
+  window.onload = () => {
+    const passwordInput = document.getElementById("passwordInput");
+    passwordInput.onpaste = (e) => e.preventDefault();
+  };
   return (
     <div className="w-full h-full">
       <img src={Logo} alt="PTB" className="w-[300px] h-[150px]" />
@@ -85,18 +89,24 @@ const Signin = () => {
                 value={userName}
                 onChange={handleChange}
                 required
+                maxLength="20"
               />
             </div>
             <div className="mt-4">
-              <label htmlFor="password" className="block text-sm text-gray-800">
+              <label
+                htmlFor="passwordInput"
+                className="block text-sm text-gray-800"
+              >
                 Password
               </label>
               <input
+                id="passwordInput"
                 type="password"
                 className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border rounded-md focus:border-red-400 focus:ring-red-300 focus:outline-none focus:ring focus:ring-opacity-40"
                 name="password"
                 value={password}
                 onChange={handleChange}
+                maxLength="20"
               />
             </div>
             <div className="mt-4">
@@ -109,6 +119,8 @@ const Signin = () => {
                 name="otp"
                 value={otp}
                 onChange={handleChange}
+                required
+                maxLength="20"
               />
             </div>
             <div className="mt-20">

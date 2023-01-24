@@ -70,6 +70,50 @@ const Table = () => {
     return statusClass;
   };
 
+  // function for the entire api flow;{encryption, getData, decryption}
+  // const handleMerchantRequest = async () => {
+  //   let result;
+  //   await encryptPayload({
+  //     BranchCode: "001",
+  //   }).then(async (response) => {
+  //     result = await getAvailableMerchants(response.data);
+  //     console.log({ result });
+  //   });
+  //   return result;
+  // };
+
+  // function to getData for available Merchants
+  // const getAvailableMerchants = async (searchParams) => {
+  //   const url = `https://test.xpresspayments.com:9015/api/ApiGateway/GetAvailableMerchants?request=${searchParams}`;
+  //   let result;
+  //   await axios
+  //     .get(url)
+  //     .then(async (response) => {
+  //       result = await handleMerchantDecrypt(response.data.data);
+  //     })
+  //     .catch((error) => console.log(error));
+  //   return result;
+  // };
+
+  // function to decrypt encrypted data
+  // const handleMerchantDecrypt = async (encryptedData) => {
+  //   let result;
+  //   await decryptPayload(encryptedData).then((decryptResponse) => {
+  //     decryptResponse.data = JSON.parse(decryptResponse.data);
+  //     result = decryptResponse.data;
+  //     console.log(result);
+  //   });
+  //   return result;
+  // };
+
+  // function to save merchant details
+  // const saveMerchantDetails = () => {
+  //   if (selectedValue !== null) {
+  //     localStorage.setItem("Merchant", JSON.stringify(selectedValue));
+  //     return navigate("/paywithid");
+  //   }
+  //   return alert("Please select Merchant");
+  // };
   // function to use merchant details across application
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
