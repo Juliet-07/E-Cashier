@@ -81,6 +81,7 @@ const LandingPage = () => {
     localStorage.clear();
     navigate("/");
   };
+  
   return (
     <>
       <div className="bg-gradient-to-r from-black to-red-600 w-full h-screen">
