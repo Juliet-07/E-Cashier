@@ -24,7 +24,7 @@ const Table = () => {
 
   const getUserDetail = async (givenname) => {
     await axios
-      .get(`http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`)
+      .get(`http://192.168.201.53:8097/GetUserDetail?UserID=${givenname}`)
       .then(async (response) => {
         const data = response.data.result;
         console.log({ data });
@@ -39,7 +39,7 @@ const Table = () => {
     try {
       await axios
         .get(
-          `http://192.168.207.18:8091/GetRejectedTransaction?Auth_BRANCH_CODE=${branchCode}`
+          `http://192.168.201.53:8097/GetRejectedTransaction?Auth_BRANCH_CODE=${branchCode}`
         )
         .then((response) => {
           console.log(response.data.result, "Rejected transaction");
