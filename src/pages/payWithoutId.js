@@ -69,7 +69,7 @@ const PayWithoutId = () => {
     const getUserDetail = async () => {
       await axios
         .get(
-          `http://192.168.201.53:8097/GetUserDetail?UserID=${user.givenname}`
+          `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
         )
         .then((response) => {
           // console.log(response.data.result);
@@ -152,7 +152,7 @@ const PayWithoutId = () => {
   };
 
   // sending received data to premium database.
-  const url = "http://192.168.201.53:8097/CreateECashData";
+  const url = "http://192.168.207.18:8091/CreateECashData";
   const createData = () => {
     details.branchcode = userDetails.branchCode;
     details.initialisedBy = userDetails.userName;

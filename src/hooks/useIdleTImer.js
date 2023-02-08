@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useIdleTimer } from "react-idle-timer";
 
-export const useIdle = ({ onIdle, idleTime = 5 }) => {
+export const useIdle = ({ onIdle, idleTime = 1 }) => {
   const [isIdle, setIsIdle] = useState();
   const handleOnIdle = (event) => {
     setIsIdle(true);
@@ -10,9 +10,9 @@ export const useIdle = ({ onIdle, idleTime = 5 }) => {
     onIdle();
   };
   const { getRemainingTime, getLastActiveTime } = useIdleTimer({
-    timeout: 1000 * 60 * idleTime,
+    timeout: 1000 * 600 * idleTime,
     onIdle: handleOnIdle,
-    debounce: 500,
+    debounce: 5000,
   });
   return {
     getRemainingTime,

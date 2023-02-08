@@ -15,9 +15,10 @@ const TaxOffice = () => {
   };
 
   const handleChange = (value) => {
+    console.log(value);
     setSelectedValue(value);
+    localStorage.setItem("TaxOfficeInfo", JSON.stringify(value));
   };
-
   // function to use merchant details across application
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
@@ -38,7 +39,7 @@ const TaxOffice = () => {
 
   // function to getData for available Merchants
   const getTaxOffices = async (searchParams) => {
-    const url = `https://test.xpresspayments.com:9015//api/ApiGateway/GetTaxOffices?request=${searchParams}`;
+    const url = `https://test.xpresspayments.com:9015/api/ApiGateway/GetTaxOffices?request=${searchParams}`;
     let result;
     await axios
       .get(url)

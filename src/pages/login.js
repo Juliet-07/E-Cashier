@@ -1,38 +1,60 @@
 import React, { useState } from "react";
+import CryptoJS from "crypto-js";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import Logo from "../assets/ptbLogo.png";
 import ELogo from "../assets/e-cashierLogo.png";
 
-const Signin = () => {
+const Login = () => {
   const navigate = useNavigate();
   const { handleSubmit } = useForm();
-  const initialValues = {
-    userName: "",
-    password: "",
-    otp: "",
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const handleChangeUsername = (e) => {
+    setUserName(e.target.value);
   };
-  const [loginDetails, setLoginDetails] = useState(initialValues);
-  const { userName, password, otp } = loginDetails;
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setLoginDetails({ ...loginDetails, [name]: value });
+  const handleChangePassword = (e) => {
+    setPassword(e.target.value);
+  };
+  const handleChangeOtp = (e) => {
+    setOtp(e.target.value);
+  };
+  // encrypting form
+  let encryptedUsername = CryptoJS.AES.encrypt(
+    JSON.stringify(userName),
+    "8080808080808080"
+  ).toString();
+  // console.log(encryptedUsername, "encryptedUsername");
+  let encryptedPassword = CryptoJS.AES.encrypt(
+    JSON.stringify(password),
+    "8080808080808080"
+  ).toString();
+  let encryptedOtp = CryptoJS.AES.encrypt(
+    JSON.stringify(otp),
+    "8080808080808080"
+  ).toString();
+  const loginDetails = {
+    userName: encryptedUsername,
+    password: encryptedPassword,
+    otp: encryptedOtp,
   };
 
+  // Decrypt
+  var bytes = CryptoJS.AES.decrypt(encryptedUsername, "8080808080808080");
+  var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  console.log(decryptedData, "decryptedUsername");
   // function to validate user through ActiveDirectory
   const handleLoginValidation = () => {
     try {
-      fetch(
-        "http://192.168.207.8:8080/api/ActiveDirectory/PTBAuthenticateUserOTP",
-        {
-          method: "POST",
-          body: JSON.stringify(loginDetails),
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-          },
-        }
-      )
+      fetch("http://192.168.207.18:8080/api/ActiveDirectory/EncrDecrAuthUser", {
+        method: "POST",
+        body: JSON.stringify(loginDetails),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      })
         .then((res) => res.json())
         .then((user) => {
           console.log(user, "confirm here");
@@ -52,7 +74,7 @@ const Signin = () => {
   const userRole = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.201.53:8097/GetUserDetail?UserID=${userName}`
+        `http://192.168.207.18:8091/GetUserDetail?UserID=${userName}`
       );
       console.log(response.data.result);
       if (response.data.result.role === "INITIATOR") {
@@ -85,9 +107,9 @@ const Signin = () => {
               <input
                 type="text"
                 className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border rounded-md focus:border-red-400 focus:ring-red-300 focus:outline-none focus:ring focus:ring-opacity-40"
-                name="userName"
+                // name="userName"
                 value={userName}
-                onChange={handleChange}
+                onChange={handleChangeUsername}
                 required
                 maxLength="20"
               />
@@ -103,9 +125,9 @@ const Signin = () => {
                 id="passwordInput"
                 type="password"
                 className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border rounded-md focus:border-red-400 focus:ring-red-300 focus:outline-none focus:ring focus:ring-opacity-40"
-                name="password"
+                // name="password"
                 value={password}
-                onChange={handleChange}
+                onChange={handleChangePassword}
                 maxLength="20"
               />
             </div>
@@ -116,9 +138,9 @@ const Signin = () => {
               <input
                 type="text"
                 className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border rounded-md focus:border-red-400 focus:ring-red-300 focus:outline-none focus:ring focus:ring-opacity-40"
-                name="otp"
+                // name="otp"
                 value={otp}
-                onChange={handleChange}
+                onChange={handleChangeOtp}
                 required
                 maxLength="20"
               />
@@ -138,4 +160,4 @@ const Signin = () => {
   );
 };
 
-export default Signin;
+export default Login;

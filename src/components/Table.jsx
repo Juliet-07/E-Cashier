@@ -34,7 +34,7 @@ const Table = () => {
 
   const getUserDetail = async (givenname) => {
     await axios
-      .get(`http://192.168.201.53:8097/GetUserDetail?UserID=${givenname}`)
+      .get(`http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`)
       .then(async (response) => {
         const data = response.data.result;
         console.log({ data });
@@ -49,7 +49,7 @@ const Table = () => {
     try {
       await axios
         .get(
-          `http://192.168.201.53:8097/GetPendingTransaction?Auth_BRANCH_CODE=${branchCode}`
+          `http://192.168.207.18:8091/GetPendingTransaction?Auth_BRANCH_CODE=${branchCode}`
         )
         .then((response) => {
           console.log(response.data.result, "pending transaction");
@@ -86,7 +86,7 @@ const Table = () => {
   // function for payment authorization
   const handleAuthorize = async (event, item) => {
     console.log(item, "iminkwa");
-    const url = `http://192.168.201.53:8097/AuthorisedCashData?AuthorizedBy=${
+    const url = `http://192.168.207.18:8091/AuthorisedCashData?AuthorizedBy=${
       user.name
     }&DateAuthorized=${date}&TransactionReference=${
       item?.transactionReference
@@ -215,7 +215,7 @@ const Table = () => {
 
   // to save reference numbers in premium database
   const saveReference = async (event, item, bankpaymentreference) => {
-    const url = `http://192.168.201.53:8097/SaveDebitTransRef?TransactionReference=${bankpaymentreference}&EcashReference=${item?.transactionReference}`;
+    const url = `http://192.168.207.18:8091/SaveDebitTransRef?TransactionReference=${bankpaymentreference}&EcashReference=${item?.transactionReference}`;
     await axios
       .post(url)
       .then((response) =>
@@ -226,7 +226,7 @@ const Table = () => {
   // to move the declined transaction to decline tab
   const handleDecline = async (event, item) => {
     console.log(item, "iminkwa");
-    const url = `http://192.168.201.53:8097/AuthorisedCashData?AuthorizedBy=${
+    const url = `http://192.168.207.18:8091/AuthorisedCashData?AuthorizedBy=${
       user.name
     }&DateAuthorized=${date}&TransactionReference=${
       item?.transactionReference

@@ -1,4 +1,5 @@
-const { default: axios } = require("axios");
+// const { default: axios } = require("axios");
+import axios from "axios";
 
 /** Encrypt and decrypt payload over e-cashier server */
 const ENCRYPTION_URL = "https://test.xpresspayments.com:9015/api/ApiGateway/EncryptRequest";
