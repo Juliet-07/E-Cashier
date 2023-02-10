@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -6,7 +7,8 @@ import {
   decryptPayload,
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
-import axios from "axios";
+import TaxOffice from "../components/TaxOffice";
+
 
 const PayWithAssessment = () => {
   const navigate = useNavigate();
@@ -22,6 +24,7 @@ const PayWithAssessment = () => {
     Comment: "",
     TransactionReference: "",
     DepositorSlipNo: "",
+    officeId: "",
     item: [],
   };
   const [payerDetails, setPayerDetails] = useState(initialValues);
@@ -35,6 +38,7 @@ const PayWithAssessment = () => {
     Comment,
     TransactionReference,
     DepositorSlipNo,
+    officeId,
     item,
   } = payerDetails;
   const handleChange = (e) => {
@@ -46,6 +50,12 @@ const PayWithAssessment = () => {
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
+
+  // function to use tax-office details across application
+  const getOfficeId = () => {
+    return JSON.parse(localStorage.getItem("TaxOfficeInfo"));
+  };
+
   // function to fetch initialiser details
   const [user, setUser] = useState("");
   useEffect(() => {
@@ -137,6 +147,7 @@ const PayWithAssessment = () => {
   const createData = () => {
     payerDetails.branchcode = userDetails.branchCode;
     payerDetails.initialisedBy = userDetails.userName;
+    payerDetails.officeId = String(getOfficeId().OfficeId);
     console.log(payerDetails);
     axios.post(url, payerDetails).then((response) => {
       console.log(response.data, "response here for creating data");
@@ -384,6 +395,15 @@ const PayWithAssessment = () => {
                 value={TransactionReference}
                 readOnly
               />
+            </div>
+            <div>
+              <label
+                htmlFor="countries"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
+              >
+                Select TaxOffice
+              </label>
+              <TaxOffice />
             </div>
           </div>
           <div className="flex items-end justify-end m-4">

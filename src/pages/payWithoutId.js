@@ -8,6 +8,7 @@ import {
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
 import PaymentItems from "../components/PaymentItems";
+import TaxOffice from "../components/TaxOffice"
 
 const PayWithoutId = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const PayWithoutId = () => {
     Comment: "",
     TransactionReference: "",
     DepositorSlipNo: "",
+    officeId:"",
     item: [],
   };
   const [details, setDetails] = useState(initialValues);
@@ -47,6 +49,7 @@ const PayWithoutId = () => {
     Comment,
     TransactionReference,
     DepositorSlipNo,
+    officeId,
     item,
   } = details;
   const changePaymentDetails = (e) => {
@@ -59,6 +62,11 @@ const PayWithoutId = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
   };
 
+  // function to use tax-office details across application
+  const getOfficeId = () => {
+    return JSON.parse(localStorage.getItem("TaxOfficeInfo"));
+  };
+  
   // getting initialiser details
   const [user, setUser] = useState("");
   useEffect(() => {
@@ -156,6 +164,7 @@ const PayWithoutId = () => {
   const createData = () => {
     details.branchcode = userDetails.branchCode;
     details.initialisedBy = userDetails.userName;
+    details.officeId = String(getOfficeId().OfficeId);
     console.log(details);
     axios.post(url, details).then((response) => {
       console.log(response.data, "response here for creating data");
@@ -465,6 +474,15 @@ const PayWithoutId = () => {
                 readOnly
                 required
               />
+            </div>
+            <div>
+              <label
+                htmlFor="countries"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
+              >
+                Select TaxOffice
+              </label>
+              <TaxOffice />
             </div>
           </div>
           <div className="flex items-end justify-end m-4">

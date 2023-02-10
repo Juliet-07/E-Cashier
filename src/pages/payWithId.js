@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import axios from "axios";
 import {
   decryptPayload,
   encryptPayload,
@@ -25,8 +25,8 @@ const PayWithId = () => {
     Comment: "",
     TransactionReference: "",
     DepositorSlipNo: "",
+    officeId: "",
     item: [],
-    office: [],
   };
   const [payerDetails, setPayerDetails] = useState(initialValues);
   const {
@@ -39,8 +39,8 @@ const PayWithId = () => {
     Comment,
     TransactionReference,
     DepositorSlipNo,
+    officeId,
     item,
-    office,
   } = payerDetails;
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,6 +50,11 @@ const PayWithId = () => {
   // function to use merchant details across application
   const getMerchantDetails = () => {
     return JSON.parse(localStorage.getItem("Merchant"));
+  };
+
+  // function to use tax-office details across application
+  const getOfficeId = () => {
+    return JSON.parse(localStorage.getItem("TaxOfficeInfo"));
   };
 
   // function to fetch initialiser details
@@ -150,6 +155,7 @@ const PayWithId = () => {
   const createData = () => {
     payerDetails.branchcode = userDetails.branchCode;
     payerDetails.initialisedBy = userDetails.userName;
+    payerDetails.officeId = String(getOfficeId().OfficeId);
     console.log(payerDetails);
     axios.post(url, payerDetails).then((response) => {
       console.log(response.data, "response here for creating data");

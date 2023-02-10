@@ -177,7 +177,7 @@ const Table = () => {
       DepositorSlipNo: item?.depositorSlipNo,
       PostedBy: user.name,
       TerminalId: "",
-      TaxOfficeId: 0,
+      TaxOfficeId: parseInt(item?.officeid),
       TotalAmountPaid: parseInt(item?.totalAmount),
       Narration: "Payment from PremiumTrust Bank",
       PaymentItemsPaid: PaymentItemsPaid,
