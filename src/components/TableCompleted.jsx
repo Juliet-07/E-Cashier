@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { encryptPayload } from "../shared/services/e-cashier-encryption.service";
+import { hashedRequest } from "../shared/services/request-script";
+import { BsDownload } from "react-icons/bs";
 
 const Table = () => {
   const [user, setUser] = useState("");
@@ -25,28 +27,30 @@ const Table = () => {
   }, []);
 
   const getUserDetail = async (givenname) => {
-    await axios
-      .get(`http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`)
-      .then(async (response) => {
-        const data = response.data.result;
-        console.log({ data });
-        setUserDetails(data);
-        console.log(userDetails, "user-details");
-        const { branchCode } = data;
-        if (branchCode) await fetchApprovedTransaction(branchCode);
-      });
+    const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`;
+    await hashedRequest({
+      method: "GET",
+      baseUrl: url,
+    }).then(async (response) => {
+      const data = response.data.result;
+      console.log({ data });
+      setUserDetails(data);
+      console.log(userDetails, "user-details");
+      const { branchCode } = data;
+      if (branchCode) await fetchApprovedTransaction(branchCode);
+    });
   };
 
   const fetchApprovedTransaction = async (branchCode) => {
+    const url = `http://192.168.207.18:8091/GetApprovedTransaction?Auth_BRANCH_CODE=${branchCode}`;
     try {
-      await axios
-        .get(
-          `http://192.168.207.18:8091/GetApprovedTransaction?Auth_BRANCH_CODE=${branchCode}`
-        )
-        .then((response) => {
-          console.log(response.data.result, "Approved transaction");
-          setTransactions(response.data.result);
-        });
+      await hashedRequest({
+        method: "GET",
+        baseUrl: url,
+      }).then((response) => {
+        console.log(response.data.result, "Approved transaction");
+        setTransactions(response.data.result);
+      });
     } catch (err) {
       console.log(err);
     }
@@ -229,11 +233,11 @@ const Table = () => {
                         <td className="p-4 whitespace-nowrap text-center text-green-500">
                           {getStatus(item?.status)}
                         </td>
-                        <td>
+                        <td className="flex items-center justify-center">
                           <input
                             placeholder="Control No."
                             type="text"
-                            className=" text-gray-700 border border-red-600 rounded py-3 px-4 mb-3"
+                            className=" text-gray-700 border border-red-600 rounded py-3 px-4"
                             // name={index}
                             value={index.controlNo}
                             onChange={(e, index) =>
@@ -244,9 +248,9 @@ const Table = () => {
                           <button
                             type="submit"
                             onClick={(e) => handleRequest(e, item)}
-                            className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-semibold text-sm p-2.5 text-center w-[150px] h-[50px]"
+                            className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-semibold text-sm text-center w-10 p-2 rounded mx-3"
                           >
-                            Download Receipt
+                            <BsDownload size={20} />
                           </button>
                         </td>
                       </tr>

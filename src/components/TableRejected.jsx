@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { hashedRequest } from "../shared/services/request-script";
 
 const Table = () => {
   const [user, setUser] = useState("");
@@ -23,28 +23,30 @@ const Table = () => {
   }, []);
 
   const getUserDetail = async (givenname) => {
-    await axios
-      .get(`http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`)
-      .then(async (response) => {
-        const data = response.data.result;
-        console.log({ data });
-        setUserDetails(data);
-        console.log(userDetails, "user-details");
-        const { branchCode } = data;
-        if (branchCode) await fetchRejectedTransaction(branchCode);
-      });
+    const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`;
+    await hashedRequest({
+      method: "GET",
+      baseUrl: url,
+    }).then(async (response) => {
+      const data = response.data.result;
+      console.log({ data });
+      setUserDetails(data);
+      console.log(userDetails, "user-details");
+      const { branchCode } = data;
+      if (branchCode) await fetchRejectedTransaction(branchCode);
+    });
   };
 
   const fetchRejectedTransaction = async (branchCode) => {
+    const url = `http://192.168.207.18:8091/GetRejectedTransaction?Auth_BRANCH_CODE=${branchCode}`;
     try {
-      await axios
-        .get(
-          `http://192.168.207.18:8091/GetRejectedTransaction?Auth_BRANCH_CODE=${branchCode}`
-        )
-        .then((response) => {
-          console.log(response.data.result, "Rejected transaction");
-          setTransactions(response.data.result);
-        });
+      await hashedRequest({
+        method: "GET",
+        baseUrl: url,
+      }).then((response) => {
+        console.log(response.data.result, "Rejected transaction");
+        setTransactions(response.data.result);
+      });
     } catch (err) {
       console.log(err);
     }

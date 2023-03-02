@@ -10,6 +10,7 @@ import {
 import PaymentItems from "../components/PaymentItems";
 import TaxOffice from "../components/TaxOffice";
 import Modal from "../components/confirmModal";
+import { hashedRequest } from "../shared/services/request-script";
 
 const PayWithId = () => {
   const navigate = useNavigate();
@@ -64,17 +65,17 @@ const PayWithId = () => {
     if (user !== null || user !== undefined) {
       setUser(user);
     }
+    const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`;
     const getUserDetail = async () => {
-      await axios
-        .get(
-          `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
-        )
-        .then((response) => {
-          // console.log(response.data.result);
-          const data = response.data.result;
-          setUserDetails(data);
-          console.log(userDetails, "user-details");
-        });
+      await hashedRequest({
+        method: "GET",
+        baseUrl: url,
+      }).then((response) => {
+        // console.log(response.data.result);
+        const data = response.data.result;
+        setUserDetails(data);
+        console.log(userDetails, "user-details");
+      });
     };
     getUserDetail();
   }, []);
@@ -152,16 +153,27 @@ const PayWithId = () => {
 
   // sending received data to premium database.
   const url = "http://192.168.207.18:8091/CreateECashData";
-  const createData = () => {
+  const createData = async () => {
     payerDetails.branchcode = userDetails.branchCode;
     payerDetails.initialisedBy = userDetails.userName;
     payerDetails.officeId = String(getOfficeId().OfficeId);
     console.log(payerDetails);
-    axios.post(url, payerDetails).then((response) => {
-      console.log(response.data, "response here for creating data");
-      alert("Transaction Completed");
-      // navigate("/transactionSuccessful");
-    });
+    await hashedRequest({
+      method: "POST",
+      body: payerDetails,
+      baseUrl: url,
+    })
+      .then((response) => {
+        console.log("Successful", response.data);
+        alert("Transaction Completed");
+        navigate("/transactionSuccessful");
+      })
+      .catch((error) => console.error("Error", error));
+    // axios.post(url, payerDetails).then((response) => {
+    //   console.log(response.data, "response here for creating data");
+    //   alert("Transaction Completed");
+    //   // navigate("/transactionSuccessful");
+    // });
   };
 
   return (

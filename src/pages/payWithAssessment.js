@@ -8,7 +8,7 @@ import {
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
 import TaxOffice from "../components/TaxOffice";
-
+import { hashedRequest } from "../shared/services/request-script";
 
 const PayWithAssessment = () => {
   const navigate = useNavigate();
@@ -63,17 +63,17 @@ const PayWithAssessment = () => {
     if (user !== null || user !== undefined) {
       setUser(user);
     }
+    const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`;
     const getUserDetail = async () => {
-      await axios
-        .get(
-          `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
-        )
-        .then((response) => {
-          // console.log(response.data.result);
-          const data = response.data.result;
-          setUserDetails(data);
-          console.log(userDetails, "user-details");
-        });
+      await hashedRequest({
+        method: "GET",
+        baseUrl: url,
+      }).then((response) => {
+        // console.log(response.data.result);
+        const data = response.data.result;
+        setUserDetails(data);
+        console.log(userDetails, "user-details");
+      });
     };
     getUserDetail();
   }, []);
@@ -144,12 +144,16 @@ const PayWithAssessment = () => {
   };
   // sending received data to premium database.
   const url = "http://192.168.207.18:8091/CreateECashData";
-  const createData = () => {
+  const createData = async () => {
     payerDetails.branchcode = userDetails.branchCode;
     payerDetails.initialisedBy = userDetails.userName;
     payerDetails.officeId = String(getOfficeId().OfficeId);
     console.log(payerDetails);
-    axios.post(url, payerDetails).then((response) => {
+    await hashedRequest({
+      method: "POST",
+      body: payerDetails,
+      baseUrl: url,
+    }).then((response) => {
       console.log(response.data, "response here for creating data");
       alert("Transaction Completed");
       navigate("/transactionSuccessful");

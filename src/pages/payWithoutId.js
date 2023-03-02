@@ -8,7 +8,8 @@ import {
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
 import PaymentItems from "../components/PaymentItems";
-import TaxOffice from "../components/TaxOffice"
+import TaxOffice from "../components/TaxOffice";
+import { hashedRequest } from "../shared/services/request-script";
 
 const PayWithoutId = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const PayWithoutId = () => {
     Comment: "",
     TransactionReference: "",
     DepositorSlipNo: "",
-    officeId:"",
+    officeId: "",
     item: [],
   };
   const [details, setDetails] = useState(initialValues);
@@ -66,7 +67,7 @@ const PayWithoutId = () => {
   const getOfficeId = () => {
     return JSON.parse(localStorage.getItem("TaxOfficeInfo"));
   };
-  
+
   // getting initialiser details
   const [user, setUser] = useState("");
   useEffect(() => {
@@ -74,17 +75,17 @@ const PayWithoutId = () => {
     if (user !== null || user !== undefined) {
       setUser(user);
     }
+    const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`;
     const getUserDetail = async () => {
-      await axios
-        .get(
-          `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`
-        )
-        .then((response) => {
-          // console.log(response.data.result);
-          const data = response.data.result;
-          setUserDetails(data);
-          console.log(userDetails, "user-details");
-        });
+      await hashedRequest({
+        method: "GET",
+        baseUrl: url,
+      }).then((response) => {
+        // console.log(response.data.result);
+        const data = response.data.result;
+        setUserDetails(data);
+        console.log(userDetails, "user-details");
+      });
     };
     getUserDetail();
   }, []);
@@ -161,12 +162,16 @@ const PayWithoutId = () => {
 
   // sending received data to premium database.
   const url = "http://192.168.207.18:8091/CreateECashData";
-  const createData = () => {
+  const createData = async () => {
     details.branchcode = userDetails.branchCode;
     details.initialisedBy = userDetails.userName;
     details.officeId = String(getOfficeId().OfficeId);
     console.log(details);
-    axios.post(url, details).then((response) => {
+    await hashedRequest({
+      method: "POST",
+      body: details,
+      baseUrl: url,
+    }).then((response) => {
       console.log(response.data, "response here for creating data");
       alert("Transaction Completed");
       navigate("/transactionSuccessful");

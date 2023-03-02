@@ -33,7 +33,7 @@ const LandingPage = () => {
 
   // function for the entire api flow;{encryption, getData, decryption}
   const handleRequest = async (inputValue) => {
-    console.log({ inputValue });
+    // console.log({ inputValue });
     let result;
     await encryptPayload({
       BranchCode: "001",

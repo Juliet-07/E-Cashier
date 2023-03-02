@@ -6,6 +6,7 @@ import {
   decryptPayload,
   encryptPayload,
 } from "../shared/services/e-cashier-encryption.service";
+import { hashedRequest } from "../shared/services/request-script";
 
 const Table = () => {
   const current = new Date();
@@ -14,7 +15,7 @@ const Table = () => {
   }/${current.getFullYear()}`;
   const [user, setUser] = useState("");
   const [transactions, setTransactions] = useState([]);
-  const [userDetails, setUserDetails] = useState(null);
+  const [userDetails, setUserDetails] = useState({});
 
   useEffect(() => {
     try {
@@ -33,28 +34,30 @@ const Table = () => {
   }, []);
 
   const getUserDetail = async (givenname) => {
-    await axios
-      .get(`http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`)
-      .then(async (response) => {
-        const data = response.data.result;
-        console.log({ data });
-        setUserDetails(data);
-        console.log(userDetails, "user-details");
-        const { branchCode } = data;
-        if (branchCode) await fetchPendingTransaction(branchCode);
-      });
+    const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`;
+    await hashedRequest({
+      method: "GET",
+      baseUrl: url,
+    }).then(async (response) => {
+      const data = response.data.result;
+      console.log({ data });
+      setUserDetails(data);
+      console.log(userDetails, "user-details");
+      const { branchCode } = data;
+      if (branchCode) await fetchPendingTransaction(branchCode);
+    });
   };
 
   const fetchPendingTransaction = async (branchCode) => {
+    const url = `http://192.168.207.18:8091/GetPendingTransaction?Auth_BRANCH_CODE=${branchCode}`;
     try {
-      await axios
-        .get(
-          `http://192.168.207.18:8091/GetPendingTransaction?Auth_BRANCH_CODE=${branchCode}`
-        )
-        .then((response) => {
-          console.log(response.data.result, "pending transaction");
-          setTransactions(response.data.result);
-        });
+      await hashedRequest({
+        method: "GET",
+        baseUrl: url,
+      }).then((response) => {
+        console.log(response.data.result, "pending transaction");
+        setTransactions(response.data.result);
+      });
     } catch (error) {
       console.log(error);
     }
@@ -80,20 +83,29 @@ const Table = () => {
 
   const handleAction = async (event, item) => {
     await handleAuthorize(event, item);
-    await handleDebit(event, item);
+    // await handleDebit(event, item);
   };
 
   // function for payment authorization
   const handleAuthorize = async (event, item) => {
-    console.log(item, "iminkwa");
-    const url = `http://192.168.207.18:8091/AuthorisedCashData?AuthorizedBy=${
-      user.name
-    }&DateAuthorized=${date}&TransactionReference=${
-      item?.transactionReference
-    }&_STATUS=${1}`;
-    await axios
-      .post(url)
-      .then((response) => console.log(response, "response from authorizer"));
+    const url = "http://192.168.207.18:8091/AuthorisedCashData";
+    const payload = {
+      AuthorizedBy: user.name,
+      DateAuthorized: item?.date,
+      TransactionReference: item?.transactionReference,
+      STATUS: 1,
+    };
+
+    await hashedRequest({
+      method: "POST",
+      body: payload,
+      baseUrl: url,
+    }).then(
+      (response) => (
+        console.log(response, "response from authorizer"),
+        alert("Authorization Status:" + response.data)
+      )
+    );
   };
 
   // function for debit call
@@ -104,7 +116,7 @@ const Table = () => {
     return result;
   }
   const handleDebit = async (event, item) => {
-    const url = "http://192.168.201.53:9011/api/Account/PostTransaction";
+    const url = "http://192.168.207.18:8085/api/Account/PostTransaction";
     let externalReference = randomString(
       16,
       "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -133,14 +145,22 @@ const Table = () => {
         externalReference: externalReference,
         trnCode: "122",
       };
-      await axios.post(url, payload).then(async (response) => {
+      await hashedRequest({
+        method: "POST",
+        body: payload,
+        baseUrl: url,
+      }).then(async (response) => {
         console.log(response, "response from debit api");
         window.alert(response.data.respMsg);
-        // setBankPaymentReference(response.data.data.referenceNo);
-        // console.log("reference ndi bank", BankPaymentReference);
         handleRequest(event, item, response.data.data.referenceNo);
         saveReference(event, item, response.data.data.referenceNo);
       });
+      // await axios.post(url, payload).then(async (response) => {
+      //   console.log(response, "response from debit api");
+      //   window.alert(response.data.respMsg);
+      //   handleRequest(event, item, response.data.data.referenceNo);
+      //   saveReference(event, item, response.data.data.referenceNo);
+      // });
     } catch (error) {
       console.log(error);
     }
@@ -215,23 +235,37 @@ const Table = () => {
 
   // to save reference numbers in premium database
   const saveReference = async (event, item, bankpaymentreference) => {
-    const url = `http://192.168.207.18:8091/SaveDebitTransRef?TransactionReference=${bankpaymentreference}&EcashReference=${item?.transactionReference}`;
-    await axios
-      .post(url)
-      .then((response) =>
-        console.log(response, "response from savedReference")
-      );
+    const url =
+      "http://192.168.207.18:8091/SaveDebitTransRef?TransactionReference";
+
+    const payload = {
+      TransactionReference: bankpaymentreference,
+      EcashReference: item?.transactionReference,
+    };
+
+    await hashedRequest({
+      method: "POST",
+      body: payload,
+      baseUrl: url,
+    }).then((response) =>
+      console.log(response, "response from savedReference")
+    );
   };
 
   // to move the declined transaction to decline tab
   const handleDecline = async (event, item) => {
-    console.log(item, "iminkwa");
-    const url = `http://192.168.207.18:8091/AuthorisedCashData?AuthorizedBy=${
-      user.name
-    }&DateAuthorized=${date}&TransactionReference=${
-      item?.transactionReference
-    }&_STATUS=${2}`;
-    await axios.post(url).then((response) => {
+    const url = "http://192.168.207.18:8091/AuthorisedCashData";
+    const payload = {
+      AuthorizedBy: user.name,
+      DateAuthorized: item?.date,
+      TransactionReference: item?.transactionReference,
+      STATUS: 2,
+    };
+    await hashedRequest({
+      method: "POST",
+      body: payload,
+      baseUrl: url,
+    }).then((response) => {
       console.log(response, "response from authorizer");
       handleDeclineRequest(event, item);
     });

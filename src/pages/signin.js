@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import Logo from "../assets/ptbLogo.png";
 import ELogo from "../assets/e-cashierLogo.png";
+import { hashedRequest } from "../shared/services/request-script";
 
 const Signin = () => {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const Signin = () => {
   const handleLoginValidation = () => {
     try {
       fetch(
-        "http://192.168.207.8:8080/api/ActiveDirectory/PTBAuthenticateUserOTP",
+        "http://192.168.201.53:8080/api/ActiveDirectory/PTBAuthenticateUserOTP",
         {
           method: "POST",
           body: JSON.stringify(loginDetails),
@@ -49,21 +49,36 @@ const Signin = () => {
   };
 
   // function to check user role and route to specific page
+  const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${userName}`;
   const userRole = async () => {
-    try {
-      const response = await axios.get(
-        `http://192.168.207.18:8091/GetUserDetail?UserID=${userName}`
-      );
-      console.log(response.data.result);
-      if (response.data.result.role === "INITIATOR") {
-        return navigate("/landingpage");
-      }
-      if (response.data.result.role === "AUTHORISER") {
-        return navigate("/authorizer");
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    await hashedRequest({
+      method: "GET",
+      baseUrl: url,
+    })
+      .then((response) => {
+        console.log(response.data.result);
+        if (response.data.result.role === "INITIATOR") {
+          return navigate("/landingpage");
+        }
+        if (response.data.result.role === "AUTHORISER") {
+          return navigate("/authorizer");
+        }
+      })
+      .catch((error) => console.error("Error", error));
+    // try {
+    //   const response = await axios.get(
+    //     `http://192.168.207.18:8091/GetUserDetail?UserID=${userName}`
+    //   );
+    //   console.log(response.data.result);
+    //   if (response.data.result.role === "INITIATOR") {
+    //     return navigate("/landingpage");
+    //   }
+    //   if (response.data.result.role === "AUTHORISER") {
+    //     return navigate("/authorizer");
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
   window.onload = () => {
     const passwordInput = document.getElementById("passwordInput");
