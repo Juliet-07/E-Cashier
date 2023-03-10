@@ -6,6 +6,7 @@ import ELogo from "../assets/e-cashierLogo.png";
 import { hashedRequest } from "../shared/services/request-script";
 
 const Signin = () => {
+  // const { REACT_APP_ROOT_IP } = process.env();
   const navigate = useNavigate();
   const { handleSubmit } = useForm();
   const initialValues = {
@@ -49,7 +50,7 @@ const Signin = () => {
   };
 
   // function to check user role and route to specific page
-  const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${userName}`;
+  const url = `${process.env.REACT_APP_ROOT_IP}/GetUserDetail?UserID=${userName}`;
   const userRole = async () => {
     await hashedRequest({
       method: "GET",

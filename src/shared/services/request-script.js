@@ -3,16 +3,10 @@ import CryptoJS from "crypto-js";
 
 var uuid = require("uuid");
 
-// const { CLIENT_KEY, CLIENT_SECRET } = process.env();
-
 export const hashedRequest = async ({ method, body, baseUrl }) => {
-  console.log(baseUrl);
   try {
-    // var baseUrl = "http://192.168.207.18:8091"
-    var clientKey = "d3895ad6-aa2c-40e3-bd55-68a5bb98fb56";
-    // var clientKey = CLIENT_KEY;
-    var clientSecret = "XMaMUxW5WHBKVYg3G524K4WMKtWnJJA+oqqnEAGhLXA=";
-    // var clientSecret = CLIENT_SECRET;
+    var clientKey = process.env.REACT_APP_CLIENT_KEY;
+    var clientSecret = process.env.REACT_APP_CLIENT_SECRET;
     var nonce = uuid.v4();
     var epoch = Math.floor(new Date().getTime() / 1000);
     // console.log("epochtime:  " + epoch);

@@ -63,7 +63,7 @@ const PayWithAssessment = () => {
     if (user !== null || user !== undefined) {
       setUser(user);
     }
-    const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`;
+    const url = `${process.env.REACT_APP_ROOT_IP}/GetUserDetail?UserID=${user.givenname}`;
     const getUserDetail = async () => {
       await hashedRequest({
         method: "GET",
@@ -143,7 +143,7 @@ const PayWithAssessment = () => {
     return result;
   };
   // sending received data to premium database.
-  const url = "http://192.168.207.18:8091/CreateECashData";
+  const url = `${process.env.REACT_APP_ROOT_IP}http://192.168.207.18:8091/CreateECashData`;
   const createData = async () => {
     payerDetails.branchcode = userDetails.branchCode;
     payerDetails.initialisedBy = userDetails.userName;

@@ -75,7 +75,7 @@ const PayWithoutId = () => {
     if (user !== null || user !== undefined) {
       setUser(user);
     }
-    const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${user.givenname}`;
+    const url = `${process.env.REACT_APP_ROOT_IP}/GetUserDetail?UserID=${user.givenname}`;
     const getUserDetail = async () => {
       await hashedRequest({
         method: "GET",
@@ -161,7 +161,7 @@ const PayWithoutId = () => {
   };
 
   // sending received data to premium database.
-  const url = "http://192.168.207.18:8091/CreateECashData";
+  const url = `${process.env.REACT_APP_ROOT_IP}/CreateECashData`;
   const createData = async () => {
     details.branchcode = userDetails.branchCode;
     details.initialisedBy = userDetails.userName;

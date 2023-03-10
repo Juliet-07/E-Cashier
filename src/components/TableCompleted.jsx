@@ -5,6 +5,7 @@ import { hashedRequest } from "../shared/services/request-script";
 import { BsDownload } from "react-icons/bs";
 
 const Table = () => {
+  const { REACT_APP_ROOT_IP } = process.env();
   const [user, setUser] = useState("");
   const [transactions, setTransactions] = useState([]);
   const [controlNo, setControlNo] = useState("");
@@ -27,7 +28,7 @@ const Table = () => {
   }, []);
 
   const getUserDetail = async (givenname) => {
-    const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`;
+    const url = `${process.env.REACT_APP_ROOT_IP}/GetUserDetail?UserID=${givenname}`;
     await hashedRequest({
       method: "GET",
       baseUrl: url,
@@ -42,7 +43,7 @@ const Table = () => {
   };
 
   const fetchApprovedTransaction = async (branchCode) => {
-    const url = `http://192.168.207.18:8091/GetApprovedTransaction?Auth_BRANCH_CODE=${branchCode}`;
+    const url = `${process.env.REACT_APP_ROOT_IP}/GetApprovedTransaction?Auth_BRANCH_CODE=${branchCode}`;
     try {
       await hashedRequest({
         method: "GET",

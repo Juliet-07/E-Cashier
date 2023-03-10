@@ -23,7 +23,7 @@ const Table = () => {
   }, []);
 
   const getUserDetail = async (givenname) => {
-    const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`;
+    const url = `${process.env.REACT_APP_ROOT_IP}/GetUserDetail?UserID=${givenname}`;
     await hashedRequest({
       method: "GET",
       baseUrl: url,
@@ -38,7 +38,7 @@ const Table = () => {
   };
 
   const fetchRejectedTransaction = async (branchCode) => {
-    const url = `http://192.168.207.18:8091/GetRejectedTransaction?Auth_BRANCH_CODE=${branchCode}`;
+    const url = `${process.env.REACT_APP_ROOT_IP}/GetRejectedTransaction?Auth_BRANCH_CODE=${branchCode}`;
     try {
       await hashedRequest({
         method: "GET",

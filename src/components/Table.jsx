@@ -34,7 +34,7 @@ const Table = () => {
   }, []);
 
   const getUserDetail = async (givenname) => {
-    const url = `http://192.168.207.18:8091/GetUserDetail?UserID=${givenname}`;
+    const url = `${process.env.REACT_APP_ROOT_IP}/GetUserDetail?UserID=${givenname}`;
     await hashedRequest({
       method: "GET",
       baseUrl: url,
@@ -49,7 +49,7 @@ const Table = () => {
   };
 
   const fetchPendingTransaction = async (branchCode) => {
-    const url = `http://192.168.207.18:8091/GetPendingTransaction?Auth_BRANCH_CODE=${branchCode}`;
+    const url = `${process.env.REACT_APP_ROOT_IP}/GetPendingTransaction?Auth_BRANCH_CODE=${branchCode}`;
     try {
       await hashedRequest({
         method: "GET",
@@ -83,7 +83,7 @@ const Table = () => {
 
   const handleAction = async (event, item) => {
     await handleAuthorize(event, item);
-    // await handleDebit(event, item);
+    await handleDebit(event, item);
   };
 
   // function for payment authorization
@@ -116,7 +116,7 @@ const Table = () => {
     return result;
   }
   const handleDebit = async (event, item) => {
-    const url = "http://192.168.207.18:8085/api/Account/PostTransaction";
+    const url = `${process.env.REACT_APP_DEBIT_IP}/api/Account/PostTransaction`;
     let externalReference = randomString(
       16,
       "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -236,7 +236,7 @@ const Table = () => {
   // to save reference numbers in premium database
   const saveReference = async (event, item, bankpaymentreference) => {
     const url =
-      "http://192.168.207.18:8091/SaveDebitTransRef?TransactionReference";
+      `${process.env.REACT_APP_ROOT_IP}/SaveDebitTransRef?TransactionReference`;
 
     const payload = {
       TransactionReference: bankpaymentreference,
@@ -254,7 +254,7 @@ const Table = () => {
 
   // to move the declined transaction to decline tab
   const handleDecline = async (event, item) => {
-    const url = "http://192.168.207.18:8091/AuthorisedCashData";
+    const url = `${process.env.REACT_APP_ROOT_IP}/AuthorisedCashData`;
     const payload = {
       AuthorizedBy: user.name,
       DateAuthorized: item?.date,
