@@ -66,12 +66,22 @@ const PayWithId = () => {
       setUser(user);
     }
     const url = `${process.env.REACT_APP_ROOT_IP}/GetUserDetail?UserID=${user.givenname}`;
+    //   const getUserDetail = async () => {
+    //     await hashedRequest({
+    //       method: "GET",
+    //       baseUrl: url,
+    //     }).then((response) => {
+    //       console.log(response.data.result);
+    //       const data = response.data.result;
+    //       setUserDetails(data);
+    //       console.log(userDetails, "user-details");
+    //     });
+    //   };
+    //   getUserDetail();
+    // }, []);
+
     const getUserDetail = async () => {
-      await hashedRequest({
-        method: "GET",
-        baseUrl: url,
-      }).then((response) => {
-        // console.log(response.data.result);
+      await axios.get(url).then((response) => {
         const data = response.data.result;
         setUserDetails(data);
         console.log(userDetails, "user-details");
@@ -158,22 +168,19 @@ const PayWithId = () => {
     payerDetails.initialisedBy = userDetails.userName;
     payerDetails.officeId = String(getOfficeId().OfficeId);
     console.log(payerDetails);
-    await hashedRequest({
-      method: "POST",
-      body: payerDetails,
-      baseUrl: url,
-    })
+    // await hashedRequest({
+    //   method: "POST",
+    //   body: payerDetails,
+    //   baseUrl: url,
+    // })
+    await axios
+      .post(url, payerDetails)
       .then((response) => {
         console.log("Successful", response.data);
         alert("Transaction Completed");
         navigate("/transactionSuccessful");
       })
       .catch((error) => console.error("Error", error));
-    // axios.post(url, payerDetails).then((response) => {
-    //   console.log(response.data, "response here for creating data");
-    //   alert("Transaction Completed");
-    //   // navigate("/transactionSuccessful");
-    // });
   };
 
   return (

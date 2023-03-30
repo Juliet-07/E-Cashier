@@ -5,7 +5,7 @@ import { hashedRequest } from "../shared/services/request-script";
 import { BsDownload } from "react-icons/bs";
 
 const Table = () => {
-  const { REACT_APP_ROOT_IP } = process.env();
+  // const { REACT_APP_ROOT_IP } = process.env();
   const [user, setUser] = useState("");
   const [transactions, setTransactions] = useState([]);
   const [controlNo, setControlNo] = useState("");
@@ -29,10 +29,7 @@ const Table = () => {
 
   const getUserDetail = async (givenname) => {
     const url = `${process.env.REACT_APP_ROOT_IP}/GetUserDetail?UserID=${givenname}`;
-    await hashedRequest({
-      method: "GET",
-      baseUrl: url,
-    }).then(async (response) => {
+    await axios.get(url).then(async (response) => {
       const data = response.data.result;
       console.log({ data });
       setUserDetails(data);
@@ -128,7 +125,7 @@ const Table = () => {
   const handleRequest = async (event, item) => {
     let result;
     await encryptPayload({
-      MerchantId: getMerchantDetails().MerchantId,
+      MerchantId: 3,
       BranchCode: userDetails.branchCode,
       TransactionReference: item?.transactionReference,
       ControlNo: controlNo,

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import Logo from "../assets/ptbLogo.png";
@@ -52,34 +53,32 @@ const Signin = () => {
   // function to check user role and route to specific page
   const url = `${process.env.REACT_APP_ROOT_IP}/GetUserDetail?UserID=${userName}`;
   const userRole = async () => {
-    await hashedRequest({
-      method: "GET",
-      baseUrl: url,
-    })
-      .then((response) => {
-        console.log(response.data.result);
-        if (response.data.result.role === "INITIATOR") {
-          return navigate("/landingpage");
-        }
-        if (response.data.result.role === "AUTHORISER") {
-          return navigate("/authorizer");
-        }
-      })
-      .catch((error) => console.error("Error", error));
-    // try {
-    //   const response = await axios.get(
-    //     `http://192.168.207.18:8091/GetUserDetail?UserID=${userName}`
-    //   );
-    //   console.log(response.data.result);
-    //   if (response.data.result.role === "INITIATOR") {
-    //     return navigate("/landingpage");
-    //   }
-    //   if (response.data.result.role === "AUTHORISER") {
-    //     return navigate("/authorizer");
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    // await hashedRequest({
+    //   method: "GET",
+    //   baseUrl: url,
+    // })
+    //   .then((response) => {
+    //     console.log(response.data.result);
+    //     if (response.data.result.role === "INITIATOR") {
+    //       return navigate("/landingpage");
+    //     }
+    //     if (response.data.result.role === "AUTHORISER") {
+    //       return navigate("/authorizer");
+    //     }
+    //   })
+    //   .catch((error) => console.error("Error", error));
+    try {
+      const response = await axios.get(url);
+      console.log(response.data.result);
+      if (response.data.result.role === "INITIATOR") {
+        return navigate("/landingpage");
+      }
+      if (response.data.result.role === "AUTHORISER") {
+        return navigate("/authorizer");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   window.onload = () => {
     const passwordInput = document.getElementById("passwordInput");

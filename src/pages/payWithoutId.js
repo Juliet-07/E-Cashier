@@ -77,11 +77,7 @@ const PayWithoutId = () => {
     }
     const url = `${process.env.REACT_APP_ROOT_IP}/GetUserDetail?UserID=${user.givenname}`;
     const getUserDetail = async () => {
-      await hashedRequest({
-        method: "GET",
-        baseUrl: url,
-      }).then((response) => {
-        // console.log(response.data.result);
+      await axios.get(url).then((response) => {
         const data = response.data.result;
         setUserDetails(data);
         console.log(userDetails, "user-details");
@@ -167,12 +163,8 @@ const PayWithoutId = () => {
     details.initialisedBy = userDetails.userName;
     details.officeId = String(getOfficeId().OfficeId);
     console.log(details);
-    await hashedRequest({
-      method: "POST",
-      body: details,
-      baseUrl: url,
-    }).then((response) => {
-      console.log(response.data, "response here for creating data");
+    await axios.post(url, details).then((response) => {
+      console.log("Successful", response.data);
       alert("Transaction Completed");
       navigate("/transactionSuccessful");
     });
