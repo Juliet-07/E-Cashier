@@ -84,10 +84,9 @@ const Table = () => {
   const handleAuthorize = async (event, item) => {
     const url = "http://192.168.207.18:8091/AuthorisedCashData";
     const payload = {
-      AuthorizedBy: user.name,
-      DateAuthorized: item?.date,
+      AuthorisedBy: user.name,
       TransactionReference: item?.transactionReference,
-      STATUS: 1,
+      _STATUS: 1,
     };
     await axios
       .post(url, payload)
@@ -106,6 +105,7 @@ const Table = () => {
       result += chars[Math.floor(Math.random() * chars.length)];
     return result;
   }
+  
   const handleDebit = async (event, item) => {
     const url = `${process.env.REACT_APP_DEBIT_IP}/api/Account/PostTransaction`;
     let externalReference = randomString(
@@ -114,32 +114,27 @@ const Table = () => {
     );
     try {
       const payload = {
-        amount: parseInt(item?.totalAmount),
-        sourceAccount: userDetails.sourceAccount,
-        destinationAccount: userDetails.destinationAccount,
-        applyFee: false,
-        narration: "Deployed test",
-        fees: [
+        Amount: parseInt(item?.totalAmount),
+        SourceAccount: userDetails.sourceAccount,
+        DestinationAccount: userDetails.destinationAccount,
+        ApplyFee: false,
+        Narration: "App test",
+        Fees: [
           {
-            account: userDetails.sourceAccount,
-            amount: 0,
-            narration: "Deployed Trans",
-            trnCode: "122",
-          },
-          {
-            account: userDetails.sourceAccount,
-            amount: 0,
-            narration: "Test Trans",
-            trnCode: "122",
-          },
+            Account: userDetails.sourceAccount,
+            Amount: 0,
+            Narration: "App test",
+            TrnCode: "122",
+          }
         ],
-        externalReference: externalReference,
-        trnCode: "122",
+        ExternalReference: externalReference,
+        TrnCode: "122",
       };
       await axios.post(url, payload).then(async (response) => {
         console.log(response, "response from debit api");
         window.alert(response.data.respMsg);
         handleRequest(event, item, response.data.data.referenceNo);
+        // insert (payload in notification)
         saveReference(event, item, response.data.data.referenceNo);
       });
     } catch (error) {
@@ -234,10 +229,9 @@ const Table = () => {
   const handleDecline = async (event, item) => {
     const url = `${process.env.REACT_APP_ROOT_IP}/AuthorisedCashData`;
     const payload = {
-      AuthorizedBy: user.name,
-      DateAuthorized: item?.date,
+      AuthorisedBy: user.name,
       TransactionReference: item?.transactionReference,
-      STATUS: 2,
+      _STATUS: 2,
     };
     await axios.post(url, payload).then((response) => {
       console.log(response, "response from authorizer");

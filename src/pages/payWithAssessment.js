@@ -291,7 +291,7 @@ const PayWithAssessment = () => {
                               item.Amount = e.target.value;
                               setPayerDetails({ ...payerDetails });
                               const total = payerDetails.item
-                                .map((x) => parseInt(x.Amount))
+                                .map((x) => parseFloat(x.Amount))
                                 .reduce((a, b) => a + b, 0);
                               payerDetails.TotalAmount = `${total}`;
                               setPayerDetails({ ...payerDetails });

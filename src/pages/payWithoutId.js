@@ -370,7 +370,7 @@ const PayWithoutId = () => {
                               data.Amount = e.target.value;
                               setDetails({ ...details });
                               const total = details.item
-                                .map((x) => parseInt(x.Amount))
+                                .map((x) => parseFloat(x.Amount))
                                 .reduce((a, b) => a + b, 0);
                               details.TotalAmount = `${total}`;
                               setDetails({ ...details });

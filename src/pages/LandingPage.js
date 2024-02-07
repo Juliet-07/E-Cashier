@@ -10,9 +10,12 @@ import {
 } from "../shared/services/e-cashier-encryption.service";
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+
   const [inputValue, setValue] = useState("");
   const [selectedValue, setSelectedValue] = useState(null);
-  const navigate = useNavigate();
+  const [merchantOptions, setMerchantOptions] = useState([]);
+  const [user, setUser] = useState("");
 
   const handleInputChange = (value) => {
     setValue(value);
@@ -22,26 +25,31 @@ const LandingPage = () => {
     setSelectedValue(value);
   };
 
-  const [user, setUser] = useState("");
-
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("Username"));
-    if (user !== null || user !== undefined) {
-      setUser(user);
-    }
-  }, []);
+  const getUserDetail = async (givenname) => {
+    const url = `${process.env.REACT_APP_ROOT_IP}/GetUserDetail?UserID=${givenname}`;
+    axios.get(url).then(async (response) => {
+      const data = response.data.result;
+      console.log({ data });
+      let branchCode = data.branchCode;
+      if (branchCode) await handleRequest(branchCode);
+    });
+  };
 
   // function for the entire api flow;{encryption, getData, decryption}
-  const handleRequest = async (inputValue) => {
+  const handleRequest = async (branchCode) => {
     // console.log({ inputValue });
     let result;
-    await encryptPayload({
-      BranchCode: "001",
-    }).then(async (response) => {
-      result = await getAvailableMerchants(response.data);
-      console.log({ result });
-    });
-    return result;
+    if (merchantOptions.length < 1) {
+      await encryptPayload({
+        BranchCode: branchCode,
+      }).then(async (response) => {
+        result = await getAvailableMerchants(response.data);
+        console.log({ result });
+        setMerchantOptions(result)
+        console.log({merchantOptions})
+      });
+    }
+    // return result;
   };
 
   // function to getData for available Merchants
@@ -81,7 +89,23 @@ const LandingPage = () => {
     localStorage.clear();
     navigate("/");
   };
-  
+
+  useEffect(() => {
+    try {
+      const getData = async () => {
+        const user = JSON.parse(localStorage.getItem("Username"));
+        if (user !== null || user !== undefined) {
+          setUser(user);
+          console.log(user, "user");
+          if (user.givenname) await getUserDetail(user.givenname);
+        }
+      };
+      getData();
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
   return (
     <>
       <div className="bg-gradient-to-r from-black to-red-600 w-full h-screen">
@@ -124,11 +148,11 @@ const LandingPage = () => {
           <div className="w-[500px]">
             <AsyncSelect
               cacheOptions
-              defaultOptions
+              defaultOptions={merchantOptions}
               value={selectedValue}
               getOptionLabel={(e) => e.MerchantName}
               getOptionValue={(e) => e.MerchantId}
-              loadOptions={handleRequest}
+              // loadOptions={handleRequest}
               onInputChange={handleInputChange}
               onChange={handleChange}
               placeholder="Select Merchant"
