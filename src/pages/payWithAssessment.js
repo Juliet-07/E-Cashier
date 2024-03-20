@@ -147,8 +147,10 @@ const PayWithAssessment = () => {
     console.log(payerDetails);
     await axios.post(url, payerDetails).then((response) => {
       console.log("Successful", response.data);
-      alert("Transaction Completed");
-      navigate("/transactionSuccessful");
+      if (response.data === true) {
+        alert("Transaction Completed");
+        navigate("/transactionSuccessful");
+      } else alert("Unable to submit");
     });
   };
   return (

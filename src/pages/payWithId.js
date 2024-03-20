@@ -176,9 +176,11 @@ const PayWithId = () => {
     await axios
       .post(url, payerDetails)
       .then((response) => {
-        console.log("Successful", response.data);
-        alert("Transaction Completed");
-        navigate("/transactionSuccessful");
+        console.log("Create Data Response", response.data);
+        if (response.data === true) {
+          alert("Transaction Completed");
+          navigate("/transactionSuccessful");
+        } else alert("Unable to submit");
       })
       .catch((error) => console.error("Error", error));
   };

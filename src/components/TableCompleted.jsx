@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { encryptPayload } from "../shared/services/e-cashier-encryption.service";
+import {
+  encryptPayload,
+  decryptPayload,
+} from "../shared/services/e-cashier-encryption.service";
 import { hashedRequest } from "../shared/services/request-script";
 import { BsDownload } from "react-icons/bs";
 
@@ -155,6 +158,74 @@ const Table = () => {
       .catch((error) => console.log(error));
     return result;
   };
+
+  const handlePaymentRequest = async (event, item, bankpaymentreference) => {
+    let result;
+    console.log("data From row", item);
+    let paidItems = item.item;
+    let PaymentItemsPaid = [];
+    paidItems.forEach((element) => {
+      PaymentItemsPaid.push({
+        PaymentItemCode: element.paymentItemCode,
+        Amount: parseInt(element.amount),
+      });
+      console.log(PaymentItemsPaid, "element");
+    });
+    const payload = {
+      BankBranchCode: userDetails.branchCode,
+      TransactionReference: item?.transactionReference,
+      BankPaymentReference: item?.debiT_REF,
+      TransactionStatusId: 2,
+      PaymentMethodId: 1,
+      PaymentChannelId: 1,
+      IsChequeTransaction: false,
+      IsThirdPartyCheque: false,
+      ChequeIssuingBankCode: "",
+      ChequeNo: "",
+      ChequeDate: "",
+      DebitAccName: "TellerTill or 11110111111",
+      DebitAccNo: "11110111121",
+      DepositorName: "Payer Name",
+      DepositorSlipNo: item?.depositorSlipNo,
+      PostedBy: user.name,
+      TerminalId: "",
+      TaxOfficeId: parseInt(item?.officeid),
+      TotalAmountPaid: parseInt(item?.totalAmount),
+      Narration: "Payment from PremiumTrust Bank",
+      PaymentItemsPaid: PaymentItemsPaid,
+    };
+    console.log(payload, "payload for renotifying");
+    await encryptPayload(payload).then(async (response) => {
+      result = await paymentNotification(response.data);
+      console.log({ result });
+    });
+    return result;
+  };
+
+  const paymentNotification = async (searchParams) => {
+    const url = `https://test.xpresspayments.com:9015/api/ApiGateway/PaymentNotification?request=${searchParams}`;
+    let result;
+    await axios
+      .post(url)
+      .then(async (response) => {
+        console.log(response.data, "response from payment request");
+        result = await handleDecrypt(response.data.data);
+        console.log("decrypted result", result);
+      })
+      .catch((erroror) => console.log(erroror));
+    return result;
+  };
+
+  const handleDecrypt = async (encryptedData) => {
+    let result;
+    await decryptPayload(encryptedData).then((decryptResponse) => {
+      decryptResponse.data = JSON.parse(decryptResponse.data);
+      result = decryptResponse.data;
+      window.alert(result.ResponseMessage);
+      console.log(result);
+    });
+    return result;
+  };
   return (
     <div className="flex flex-col">
       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -249,6 +320,21 @@ const Table = () => {
                             className="text-white bg-red-600 hover:bg-red-700 hover:font-bold font-semibold text-sm text-center w-10 p-2 rounded mx-3"
                           >
                             <BsDownload size={20} />
+                          </button>
+                        </td>
+                        <td>
+                          <button
+                            type="submit"
+                            onClick={(e) =>
+                              handlePaymentRequest(
+                                e,
+                                item
+                                // bankpaymentreference
+                              )
+                            }
+                            className="w-full text-white bg-green-600 hover:bg-green-700 hover:font-bold font-semibold text-sm text-center p-2 rounded"
+                          >
+                            Renotify
                           </button>
                         </td>
                       </tr>
