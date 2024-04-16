@@ -45,17 +45,15 @@ const Table = () => {
   const fetchApprovedTransaction = async (branchCode) => {
     const url = `${process.env.REACT_APP_ROOT_IP}/GetApprovedTransaction?Auth_BRANCH_CODE=${branchCode}`;
     try {
-      await hashedRequest({
-        method: "GET",
-        baseUrl: url,
-      }).then((response) => {
+      await axios.get(url).then((response) => {
         console.log(response.data.result, "Approved transaction");
         setTransactions(response.data.result);
       });
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
+  
 
   const getStatus = (status) => {
     let statusClass;

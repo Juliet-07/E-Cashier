@@ -76,7 +76,7 @@ const Table = () => {
   };
 
   const handleAction = async (event, item) => {
-    // await handleAuthorize(event, item);
+    await handleAuthorize(event, item);
     await handleDebit(event, item);
   };
 
